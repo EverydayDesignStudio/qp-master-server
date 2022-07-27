@@ -1,1 +1,1 @@
-# qp-master-server
+# queuePlayer
