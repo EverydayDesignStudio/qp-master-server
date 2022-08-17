@@ -34,8 +34,6 @@ const port = process.env.PORT || '5000';
    var cr=getColorSequence(queue);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q, "color": cr});
- 
-   console.log(queue);
  })
  
  
@@ -113,8 +111,8 @@ const port = process.env.PORT || '5000';
  
  var queue = []; 
  var colorArr = [];
- var currSeek=0;
- var currID='hihi';
+ var currSeek=150000;
+ var currID='6VBhH7CyP56BXjp8VsDFPZ?si=463f5573cc1447ff';
  var user1Active=false;
  var user2Active=false;
  var user3Active=false;
