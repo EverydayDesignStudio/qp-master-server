@@ -7,8 +7,6 @@
  var bodyParser = require("body-parser");
 
 const port = process.env.PORT || '5000';
-// const port = '8000';
-
  
  //Initialising the express server
  const app = express();
@@ -18,12 +16,10 @@ const port = process.env.PORT || '5000';
  app.use(cors())
     .use(cookieParser());
  
- //Authorization flow for the Spotify API 
  app.get('/', (req, res) => {
    res.send("Queue Server Up!!");
  });
    
- 
  //Get the Track to play as requested by the client
  app.post('/getTrackToPlay', (req, res) => {
    var trackInfos = readDatabase();
@@ -89,12 +85,12 @@ const port = process.env.PORT || '5000';
    res.send({activeUser:[user1Active,user2Active,user3Active,user4Active]})
  })
 
-//  app.post('/updateSeek',(req, res)=>{
-//   currSeek=req.body.seek;
-//   currID=req.body.song;
-//   console.log(currSeek,currID);
-//   res.send("Seek Updated");
-//  })
+ app.post('/updateSeek',(req, res)=>{
+  currSeek=req.body.seek;
+  currID=req.body.song;
+  console.log(currSeek,currID);
+  res.send("Seek Updated");
+ })
 
  app.get('/getSeek',(req, res)=>{
   res.send({seek:currSeek, id:currID});
@@ -112,7 +108,7 @@ const port = process.env.PORT || '5000';
  var queue = []; 
  var colorArr = [];
  var currSeek=60000;
- var currID='6VBhH7CyP56BXjp8VsDFPZ';
+ var currID='';
  var user1Active=false;
  var user2Active=false;
  var user3Active=false;
