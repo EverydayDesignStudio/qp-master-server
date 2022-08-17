@@ -107,7 +107,7 @@ const port = process.env.PORT || '5000';
  
  var queue = []; 
  var colorArr = [];
- var currSeek=60000;
+ var currSeek=0;
  var currID='';
  var user1Active=false;
  var user2Active=false;
