@@ -89,12 +89,12 @@ const port = process.env.PORT || '5000';
    res.send({activeUser:[user1Active,user2Active,user3Active,user4Active]})
  })
 
- app.post('/updateSeek',(req, res)=>{
-  currSeek=req.body.seek;
-  currID=req.body.song;
-  console.log(currSeek,currID);
-  res.send("Seek Updated");
- })
+//  app.post('/updateSeek',(req, res)=>{
+//   currSeek=req.body.seek;
+//   currID=req.body.song;
+//   console.log(currSeek,currID);
+//   res.send("Seek Updated");
+//  })
 
  app.get('/getSeek',(req, res)=>{
   res.send({seek:currSeek, id:currID});
