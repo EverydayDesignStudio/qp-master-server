@@ -112,7 +112,6 @@ const port = process.env.PORT || '5000';
     )
   );
 
-  
  //////////// Server Helper Functions ///////////
  
  var queue = []; 
