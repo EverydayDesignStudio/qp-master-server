@@ -58,6 +58,7 @@ const port = process.env.PORT || '5000';
    user2Added=false;
    user3Added=false;
    user4Added=false;
+   console.log("Here to continue");
    if(queue.isEmpty())
    {
     console.log("Here to jump to next BPM");
