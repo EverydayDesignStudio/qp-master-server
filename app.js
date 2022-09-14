@@ -60,6 +60,7 @@ const port = process.env.PORT || '5000';
    user4Added=false;
    if(queue.isEmpty())
    {
+    console.log("Here to jump to next BPM");
     var trackInfos = readDatabase();
     var bpmData=getDatafromNextBPM(trackInfos, req.body.bpm);
     var songAddition = processDatabase(bpmData, req.body.userID);
