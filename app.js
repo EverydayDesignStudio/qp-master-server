@@ -58,6 +58,13 @@ const port = process.env.PORT || '5000';
    user2Added=false;
    user3Added=false;
    user4Added=false;
+   if(queue.isEmpty())
+   {
+    var trackInfos = readDatabase();
+    var bpmData=getDatafromNextBPM(trackInfos, req.body.bpm);
+    var songAddition = processDatabase(bpmData, req.body.userID);
+    queue=songAddition;
+   }
    var q=queue.shift();
    var cr=getColorSequence(queue);
    res.send({"queue": queue, "song":q, "color": cr});
@@ -141,6 +148,28 @@ const port = process.env.PORT || '5000';
      bpm--;
    }
    return qpBPMData;
+ }
+
+ function getDatafromNextBPM(qpData, bpm)
+ {
+    bpm--;
+    var qpBPMData=new Array();
+    while(qpBPMData.length == 0)
+    {
+      for(let i=0;i<qpData.length;i++)
+      {
+        if(qpData[i].tempo==bpm)
+        {
+          qpBPMData.push(qpData[i]);
+        }
+      }
+      bpm--;
+      if(bpm<=0)
+      {
+        bpm=240;
+      }
+    }
+    return qpBPMData;
  }
  
  
