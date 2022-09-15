@@ -175,6 +175,8 @@ const port = process.env.PORT || '5000';
         bpm=240;
       }
     }
+    
+    currBPM=bpm+1;
     return qpBPMData;
  }
  
