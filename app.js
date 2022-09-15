@@ -59,8 +59,8 @@ const port = process.env.PORT || '5000';
    user3Added=false;
    user4Added=false;
    console.log("Here to continue");
-   console.log(queue);
-   if(queue.isEmpty())
+   console.log(queue.size());
+   if(queue.size()==0)
    {
     console.log("Here to jump to next BPM");
     var trackInfos = readDatabase();
