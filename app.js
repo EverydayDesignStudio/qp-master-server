@@ -60,11 +60,12 @@ const port = process.env.PORT || '5000';
    user4Added=false;
    console.log("Here to continue");
    console.log(queue.length);
+   console.log(currBPM);
    if(queue.length==0)
    {
     console.log("Here to jump to next BPM");
     var trackInfos = readDatabase();
-    var bpmData=getDatafromNextBPM(trackInfos, req.body.bpm);
+    var bpmData=getDatafromNextBPM(trackInfos, currBPM);
     var songAddition = processDatabase(bpmData, req.body.userID);
     console.log(songAddition);
     queue=songAddition;
@@ -116,6 +117,7 @@ const port = process.env.PORT || '5000';
  //////////// Server Helper Functions ///////////
  
  var queue = []; 
+ var currBPM=-1;
  var colorArr = [];
  var currSeek=0;
  var currID='';
@@ -139,6 +141,7 @@ const port = process.env.PORT || '5000';
  {
    //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
    var qpBPMData=new Array();
+   currBPM=bpm;
    while(qpBPMData.length == 0)
    {
      for(let i=0;i<qpData.length;i++)
