@@ -141,7 +141,6 @@ const port = process.env.PORT || '5000';
  {
    //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
    var qpBPMData=new Array();
-   currBPM=bpm;
    while(qpBPMData.length == 0)
    {
      for(let i=0;i<qpData.length;i++)
@@ -153,6 +152,7 @@ const port = process.env.PORT || '5000';
      }
      bpm--;
    }
+   currBPM=bpm+1;
    return qpBPMData;
  }
 
