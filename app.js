@@ -66,6 +66,7 @@ const port = process.env.PORT || '5000';
     var trackInfos = readDatabase();
     var bpmData=getDatafromNextBPM(trackInfos, req.body.bpm);
     var songAddition = processDatabase(bpmData, req.body.userID);
+    console.log(songAddition);
     queue=songAddition;
    }
    var q=queue.shift();
