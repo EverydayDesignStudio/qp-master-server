@@ -53,26 +53,49 @@ const port = process.env.PORT || '5000';
  })
  
  // Get the track from the queue to automatically continue playing
- app.get('/continuePlaying', (req, res)=>{
-   user1Added=false;
-   user2Added=false;
-   user3Added=false;
-   user4Added=false;
-   console.log("Here to continue");
-   console.log(queue.length);
-   console.log(currBPM);
-   if(queue.length==0)
-   {
+ app.post('/continuePlaying', (req, res)=>{
+  user1Added=false;
+  user2Added=false;
+  user3Added=false;
+  user4Added=false;
+
+  if(!timeoutRunning)
+  {
+    timeoutRunning=true;
+    timeoutInterval=setInterval(userSongEnded, 1000);
+  }
+
+  if(req.body.user_id == 1)
+  {
+    user1Ended=true;
+  }
+  else if(req.body.user_id == 2)
+  {
+    user2Ended=true;
+  }
+  else if(req.body.user_id == 3)
+  {
+    user3Ended=true;
+  }
+  else if(req.body.user_id == 4)
+  {
+    user4Ended=true;
+  }
+
+
+  if(queue.length==0)
+  {
     console.log("Here to jump to next BPM");
     var trackInfos = readDatabase();
     var bpmData=getDatafromNextBPM(trackInfos, currBPM);
     var songAddition = processDatabase(bpmData, req.body.userID);
     console.log(songAddition);
     queue=songAddition;
-   }
-   var q=queue.shift();
-   var cr=getColorSequence(queue);
-   res.send({"queue": queue, "song":q, "color": cr});
+  }
+  var q=queue.shift();
+  var cr=getColorSequence(queue);
+  res.send({"queue": queue, "song":q, "color": cr});
+
  })
   
  app.post('/makeActive',(req, res)=>{
@@ -129,6 +152,14 @@ const port = process.env.PORT || '5000';
  var user2Added=false;
  var user3Added=false;
  var user4Added=false;
+ var user1Ended=false;
+ var user2Ended=false;
+ var user3Ended=false;
+ var user4Ended=false;
+
+ var timeoutRunning=false;
+ const timeoutInterval=0;
+ var timer=0;
  
  // Reading the JSON file data
  function readDatabase()
@@ -200,6 +231,13 @@ const port = process.env.PORT || '5000';
    var temp=qpData.splice(0,l);
    qpData=qpData.concat(temp);
    return qpData;
+ }
+
+ function userSongEnded() 
+ {
+  
+  timer++;
+
  }
  
  function userControl(userPressed)
