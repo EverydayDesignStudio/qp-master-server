@@ -59,30 +59,45 @@ const port = process.env.PORT || '5000';
   user3Added=false;
   user4Added=false;
 
-  if(!timeoutRunning)
+  if(req.body.user_id == 1 && user1Active || req.body.user_id != 1 && !user1Active)
   {
-    timeoutRunning=true;
-    timeoutInterval=setInterval(userSongEnded, 1000);
+    user1Refresh=true;
+  }
+  else if(req.body.user_id == 2 && user2Active || req.body.user_id != 2 && !user2Active)
+  {
+    user2Refresh=true;
+  }
+  else if(req.body.user_id == 3 && user3Active || req.body.user_id != 3 && !user3Active)
+  {
+    user3Refresh=true;
+  }
+  else if(req.body.user_id == 4 && user4Active || req.body.user_id != 4 && !user4Active)
+  {
+    user4Refresh=true;
   }
 
-  if(req.body.user_id == 1)
+  if(user1Refresh && user2Refresh && user3Refresh && user4Refresh)
   {
-    user1Ended=true;
+    if(queue.length==0)
+    {
+      console.log("Here to jump to next BPM");
+      var trackInfos = readDatabase();
+      var bpmData=getDatafromNextBPM(trackInfos, currBPM);
+      var songAddition = processDatabase(bpmData, req.body.userID);
+      console.log(songAddition);
+      queue=songAddition;
+    }
+    var q=queue.shift();
+    var cr=getColorSequence(queue);
+    res.send({"queue": queue, "song":q, "color": cr});
   }
-  else if(req.body.user_id == 2)
+  else
   {
-    user2Ended=true;
+    res.send({"queue":[], "song":"Timout Running", "color":cr});
   }
-  else if(req.body.user_id == 3)
-  {
-    user3Ended=true;
-  }
-  else if(req.body.user_id == 4)
-  {
-    user4Ended=true;
-  }
+ })
 
-
+ app.get('/continuePlayingImmediate', (req, res)=>{
   if(queue.length==0)
   {
     console.log("Here to jump to next BPM");
@@ -95,7 +110,6 @@ const port = process.env.PORT || '5000';
   var q=queue.shift();
   var cr=getColorSequence(queue);
   res.send({"queue": queue, "song":q, "color": cr});
-
  })
   
  app.post('/makeActive',(req, res)=>{
@@ -156,6 +170,11 @@ const port = process.env.PORT || '5000';
  var user2Ended=false;
  var user3Ended=false;
  var user4Ended=false;
+ var user1Refresh=false;
+ var user2Refresh=false;
+ var user3Refresh=false;
+ var user4Refresh=false;
+
 
  var timeoutRunning=false;
  const timeoutInterval=0;
@@ -231,13 +250,6 @@ const port = process.env.PORT || '5000';
    var temp=qpData.splice(0,l);
    qpData=qpData.concat(temp);
    return qpData;
- }
-
- function userSongEnded() 
- {
-  
-  timer++;
-
  }
  
  function userControl(userPressed)
