@@ -78,6 +78,7 @@ const port = process.env.PORT || '5000';
 
   if(user1Refresh && user2Refresh && user3Refresh && user4Refresh)
   {
+    console.log("All Clients Finished");
     if(queue.length==0)
     {
       console.log("Here to jump to next BPM");
