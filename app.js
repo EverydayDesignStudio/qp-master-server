@@ -63,15 +63,15 @@ const port = process.env.PORT || '5000';
   {
     user1Refresh=true;
   }
-  else if(req.body.user_id == 2 && user2Active || req.body.user_id != 2 && !user2Active)
+  if(req.body.user_id == 2 && user2Active || req.body.user_id != 2 && !user2Active)
   {
     user2Refresh=true;
   }
-  else if(req.body.user_id == 3 && user3Active || req.body.user_id != 3 && !user3Active)
+  if(req.body.user_id == 3 && user3Active || req.body.user_id != 3 && !user3Active)
   {
     user3Refresh=true;
   }
-  else if(req.body.user_id == 4 && user4Active || req.body.user_id != 4 && !user4Active)
+  if(req.body.user_id == 4 && user4Active || req.body.user_id != 4 && !user4Active)
   {
     user4Refresh=true;
   }
