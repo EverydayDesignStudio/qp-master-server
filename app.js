@@ -94,7 +94,7 @@ const port = process.env.PORT || '5000';
   }
   else
   {
-    res.send({"queue":[], "song":"Timout Running", "color":cr});
+    res.send({"queue":[], "song":"Timeout Running", "color":cr});
   }
  })
 
