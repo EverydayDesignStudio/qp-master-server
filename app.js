@@ -296,7 +296,7 @@ const port = process.env.PORT || '5000';
  
  function getColorSequence(que)
  {
-   colorArr = [];
+   colorArr = {};
    let i=0;
    while(i<que.length && i<4)
    {
@@ -322,7 +322,8 @@ const port = process.env.PORT || '5000';
        }
        j++;
      }
-     colorArr.push(temp);
+
+     colorArr[i]={"color":temp.toString(), "rotate": true, "bpm":que[i].tempo}
      i++;
    }
    return colorArr;
