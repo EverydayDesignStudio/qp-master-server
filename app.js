@@ -148,11 +148,11 @@ const port = process.env.PORT || '5000';
   res.send({seek:currSeek, id:currID});
  })
  
-app.listen(port, () =>
-    console.log(
-      'HTTP Server up. Now go to http://localhost:${port} in your browser.'
-    )
-  );
+// app.listen(port, () =>
+//     console.log(
+//       'HTTP Server up. Now go to http://localhost:${port} in your browser.'
+//     )
+//   );
 
   const server = http.createServer(app);
 
