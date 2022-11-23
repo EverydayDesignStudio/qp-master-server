@@ -183,14 +183,15 @@ const port = process.env.PORT || '5000';
     // });
 
     //send immediatly a feedback to the incoming connection    
-    ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
+    // ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
+    ws.send('Connection Established');
 });
 
 setInterval(() => {
   wss.clients.forEach((ws) => {
     ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
   });
-}, 1000);
+}, 2000);
 
 
 //start our server
