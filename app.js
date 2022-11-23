@@ -18,36 +18,6 @@ const port = process.env.PORT || '5000';
  app.use(cors())
     .use(cookieParser());
 
-  const server = http.createServer(app);
-  const wss = new WebSocket.Server({ server });
-
-  wss.on('message', (message) => {
-
-    //log the received message and send it back to the client
-    console.log('received: %s', message);
-
-    const broadcastRegex = /^broadcast\:/;
-
-    if (broadcastRegex.test(message)) {
-        message = message.replace(broadcastRegex, '');
-
-        //send back the message to the other clients
-        wss.clients
-            .forEach(client => {
-                if (client != ws) {
-                    client.send(`Hello, broadcast message -> ${message}`);
-                }    
-            });
-        
-    } else {
-        ws.send(`Hello, you sent -> ${message}`);
-    }
-});
-
-server.listen(port, () => {
-  console.log(`Server started on port ${server.address().port} :)`);
-});
- 
  app.get('/', (req, res) => {
    res.send("Queue Server Up!!");
  });
@@ -178,11 +148,36 @@ server.listen(port, () => {
   res.send({seek:currSeek, id:currID});
  })
  
- app.listen(port, () =>
+ var server=app.listen(port, () =>
     console.log(
       'HTTP Server up. Now go to http://localhost:${port} in your browser.'
     )
   );
+
+  const wss = new WebSocket.Server({ server });
+
+  wss.on('message', (message) => {
+
+    //log the received message and send it back to the client
+    console.log('received: %s', message);
+
+    const broadcastRegex = /^broadcast\:/;
+
+    if (broadcastRegex.test(message)) {
+        message = message.replace(broadcastRegex, '');
+
+        //send back the message to the other clients
+        wss.clients
+            .forEach(client => {
+                if (client != ws) {
+                    client.send(`Hello, broadcast message -> ${message}`);
+                }    
+            });
+        
+    } else {
+        ws.send(`Hello, you sent -> ${message}`);
+    }
+});
 
  //////////// Server Helper Functions ///////////
  
