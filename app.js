@@ -158,34 +158,33 @@ const port = process.env.PORT || '5000';
 
   const wss = new WebSocket.Server({ server });
 
-  wss.on('connection', (ws) => {
-    // ws.on('message', (message) => {
+//   wss.on('connection', (ws) => {
+//     // ws.on('message', (message) => {
 
-    //   //log the received message and send it back to the client
-    //   console.log('received: %s', message);
+//     //   //log the received message and send it back to the client
+//     //   console.log('received: %s', message);
 
-    //   const broadcastRegex = /^broadcast\:/;
+//     //   const broadcastRegex = /^broadcast\:/;
 
-    //   if (broadcastRegex.test(message)) {
-    //       message = message.replace(broadcastRegex, '');
+//     //   if (broadcastRegex.test(message)) {
+//     //       message = message.replace(broadcastRegex, '');
 
-    //       //send back the message to the other clients
-    //       wss.clients
-    //           .forEach(client => {
-    //               if (client != ws) {
-    //                   client.send(`Hello, broadcast message -> ${message}`);
-    //               }    
-    //           });
+//     //       //send back the message to the other clients
+//     //       wss.clients
+//     //           .forEach(client => {
+//     //               if (client != ws) {
+//     //                   client.send(`Hello, broadcast message -> ${message}`);
+//     //               }    
+//     //           });
           
-    //   } else {
-    //       ws.send(`Hello, you sent -> ${message}`);
-    //   }
-    // });
+//     //   } else {
+//     //       ws.send(`Hello, you sent -> ${message}`);
+//     //   }
+//     // });
 
-    //send immediatly a feedback to the incoming connection    
-    // ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
-    ws.send('Connection Established');
-});
+//     //send immediatly a feedback to the incoming connection    
+//     // ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
+// });
 
 setInterval(() => {
   wss.clients.forEach((ws) => {
