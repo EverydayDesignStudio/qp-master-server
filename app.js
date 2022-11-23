@@ -190,7 +190,7 @@ const port = process.env.PORT || '5000';
     // });
 
     //send immediatly a feedback to the incoming connection    
-    ws.send('Hi there, I am a WebSocket server');
+    ws.send({userActiveState: [user1Active,user2Active,user3Active,user4Active]});
 });
 
 setInterval(() => {
