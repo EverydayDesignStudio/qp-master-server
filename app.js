@@ -186,6 +186,12 @@ const port = process.env.PORT || '5000';
     ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
 });
 
+setInterval(() => {
+  wss.clients.forEach((ws) => {
+    ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
+  });
+}, 1000);
+
 
 //start our server
 server.listen(port, () => {
