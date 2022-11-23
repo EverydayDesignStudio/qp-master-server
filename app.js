@@ -185,9 +185,9 @@ const port = process.env.PORT || '5000';
     //send immediatly a feedback to the incoming connection    
     ws.send(JSON.stringify(
       {'colors':{
-        'r':Math.floor(Math.random(0,255)),
-        'g':Math.floor(Math.random(0,255)),
-        'b':Math.floor(Math.random(0,255)),
+        'r':Math.floor(Math.random()*255),
+        'g':Math.floor(Math.random()*255),
+        'b':Math.floor(Math.random()*255),
         'w':0
       }}
     ));
@@ -198,9 +198,9 @@ setInterval(() => {
     ws.send(
       JSON.stringify(
         {'colors':{
-          'r':Math.floor(Math.random(0,255)),
-          'g':Math.floor(Math.random(0,255)),
-          'b':Math.floor(Math.random(0,255)),
+          'r':Math.floor(Math.random()*255),
+          'g':Math.floor(Math.random()*255),
+          'b':Math.floor(Math.random()*255),
           'w':0
         }}
       )
