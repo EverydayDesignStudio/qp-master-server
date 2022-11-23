@@ -148,16 +148,33 @@ const port = process.env.PORT || '5000';
   res.send({seek:currSeek, id:currID});
  })
  
- var server=app.listen(port, () =>
+app.listen(port, () =>
     console.log(
       'HTTP Server up. Now go to http://localhost:${port} in your browser.'
     )
   );
 
+  const server = http.createServer(app);
+
   const wss = new WebSocket.Server({ server });
 
-  wss.on('message', (ws) => {
+  wss.on('connection', (ws) => {
+
+    // //connection is up, let's add a simple simple event
+    // ws.on('message', (message) => {
+
+    //     //log the received message and send it back to the client
+    //     console.log('received: %s', message);
+    //     ws.send(`Hello, you sent -> ${message}`);
+    // });
+
+    //send immediatly a feedback to the incoming connection    
     ws.send('Hi there, I am a WebSocket server');
+});
+
+//start our server
+server.listen(port, () => {
+    console.log(`Server started on port ${server.address().port} :)`);
 });
 
  //////////// Server Helper Functions ///////////
