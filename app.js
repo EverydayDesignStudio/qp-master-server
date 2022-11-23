@@ -159,13 +159,6 @@ const port = process.env.PORT || '5000';
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', (ws) => {
-
-    ws.isAlive = true;
-
-    ws.on('pong', () => {
-        ws.isAlive = true;
-    });
-
     // ws.on('message', (message) => {
 
     //   //log the received message and send it back to the client
@@ -193,15 +186,6 @@ const port = process.env.PORT || '5000';
     ws.send({'userActiveState' : [user1Active,user2Active,user3Active,user4Active]});
 });
 
-setInterval(() => {
-  wss.clients.forEach((ws) => {
-      
-      if (!ws.isAlive) return ws.terminate();
-      
-      ws.isAlive = false;
-      ws.ping(null, false, true);
-  });
-}, 10000);
 
 //start our server
 server.listen(port, () => {
