@@ -183,12 +183,28 @@ const port = process.env.PORT || '5000';
     // });
 
     //send immediatly a feedback to the incoming connection    
-    ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
+    ws.send(JSON.stringify(
+      {'colors':{
+        'r':Math.floor(Math.random(0,255)),
+        'g':Math.floor(Math.random(0,255)),
+        'b':Math.floor(Math.random(0,255)),
+        'w':0
+      }}
+    ));
 });
 
 setInterval(() => {
   wss.clients.forEach((ws) => {
-    ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
+    ws.send(
+      JSON.stringify(
+        {'colors':{
+          'r':Math.floor(Math.random(0,255)),
+          'g':Math.floor(Math.random(0,255)),
+          'b':Math.floor(Math.random(0,255)),
+          'w':0
+        }}
+      )
+    );
   });
 }, 2000);
 
