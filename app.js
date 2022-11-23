@@ -5,6 +5,8 @@
  var cookieParser = require('cookie-parser');
  var fs= require('fs');
  var bodyParser = require("body-parser");
+ var http=require('http');
+ var WebSocket = require('ws');
 
 const port = process.env.PORT || '5000';
  
@@ -15,6 +17,36 @@ const port = process.env.PORT || '5000';
  
  app.use(cors())
     .use(cookieParser());
+
+  const server = http.createServer(app);
+  const wss = new WebSocket.Server({ server });
+
+  wss.on('message', (message) => {
+
+    //log the received message and send it back to the client
+    console.log('received: %s', message);
+
+    const broadcastRegex = /^broadcast\:/;
+
+    if (broadcastRegex.test(message)) {
+        message = message.replace(broadcastRegex, '');
+
+        //send back the message to the other clients
+        wss.clients
+            .forEach(client => {
+                if (client != ws) {
+                    client.send(`Hello, broadcast message -> ${message}`);
+                }    
+            });
+        
+    } else {
+        ws.send(`Hello, you sent -> ${message}`);
+    }
+});
+
+server.listen(port, () => {
+  console.log(`Server started on port ${server.address().port} :)`);
+});
  
  app.get('/', (req, res) => {
    res.send("Queue Server Up!!");
