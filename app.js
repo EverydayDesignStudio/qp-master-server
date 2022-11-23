@@ -183,7 +183,7 @@ const port = process.env.PORT || '5000';
     // });
 
     //send immediatly a feedback to the incoming connection    
-    ws.send('{"userActiveState" : [user1Active,user2Active,user3Active,user4Active]}');
+    ws.send(JSON.stringify({'userStates':[user1Active,user2Active,user3Active,user4Active]}));
 });
 
 
