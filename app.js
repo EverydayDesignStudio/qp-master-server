@@ -30,6 +30,7 @@ const port = process.env.PORT || '5000';
    queue=songAddition;
    var q=queue.shift();
    var cr=getColorSequence(queue);
+   queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q, "color": cr});
  })
@@ -45,6 +46,7 @@ const port = process.env.PORT || '5000';
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
      var cr=getColorSequence(queue);
+     queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM)
      // userControl(req.body.userID);
      res.send({"queue": queue, "color": cr});
    }
@@ -92,6 +94,7 @@ const port = process.env.PORT || '5000';
     }
     var q=queue.shift();
     var cr=getColorSequence(queue);
+    queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM)
     res.send({"queue": queue, "song":q, "color": cr});
   }
   else
@@ -112,6 +115,7 @@ const port = process.env.PORT || '5000';
   }
   var q=queue.shift();
   var cr=getColorSequence(queue);
+  queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM)
   res.send({"queue": queue, "song":q, "color": cr});
  })
   
@@ -193,20 +197,20 @@ const port = process.env.PORT || '5000';
     ));
 });
 
-setInterval(() => {
-  wss.clients.forEach((ws) => {
-    ws.send(
-      JSON.stringify(
-        {'colors':{
-          'r':Math.floor(Math.random()*255),
-          'g':Math.floor(Math.random()*255),
-          'b':Math.floor(Math.random()*255),
-          'w':0
-        }}
-      )
-    );
-  });
-}, 2000);
+// setInterval(() => {
+//   wss.clients.forEach((ws) => {
+//     ws.send(
+//       JSON.stringify(
+//         {'colors':{
+//           'r':Math.floor(Math.random()*255),
+//           'g':Math.floor(Math.random()*255),
+//           'b':Math.floor(Math.random()*255),
+//           'w':0
+//         }}
+//       )
+//     );
+//   });
+// }, 2000);
 
 
 //start our server
@@ -237,6 +241,7 @@ server.listen(port, () => {
  var user2Refresh=false;
  var user3Refresh=false;
  var user4Refresh=false;
+ var ActiveUsers = [user1Active,user2Active,user3Active,user4Active];
 
 
  var timeoutRunning=false;
@@ -390,6 +395,85 @@ server.listen(port, () => {
    }
    return colorArr;
  }
+
+ function getRGBColors(qElement)
+ {
+    colorArr={};
+    let i=0;
+    let n=1;
+    while(i<qElement.user_id.length)
+    {
+      if(qElement.user_id[i]==1)
+      {
+        colorArr[n]={"r":255, "g":0,"b":0,"w":0};
+        n++;
+      }
+      else if(qElement.user_id[i]==2)
+      {
+        colorArr[n]={"r":0, "g":0,"b":255,"w":0};
+        n++;
+      }
+      else if(qElement.user_id[i]==3)
+      {
+        colorArr[n]={"r":255, "g":0,"b":0,"w":0};
+        n++;
+      }
+      else if(qElement.user_id[i]==4)
+      {
+        colorArr[n]={"r":255, "g":0,"b":0,"w":0};
+        n++;
+      }
+      i++;
+    }
+
+    return colorArr;
+ }
  
  
- 
+ function queueUpdateBroadcast(queue,song,ActiveUsers,seek,bpm)
+ {
+    wss.clients.forEach((ws) => {
+          ws.send(
+            JSON.stringify(
+              { 
+                "songdata":{
+                  "songID":song,
+                  "timestamp":seek,
+                  "bpm":bpm
+                },
+                "activeUsers":ActiveUsers,
+                "lights":{
+                  "ring1":{
+                    "rotate": true,
+                    "bpm": currBPM,
+                    "colors":getRGBColors(queue[0])
+                    },
+                    "ring2":{
+                      "rotate": true,
+                      "bpm": queue[1].tempo,
+                      "colors":getRGBColors(queue[1])
+                    },
+                    "ring3":{
+                      "rotate": true,
+                      "bpm": queue[2].tempo,
+                      "colors":getRGBColors(queue[2])
+                    },
+                    "ring4":{
+                      "rotate": true,
+                      "bpm": queue[3].tempo,
+                      "colors":getRGBColors(queue[3])
+                    },
+                  }
+                }
+
+
+      //         {'colors':{
+      //           'r':Math.floor(Math.random()*255),
+      //           'g':Math.floor(Math.random()*255),
+      //           'b':Math.floor(Math.random()*255),
+      //           'w':0
+      //         }}
+            )
+          );
+      });
+ }
