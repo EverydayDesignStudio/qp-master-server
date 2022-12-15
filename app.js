@@ -437,7 +437,7 @@ server.listen(port, () => {
             JSON.stringify(
               { 
                 "songdata":{
-                  "songID":song,
+                  "songID":song.track_id,
                   "timestamp":seek,
                   "bpm":bpm
                 },
