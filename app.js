@@ -431,6 +431,8 @@ server.listen(port, () => {
  
  function queueUpdateBroadcast(song,seek,bpm)
  {
+  console.log(queue);
+  console.log(song);
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
