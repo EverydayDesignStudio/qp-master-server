@@ -29,7 +29,6 @@ const port = process.env.PORT || '5000';
    var songAddition = processDatabase(bpmData, req.body.userID);
    queue=songAddition;
    var q=queue.shift();
-  //  var cr=getColorSequence(queue);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q});
    queueUpdateBroadcast(queue,q,currSeek,currBPM);
@@ -46,7 +45,7 @@ const port = process.env.PORT || '5000';
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
      // userControl(req.body.userID);
-     res.send({"queue": queue, "color": cr});
+     res.send({"queue": queue});
      queueUpdateBroadcast(queue,q,currSeek, currBPM)
   //  }
   //  else
@@ -358,42 +357,6 @@ server.listen(port, () => {
    }
  }
  
- 
- function getColorSequence(que)
- {
-   colorArr = {};
-   let i=0;
-   while(i<que.length && i<4)
-   {
-     var temp=[];
-     let j=0;
-     while(j<que[i].user_id.length)
-     {
-       if(que[i].user_id[j]==1)
-       {
-         temp.push('#FF0000');
-       }
-       else if(que[i].user_id[j]==2)
-       {
-         temp.push('#0000FF');
-       }
-       else if(que[i].user_id[j]==3)
-       {
-         temp.push('#00FF00');
-       }
-       else if(que[i].user_id[j]==4)
-       {
-         temp.push('#FFFF00');
-       }
-       j++;
-     }
-
-     colorArr[i]={"color":temp.toString(), "rotate": true, "bpm":que[i].tempo}
-     i++;
-   }
-   return colorArr;
- }
-
  function getRGBColors(qElement)
  {
     colorArr={};
