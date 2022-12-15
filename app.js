@@ -32,7 +32,7 @@ const port = process.env.PORT || '5000';
   //  var cr=getColorSequence(queue);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q});
-   queueUpdateBroadcast(q,currSeek,currBPM);
+   queueUpdateBroadcast(queue,q,currSeek,currBPM);
  })
  
  
@@ -429,10 +429,8 @@ server.listen(port, () => {
  }
  
  
- function queueUpdateBroadcast(song,seek,bpm)
+ function queueUpdateBroadcast(queue,song,seek,bpm)
  {
-  console.log(queue);
-  console.log(song);
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
