@@ -241,7 +241,6 @@ server.listen(port, () => {
  var user2Refresh=false;
  var user3Refresh=false;
  var user4Refresh=false;
- var ActiveUsers = [user1Active,user2Active,user3Active,user4Active];
 
 
  var timeoutRunning=false;
@@ -441,7 +440,7 @@ server.listen(port, () => {
                   "timestamp":seek,
                   "bpm":bpm
                 },
-                "activeUsers":ActiveUsers,
+                "activeUsers":[user1Active,user2Active,user3Active,user4Active],
                 "lights":{
                   "ring1":{
                     "rotate": true,
