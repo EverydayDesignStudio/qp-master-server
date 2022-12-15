@@ -30,6 +30,8 @@ const port = process.env.PORT || '5000';
    queue=songAddition;
    var qtemp=queue;
    var q=qtemp.shift();
+   console.log(qtemp);
+   console.log(queue);
   //  var cr=getColorSequence(queue);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q});
