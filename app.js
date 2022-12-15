@@ -29,9 +29,8 @@ const port = process.env.PORT || '5000';
    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
    var songAddition = processDatabase(bpmData, req.body.userID);
    queue=songAddition;
-   console.log("QUEUE: ", queue)
-   var qu=queueUpdateBroadcast(queue,q,currSeek,currBPM);
    var q=queue.shift();
+   queueUpdateBroadcast(queue,q,currSeek,currBPM);
   //  var cr=getColorSequence(queue);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q, "color": cr});
@@ -433,7 +432,6 @@ server.listen(port, () => {
  
  function queueUpdateBroadcast(queue,song,seek,bpm)
  {
-    console.log(queue)
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
@@ -467,14 +465,6 @@ server.listen(port, () => {
                     },
                   }
                 }
-
-
-      //         {'colors':{
-      //           'r':Math.floor(Math.random()*255),
-      //           'g':Math.floor(Math.random()*255),
-      //           'b':Math.floor(Math.random()*255),
-      //           'w':0
-      //         }}
             )
           );
       });
