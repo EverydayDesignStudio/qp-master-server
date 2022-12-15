@@ -30,7 +30,7 @@ const port = process.env.PORT || '5000';
    queue=songAddition;
    var q=queue.shift();
    var cr=getColorSequence(queue);
-   queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM);
+   queueUpdateBroadcast(queue,q,currSeek, currBPM);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q, "color": cr});
  })
@@ -46,7 +46,7 @@ const port = process.env.PORT || '5000';
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
      var cr=getColorSequence(queue);
-     queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM)
+     queueUpdateBroadcast(queue,q,currSeek, currBPM)
      // userControl(req.body.userID);
      res.send({"queue": queue, "color": cr});
    }
@@ -94,7 +94,7 @@ const port = process.env.PORT || '5000';
     }
     var q=queue.shift();
     var cr=getColorSequence(queue);
-    queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM)
+    queueUpdateBroadcast(queue,q,currSeek, currBPM)
     res.send({"queue": queue, "song":q, "color": cr});
   }
   else
@@ -115,7 +115,7 @@ const port = process.env.PORT || '5000';
   }
   var q=queue.shift();
   var cr=getColorSequence(queue);
-  queueUpdateBroadcast(queue,q,ActiveUsers,currSeek, currBPM)
+  queueUpdateBroadcast(queue,q,currSeek, currBPM)
   res.send({"queue": queue, "song":q, "color": cr});
  })
   
@@ -429,7 +429,7 @@ server.listen(port, () => {
  }
  
  
- function queueUpdateBroadcast(queue,song,ActiveUsers,seek,bpm)
+ function queueUpdateBroadcast(queue,song,seek,bpm)
  {
     wss.clients.forEach((ws) => {
           ws.send(
