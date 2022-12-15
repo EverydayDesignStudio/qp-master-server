@@ -24,10 +24,12 @@ const port = process.env.PORT || '5000';
    
  //Get the Track to play as requested by the client
  app.post('/getTrackToPlay', (req, res) => {
+   console.log("BPM:", req.body.bpm)
    var trackInfos = readDatabase();
    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
    var songAddition = processDatabase(bpmData, req.body.userID);
    queue=songAddition;
+   console.log("QUEUE: ", queue)
    var q=queue.shift();
    var cr=getColorSequence(queue);
    queueUpdateBroadcast(queue,q,currSeek, currBPM);
