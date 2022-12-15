@@ -28,12 +28,10 @@ const port = process.env.PORT || '5000';
    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
    var songAddition = processDatabase(bpmData, req.body.userID);
    queue=songAddition;
-   var qtemp=queue;
-   console.log(queue);
-  //  var q=qtemp.shift();
+   var q=queue.shift();
   //  var cr=getColorSequence(queue);
    // userControl(req.body.userID);
-   res.send({"queue": queue, "song":queue[0]});
+   res.send({"queue": queue, "song":q});
    queueUpdateBroadcast(q,currSeek,currBPM);
  })
  
