@@ -409,17 +409,17 @@ server.listen(port, () => {
       }
       else if(qElement.user_id[i]==2)
       {
-        colorArr[n]={"r":0, "g":0,"b":255,"w":0};
+        colorArr[n]={"r":0, "g":255,"b":0,"w":0};
         n++;
       }
       else if(qElement.user_id[i]==3)
       {
-        colorArr[n]={"r":255, "g":0,"b":0,"w":0};
+        colorArr[n]={"r":0, "g":0,"b":255,"w":0};
         n++;
       }
       else if(qElement.user_id[i]==4)
       {
-        colorArr[n]={"r":255, "g":0,"b":0,"w":0};
+        colorArr[n]={"r":255, "g":255,"b":0,"w":0};
         n++;
       }
       i++;
