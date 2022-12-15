@@ -32,7 +32,7 @@ const port = process.env.PORT || '5000';
    console.log("QUEUE: ", queue)
    var q=queue.shift();
    var cr=getColorSequence(queue);
-   queueUpdateBroadcast(queue,q,currSeek, currBPM);
+  //  queueUpdateBroadcast(queue,q,currSeek, currBPM);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":q, "color": cr});
  })
