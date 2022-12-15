@@ -38,22 +38,21 @@ const port = process.env.PORT || '5000';
  
  // Get the track into the queue 
  app.post('/getTrackToQueue',(req, res)=>{
-   if(!userCheck(req.body.userID))
-   {
+  //  if(!userCheck(req.body.userID))
+  //  {
      var trackInfos = readDatabase();
      var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
      var songAddition = processDatabase(bpmData, req.body.userID);
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
-     var cr=getColorSequence(queue);
-     queueUpdateBroadcast(queue,q,currSeek, currBPM)
      // userControl(req.body.userID);
      res.send({"queue": queue, "color": cr});
-   }
-   else
-   {
-     res.send({"queue":queue, color:cr});
-   }
+     queueUpdateBroadcast(queue,q,currSeek, currBPM)
+  //  }
+  //  else
+  //  {
+  //    res.send({"queue":queue, color:cr});
+  //  }
  })
  
  // Get the track from the queue to automatically continue playing
