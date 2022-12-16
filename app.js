@@ -46,7 +46,7 @@ const port = process.env.PORT || '5000';
      queue=queue.concat(songAddition);
      // userControl(req.body.userID);
      res.send({"queue": queue});
-     queueUpdateBroadcast(queue,q,currSeek, currBPM)
+     queueUpdateBroadcast(queue,currID,currSeek, currBPM)
   //  }
   //  else
   //  {
