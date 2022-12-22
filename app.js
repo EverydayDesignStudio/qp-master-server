@@ -365,7 +365,7 @@ server.listen(port, () => {
     var jsonContent = JSON.stringify(jsonObj);
     console.log(jsonContent);
     
-    fs.writeFile("output.json", jsonContent, 'utf8', function (err) {
+    fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
         if (err) {
             console.log("An error occured while writing JSON Object to File.");
             return console.log(err);
@@ -373,6 +373,8 @@ server.listen(port, () => {
     
         console.log("JSON file has been saved.");
     });
+    var baku=require("backup.json");
+    print(baku)
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
