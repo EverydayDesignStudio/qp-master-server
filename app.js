@@ -367,9 +367,6 @@ server.listen(port, () => {
     
         console.log("JSON file has been saved.");
     });
-    var baku=require("backup.json");
-    console.log(baku);
-
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
