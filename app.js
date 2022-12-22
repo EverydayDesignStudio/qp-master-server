@@ -29,8 +29,8 @@ const port = process.env.PORT || '5000';
    var songAddition = processDatabase(bpmData, req.body.userID);
    queue=songAddition;
    // userControl(req.body.userID);
+   queueUpdateBroadcast(queue,queue[0],currSeek);
    res.send({"queue": queue, "song":queue[0]});
-   queueUpdateBroadcast(queue,queue[0],currSeek,currBPM);
  })
  
  
@@ -44,8 +44,8 @@ const port = process.env.PORT || '5000';
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
      // userControl(req.body.userID);
+     queueUpdateBroadcast(queue,queue[0],currSeek)
      res.send({"queue": queue});
-     queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
   //  }
   //  else
   //  {
@@ -114,7 +114,7 @@ const port = process.env.PORT || '5000';
     queue.shift();
   }
   res.send({"queue": queue, "song":queue[0]});
-  queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
+  queueUpdateBroadcast(queue,queue[0],currSeek)
 
  })
   
@@ -353,7 +353,7 @@ server.listen(port, () => {
  }
  
  
- function queueUpdateBroadcast(queue,song,seek,bpm)
+ function queueUpdateBroadcast(queue,song,seek)
  {
     wss.clients.forEach((ws) => {
           ws.send(
@@ -362,13 +362,13 @@ server.listen(port, () => {
                 "songdata":{
                   "songID":song.track_id,
                   "timestamp":seek,
-                  "bpm":bpm
+                  "bpm":song.tempo
                 },
                 "activeUsers":[user1Active,user2Active,user3Active,user4Active],
                 "lights":{
                   "ring1":{
                     "rotate": true,
-                    "bpm": currBPM,
+                    "bpm": queue[0].tempo,
                     "colors":getRGBColors(queue[0])
                     },
                     "ring2":{
