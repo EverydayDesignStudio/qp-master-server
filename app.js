@@ -355,20 +355,6 @@ server.listen(port, () => {
  
  function queueUpdateBroadcast(queue,song,seek)
  {      
-    // parse json
-    // var jsonObj = JSON.parse(queue);
-      
-    // stringify JSON Object
-    var jsonContent = JSON.stringify(queue);
-      
-    fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-        if (err) {
-            console.log("An error occured while writing JSON Object to File.");
-            return console.log(err);
-        }
-      
-        console.log("JSON file has been saved.");
-    });
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
