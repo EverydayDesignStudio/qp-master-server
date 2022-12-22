@@ -217,7 +217,7 @@ server.listen(port, () => {
 
  function readBackup()
  {
-    var baku=require("backup.json");
+    var baku=require("./backup.json");
     return baku
  }
  
