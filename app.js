@@ -356,10 +356,10 @@ server.listen(port, () => {
  function queueUpdateBroadcast(queue,song,seek)
  {      
     // parse json
-    var jsonObj = JSON.parse(queue);
+    // var jsonObj = JSON.parse(queue);
       
     // stringify JSON Object
-    var jsonContent = JSON.stringify(jsonObj);
+    var jsonContent = JSON.stringify(queue);
       
     fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
         if (err) {
