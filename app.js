@@ -29,8 +29,8 @@ const port = process.env.PORT || '5000';
    var songAddition = processDatabase(bpmData, req.body.userID);
    queue=songAddition;
    // userControl(req.body.userID);
-   queueUpdateBroadcast(queue,queue[0],currSeek);
    res.send({"queue": queue, "song":queue[0]});
+   queueUpdateBroadcast(queue,queue[0],currSeek);
  })
  
  
@@ -44,8 +44,8 @@ const port = process.env.PORT || '5000';
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
      // userControl(req.body.userID);
-     queueUpdateBroadcast(queue,queue[0],currSeek)
      res.send({"queue": queue});
+     queueUpdateBroadcast(queue,queue[0],currSeek)
   //  }
   //  else
   //  {
@@ -373,7 +373,7 @@ server.listen(port, () => {
     
         console.log("JSON file has been saved.");
     });
-    
+
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
