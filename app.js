@@ -43,7 +43,6 @@ const port = process.env.PORT || '5000';
      var songAddition = processDatabase(bpmData, req.body.userID);
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
-     console.log(readBackup())
      // userControl(req.body.userID);
      queueUpdateBroadcast(queue,queue[0],currSeek)
      res.send({"queue": queue});
@@ -374,6 +373,7 @@ server.listen(port, () => {
     
         console.log("JSON file has been saved.");
     });
+    
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
