@@ -30,7 +30,7 @@ const port = process.env.PORT || '5000';
    queue=songAddition;
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":queue[0]});
-   queueUpdateBroadcast(queue,q,currSeek,currBPM);
+   queueUpdateBroadcast(queue,queue[0],currSeek,currBPM);
  })
  
  
@@ -45,7 +45,7 @@ const port = process.env.PORT || '5000';
      queue=queue.concat(songAddition);
      // userControl(req.body.userID);
      res.send({"queue": queue});
-     queueUpdateBroadcast(queue,currID,currSeek, currBPM)
+     queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
   //  }
   //  else
   //  {
@@ -91,7 +91,7 @@ const port = process.env.PORT || '5000';
     }
     var q=queue.shift();
     res.send({"queue": queue, "song":q});
-    queueUpdateBroadcast(queue,q,currSeek, currBPM)
+    queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
 
   }
   else
@@ -114,7 +114,7 @@ const port = process.env.PORT || '5000';
     queue.shift();
   }
   res.send({"queue": queue, "song":queue[0]});
-  queueUpdateBroadcast(queue,q,currSeek, currBPM)
+  queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
 
  })
   
