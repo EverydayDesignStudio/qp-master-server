@@ -54,51 +54,51 @@ const port = process.env.PORT || '5000';
  })
  
  // Get the track from the queue to automatically continue playing
- app.post('/continuePlaying', (req, res)=>{
-  user1Added=false;
-  user2Added=false;
-  user3Added=false;
-  user4Added=false;
+//  app.post('/continuePlaying', (req, res)=>{
+//   user1Added=false;
+//   user2Added=false;
+//   user3Added=false;
+//   user4Added=false;
 
-  if(req.body.user_id == 1 && user1Active || req.body.user_id != 1 && !user1Active)
-  {
-    user1Refresh=true;
-  }
-  if(req.body.user_id == 2 && user2Active || req.body.user_id != 2 && !user2Active)
-  {
-    user2Refresh=true;
-  }
-  if(req.body.user_id == 3 && user3Active || req.body.user_id != 3 && !user3Active)
-  {
-    user3Refresh=true;
-  }
-  if(req.body.user_id == 4 && user4Active || req.body.user_id != 4 && !user4Active)
-  {
-    user4Refresh=true;
-  }
+//   if(req.body.user_id == 1 && user1Active || req.body.user_id != 1 && !user1Active)
+//   {
+//     user1Refresh=true;
+//   }
+//   if(req.body.user_id == 2 && user2Active || req.body.user_id != 2 && !user2Active)
+//   {
+//     user2Refresh=true;
+//   }
+//   if(req.body.user_id == 3 && user3Active || req.body.user_id != 3 && !user3Active)
+//   {
+//     user3Refresh=true;
+//   }
+//   if(req.body.user_id == 4 && user4Active || req.body.user_id != 4 && !user4Active)
+//   {
+//     user4Refresh=true;
+//   }
 
-  if(user1Refresh && user2Refresh && user3Refresh && user4Refresh)
-  {
-    console.log("All Clients Finished");
-    if(queue.length==0)
-    {
-      console.log("Here to jump to next BPM");
-      var trackInfos = readDatabase();
-      var bpmData=getDatafromNextBPM(trackInfos, currBPM);
-      var songAddition = processDatabase(bpmData, req.body.userID);
-      console.log(songAddition);
-      queue=songAddition;
-    }
-    var q=queue.shift();
-    res.send({"queue": queue, "song":q});
-    queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
+//   if(user1Refresh && user2Refresh && user3Refresh && user4Refresh)
+//   {
+//     console.log("All Clients Finished");
+//     if(queue.length==0)
+//     {
+//       console.log("Here to jump to next BPM");
+//       var trackInfos = readDatabase();
+//       var bpmData=getDatafromNextBPM(trackInfos, currBPM);
+//       var songAddition = processDatabase(bpmData, req.body.userID);
+//       console.log(songAddition);
+//       queue=songAddition;
+//     }
+//     var q=queue.shift();
+//     res.send({"queue": queue, "song":q});
+//     queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
 
-  }
-  else
-  {
-    res.send({"queue":[], "song":"Timeout Running", "color":cr});
-  }
- })
+//   }
+//   else
+//   {
+//     res.send({"queue":[], "song":"Timeout Running", "color":cr});
+//   }
+//  })
 
  app.get('/continuePlayingImmediate', (req, res)=>{
   if(queue.length==0)
@@ -355,6 +355,24 @@ server.listen(port, () => {
  
  function queueUpdateBroadcast(queue,song,seek)
  {       
+    var jsonData = '{"backup":'+queue+'}\'';
+    
+    // parse json
+    var jsonObj = JSON.parse(jsonData);
+    console.log(jsonObj);
+    
+    // stringify JSON Object
+    var jsonContent = JSON.stringify(jsonObj);
+    console.log(jsonContent);
+    
+    fs.writeFile("output.json", jsonContent, 'utf8', function (err) {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        }
+    
+        console.log("JSON file has been saved.");
+    });
     wss.clients.forEach((ws) => {
           ws.send(
             JSON.stringify(
