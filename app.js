@@ -44,8 +44,8 @@ const port = process.env.PORT || '5000';
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
      // userControl(req.body.userID);
-     queueUpdateBroadcast(queue,currID,currSeek, currBPM)
      res.send({"queue": queue});
+     queueUpdateBroadcast(queue,currID,currSeek, currBPM)
   //  }
   //  else
   //  {
@@ -90,8 +90,9 @@ const port = process.env.PORT || '5000';
       queue=songAddition;
     }
     var q=queue.shift();
+    res.send({"queue": queue, "song":q});
     queueUpdateBroadcast(queue,q,currSeek, currBPM)
-    res.send({"queue": queue, "song":q, "color": cr});
+
   }
   else
   {
@@ -112,8 +113,8 @@ const port = process.env.PORT || '5000';
   {
     queue.shift();
   }
-  queueUpdateBroadcast(queue,q,currSeek, currBPM)
   res.send({"queue": queue, "song":queue[0]});
+  queueUpdateBroadcast(queue,q,currSeek, currBPM)
 
  })
   
@@ -161,29 +162,6 @@ const port = process.env.PORT || '5000';
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', (ws) => {
-    // ws.on('message', (message) => {
-
-    //   //log the received message and send it back to the client
-    //   console.log('received: %s', message);
-
-    //   const broadcastRegex = /^broadcast\:/;
-
-    //   if (broadcastRegex.test(message)) {
-    //       message = message.replace(broadcastRegex, '');
-
-    //       //send back the message to the other clients
-    //       wss.clients
-    //           .forEach(client => {
-    //               if (client != ws) {
-    //                   client.send(`Hello, broadcast message -> ${message}`);
-    //               }    
-    //           });
-          
-    //   } else {
-    //       ws.send(`Hello, you sent -> ${message}`);
-    //   }
-    // });
-
     //send immediatly a feedback to the incoming connection    
     ws.send(JSON.stringify(
       {'colors':{
@@ -194,22 +172,6 @@ const port = process.env.PORT || '5000';
       }}
     ));
 });
-
-// setInterval(() => {
-//   wss.clients.forEach((ws) => {
-//     ws.send(
-//       JSON.stringify(
-//         {'colors':{
-//           'r':Math.floor(Math.random()*255),
-//           'g':Math.floor(Math.random()*255),
-//           'b':Math.floor(Math.random()*255),
-//           'w':0
-//         }}
-//       )
-//     );
-//   });
-// }, 2000);
-
 
 //start our server
 server.listen(port, () => {
