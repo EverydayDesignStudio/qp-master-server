@@ -7,7 +7,6 @@
  var bodyParser = require("body-parser");
  var http=require('http');
  var WebSocket = require('ws');
- const fs = require('fs');
 
 const port = process.env.PORT || '5000';
  
