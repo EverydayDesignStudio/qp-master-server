@@ -28,9 +28,8 @@ const port = process.env.PORT || '5000';
    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
    var songAddition = processDatabase(bpmData, req.body.userID);
    queue=songAddition;
-   var q=queue.shift();
    // userControl(req.body.userID);
-   res.send({"queue": queue, "song":q});
+   res.send({"queue": queue, "song":queue[0]});
    queueUpdateBroadcast(queue,q,currSeek,currBPM);
  })
  
@@ -45,8 +44,8 @@ const port = process.env.PORT || '5000';
      queue.splice(req.body.offset,queue.length-req.body.offset);
      queue=queue.concat(songAddition);
      // userControl(req.body.userID);
-     res.send({"queue": queue});
      queueUpdateBroadcast(queue,currID,currSeek, currBPM)
+     res.send({"queue": queue});
   //  }
   //  else
   //  {
@@ -91,7 +90,6 @@ const port = process.env.PORT || '5000';
       queue=songAddition;
     }
     var q=queue.shift();
-    var cr=getColorSequence(queue);
     queueUpdateBroadcast(queue,q,currSeek, currBPM)
     res.send({"queue": queue, "song":q, "color": cr});
   }
@@ -108,13 +106,15 @@ const port = process.env.PORT || '5000';
     var trackInfos = readDatabase();
     var bpmData=getDatafromNextBPM(trackInfos, currBPM);
     var songAddition = processDatabase(bpmData, req.body.userID);
-    console.log(songAddition);
     queue=songAddition;
   }
-  var q=queue.shift();
-  var cr=getColorSequence(queue);
+  else
+  {
+    queue.shift();
+  }
   queueUpdateBroadcast(queue,q,currSeek, currBPM)
-  res.send({"queue": queue, "song":q, "color": cr});
+  res.send({"queue": queue, "song":queue[0]});
+
  })
   
  app.post('/makeActive',(req, res)=>{
