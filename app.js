@@ -231,7 +231,6 @@ function processDatabase(qpData,user)
   {
     qpData.sort((a,b)=> a['cluster_number']-b['cluster_number'])
     cluster0Arr=qpData.filter(ele=>ele['cluster_number']==0);
-    console.log(cluster0Arr);
     cluster1Arr=qpData.filter(ele=>ele['cluster_number']==1);
     cluster2Arr=qpData.filter(ele=>ele['cluster_number']==2);
     cluster3Arr=qpData.filter(ele=>ele['cluster_number']==3);
