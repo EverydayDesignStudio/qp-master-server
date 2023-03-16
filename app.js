@@ -222,6 +222,7 @@ function getDatafromBPM(qpData, bpm)
 //Processing the JSON file data
 function processDatabase(qpData,user)
 {
+  console.log(qpData[0]['cluster_number']);
   //Include Song Selection Algorithm
   if(queue.length == 0)
   {
