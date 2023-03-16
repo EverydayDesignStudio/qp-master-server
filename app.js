@@ -1,32 +1,56 @@
- //Depedency variables
- const express = require('express')
- var cors = require('cors');
- var querystring = require('querystring');
- var cookieParser = require('cookie-parser');
- var fs= require('fs');
- var bodyParser = require("body-parser");
- var http=require('http');
- var WebSocket = require('ws');
+//Depedency variables
+const express = require('express')
+var cors = require('cors');
+var querystring = require('querystring');
+var cookieParser = require('cookie-parser');
+var fs= require('fs');
+var bodyParser = require("body-parser");
+var http=require('http');
+var WebSocket = require('ws');
 
 const port = process.env.PORT || '5000';
  
- //Initialising the express server
- const app = express();
- app.use(bodyParser.json());
- const { ppid } = require('process');
+//Initialising the express server
+const app = express();
+app.use(bodyParser.json());
+const { ppid } = require('process');
  
- app.use(cors())
-    .use(cookieParser());
+app.use(cors())
+  .use(cookieParser());
 
- app.get('/', (req, res) => {
-   res.send("Queue Server Up!!");
- });
+app.get('/', (req, res) => {
+  res.send("Queue Server Up!!");
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+app.post('/toggleClientActive',(req, res)=>{
+  console.log(req.body.clientID);
+  if(req.body.clientID==1)
+  {
+    client1Active=!client1Active;
+  }
+  else if(req.body.clientID==2)
+  {
+    client2Active=!client2Active;
+  }
+  else if(req.body.clientID==3)
+  {
+    client3Active=!client3Active;
+  }
+  else if(req.body.clientID==4)
+  {
+    client4Active=!client4Active;
+  }
+
+  res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
+})
    
- //Get the Track to play as requested by the client
- app.post('/getTrackToPlay', (req, res) => {
+//Get the Track to play as requested by the client
+app.post('/getTrackToPlay', (req, res) => {
    var trackInfos = readDatabase();
    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
-   var songAddition = processDatabase(bpmData, req.body.userID);
+   var songAddition = processDatabase(bpmData, req.body.clientID);
    queue=songAddition;
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":queue[0]});
@@ -53,53 +77,6 @@ const port = process.env.PORT || '5000';
   //  }
  })
  
- // Get the track from the queue to automatically continue playing
-//  app.post('/continuePlaying', (req, res)=>{
-//   user1Added=false;
-//   user2Added=false;
-//   user3Added=false;
-//   user4Added=false;
-
-//   if(req.body.user_id == 1 && user1Active || req.body.user_id != 1 && !user1Active)
-//   {
-//     user1Refresh=true;
-//   }
-//   if(req.body.user_id == 2 && user2Active || req.body.user_id != 2 && !user2Active)
-//   {
-//     user2Refresh=true;
-//   }
-//   if(req.body.user_id == 3 && user3Active || req.body.user_id != 3 && !user3Active)
-//   {
-//     user3Refresh=true;
-//   }
-//   if(req.body.user_id == 4 && user4Active || req.body.user_id != 4 && !user4Active)
-//   {
-//     user4Refresh=true;
-//   }
-
-//   if(user1Refresh && user2Refresh && user3Refresh && user4Refresh)
-//   {
-//     console.log("All Clients Finished");
-//     if(queue.length==0)
-//     {
-//       console.log("Here to jump to next BPM");
-//       var trackInfos = readDatabase();
-//       var bpmData=getDatafromNextBPM(trackInfos, currBPM);
-//       var songAddition = processDatabase(bpmData, req.body.userID);
-//       console.log(songAddition);
-//       queue=songAddition;
-//     }
-//     var q=queue.shift();
-//     res.send({"queue": queue, "song":q});
-//     queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
-
-//   }
-//   else
-//   {
-//     res.send({"queue":[], "song":"Timeout Running", "color":cr});
-//   }
-//  })
-
  app.get('/continuePlayingImmediate', (req, res)=>{
   if(queue.length==0)
   {
@@ -118,29 +95,7 @@ const port = process.env.PORT || '5000';
 
  })
   
- app.post('/makeActive',(req, res)=>{
-   console.log(req.body.user_id);
-   if(req.body.user_id==1)
-   {
-     user1Active=true;
-   }
-   else if(req.body.user_id==2)
-   {
-     user2Active=true;
-   }
-   else if(req.body.user_id==3)
-   {
-     user3Active=true;
-   }
-   else if(req.body.user_id==4)
-   {
-     user4Active=true;
-   }
- 
-   res.send({activeUser:[user1Active,user2Active,user3Active,user4Active]})
- })
-
- app.post('/updateSeek',(req, res)=>{
+app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
   console.log(currSeek,currID);
@@ -157,20 +112,20 @@ const port = process.env.PORT || '5000';
 //     )
 //   );
 
-  const server = http.createServer(app);
+const server = http.createServer(app);
 
-  const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server });
 
-  wss.on('connection', (ws) => {
-    //send immediatly a feedback to the incoming connection    
-    ws.send(JSON.stringify(
-      {'colors':{
-        'r':Math.floor(Math.random()*255),
-        'g':Math.floor(Math.random()*255),
-        'b':Math.floor(Math.random()*255),
-        'w':0
-      }}
-    ));
+wss.on('connection', (ws) => {
+  //send immediatly a feedback to the incoming connection    
+  ws.send(JSON.stringify(
+    {'colors':{
+      'r':Math.floor(Math.random()*255),
+      'g':Math.floor(Math.random()*255),
+      'b':Math.floor(Math.random()*255),
+      'w':0
+    }}
+  ));
 });
 
 //start our server
@@ -178,66 +133,65 @@ server.listen(port, () => {
     console.log(`Server started on port ${server.address().port} :)`);
 });
 
- //////////// Server Helper Functions ///////////
+//////////// Server Helper Functions ///////////
  
- var queue = []; 
- var currBPM=-1;
- var colorArr = [];
- var currSeek=0;
- var currID='';
- var user1Active=false;
- var user2Active=false;
- var user3Active=false;
- var user4Active=false;
- var user1Added=false;
- var user2Added=false;
- var user3Added=false;
- var user4Added=false;
- var user1Ended=false;
- var user2Ended=false;
- var user3Ended=false;
- var user4Ended=false;
- var user1Refresh=false;
- var user2Refresh=false;
- var user3Refresh=false;
- var user4Refresh=false;
-
-
- var timeoutRunning=false;
- const timeoutInterval=0;
- var timer=0;
+var queue = []; 
+var currBPM=-1;
+var colorArr = [];
+var currSeek=0;
+var currID='';
+var client1Active=false;
+var client2Active=false;
+var client3Active=false;
+var client4Active=false;
+var user1Added=false;
+var user2Added=false;
+var user3Added=false;
+var user4Added=false;
+var user1Ended=false;
+var user2Ended=false;
+var user3Ended=false;
+var user4Ended=false;
+var user1Refresh=false;
+var user2Refresh=false;
+var user3Refresh=false;
+var user4Refresh=false;
+var timeoutRunning=false;
+const timeoutInterval=0;
+var timer=0;
  
- // Reading the JSON file data
- function readDatabase()
- {
-   var qpDataset=require("./Final Database/Final Final/qp_multiuser.json");
-   return qpDataset;
- }
+// Reading the JSON file data
+function readDatabase()
+{
+  var qpDataset=require("./Final Database/qp_multiuser_update.json");
+  return qpDataset;
+}
 
- function readBackup()
- {
-    var baku=require("./backup.json");
-    return baku
- }
+// Reading the backup JSON file data
+function readBackup()
+{
+  var baku=require("./backup.json");
+  return baku
+}
  
- function getDatafromBPM(qpData, bpm)
- {
-   //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
-   var qpBPMData=new Array();
-   while(qpBPMData.length == 0)
-   {
-     for(let i=0;i<qpData.length;i++)
-     {
-       if(qpData[i].tempo==bpm)
-       {
-         qpBPMData.push(qpData[i]);
-       }
-     }
-     bpm--;
-   }
-   currBPM=bpm+1;
-   return qpBPMData;
- }
+function getDatafromBPM(qpData, bpm)
+{
+  //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
+  var qpBPMData=new Array();
+  while(qpBPMData.length == 0)
+  {
+    for(let i=0;i<qpData.length;i++)
+    {
+      if(qpData[i].tempo==bpm)
+      {
+        qpBPMData.push(qpData[i]);
+      }
+    }
+    bpm--;
+  }
+  currBPM=bpm+1;
+  return qpBPMData;
+}
 
  function getDatafromNextBPM(qpData, bpm)
  {
@@ -264,25 +218,78 @@ server.listen(port, () => {
  }
  
  
- //Processing the JSON file data
- function processDatabase(qpData,user)
- {
-   //Include Song Selection Algorithm
+//Processing the JSON file data
+function processDatabase(qpData,user)
+{
+  //Include Song Selection Algorithm
+  if(queue.length == 0)
+  {
+    qpData.sort((a,b)=> a['cluster_number']-b['cluster_number']) 
+  }
+  else
+  {
+    qpData.sort((a,b)=> a['cluster_number']-b['cluster_number'])
+    
+    cluster0Arr=qpData.filter(ele=>ele['cluster_number']==0);
+    cluster1Arr=qpData.filter(ele=>ele['cluster_number']==1);
+    cluster2Arr=qpData.filter(ele=>ele['cluster_number']==2);
+    cluster3Arr=qpData.filter(ele=>ele['cluster_number']==3);
+  }
  
-   //Sorting data according to danceability for now , until song selection algorithm
-   qpData.sort((first,second) => {
-       return first.danceability - second.danceability;
-   });
+  if(queue[0]['cluster_number']==0)
+  {
+    let l=0;
+    while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
+    {
+      l++;
+    }
+    var temp=cluster0Arr.splice(0,l);
+    cluster0Arr=cluster0Arr.concat(temp); 
+    qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
+  }
+  else if(queue[0]['cluster_number']==1)
+  {
+    let l=0;
+    while(l<cluster1Arr.length &&  !cluster1Arr[l].user_id.includes(user))
+    {
+      l++;
+    }
+    var temp=cluster1Arr.splice(0,l);
+    cluster1Arr=cluster1Arr.concat(temp); 
+    qpData=cluster1Arr.concat(cluster0Arr,cluster2Arr,cluster3Arr)  
+  }
+  else if(queue[0]['cluster_number']==2)
+  {
+    let l=0;
+    while(l<cluster2Arr.length &&  !cluster2Arr[l].user_id.includes(user))
+    {
+      l++;
+    }
+    var temp=cluster2Arr.splice(0,l);
+    cluster2Arr=cluster2Arr.concat(temp); 
+    qpData=cluster2Arr.concat(cluster0Arr,cluster1Arr,cluster3Arr)  
+  }
+  else if(queue[0]['cluster_number']==3)
+  {
+    let l=0;
+    while(l<cluster3Arr.length &&  !cluster3Arr[l].user_id.includes(user))
+    {
+      l++;
+    }
+    var temp=cluster3Arr.splice(0,l);
+    cluster3Arr=cluster3Arr.concat(temp); 
+    qpData=cluster3Arr.concat(cluster0Arr,cluster1Arr,cluster2Arr)  
+  }
  
-   //Choosing the first song for the user interacted
-   let l=0;
-   while(l<qpData.length &&  !qpData[l].user_id.includes(user))
-   {
-     l++;
-   }
-   var temp=qpData.splice(0,l);
-   qpData=qpData.concat(temp);
-   return qpData;
+  //Choosing the first song for the user interacted
+  //  let l=0;
+  //  while(l<qpData.length &&  !qpData[l].user_id.includes(user))
+  //  {
+  //    l++;
+  //  }
+  //  var temp=qpData.splice(0,l);
+  //  qpData=qpData.concat(temp);
+  return qpData;
  }
  
  function userControl(userPressed)
@@ -383,7 +390,7 @@ server.listen(port, () => {
                   "timestamp":seek,
                   "bpm":song.tempo
                 },
-                "activeUsers":[user1Active,user2Active,user3Active,user4Active],
+                "activeUsers":[client1Active,client2Active,client3Active,client4Active],
                 "lights":{
                   "ring1":{
                     "rotate": true,
@@ -411,3 +418,51 @@ server.listen(port, () => {
           );
       });
  }
+
+
+  // Get the track from the queue to automatically continue playing
+//  app.post('/continuePlaying', (req, res)=>{
+//   user1Added=false;
+//   user2Added=false;
+//   user3Added=false;
+//   user4Added=false;
+
+//   if(req.body.user_id == 1 && client1Active || req.body.user_id != 1 && !client1Active)
+//   {
+//     user1Refresh=true;
+//   }
+//   if(req.body.user_id == 2 && client2Active || req.body.user_id != 2 && !client2Active)
+//   {
+//     user2Refresh=true;
+//   }
+//   if(req.body.user_id == 3 && client3Active || req.body.user_id != 3 && !client3Active)
+//   {
+//     user3Refresh=true;
+//   }
+//   if(req.body.user_id == 4 && client4Active || req.body.user_id != 4 && !client4Active)
+//   {
+//     user4Refresh=true;
+//   }
+
+//   if(user1Refresh && user2Refresh && user3Refresh && user4Refresh)
+//   {
+//     console.log("All Clients Finished");
+//     if(queue.length==0)
+//     {
+//       console.log("Here to jump to next BPM");
+//       var trackInfos = readDatabase();
+//       var bpmData=getDatafromNextBPM(trackInfos, currBPM);
+//       var songAddition = processDatabase(bpmData, req.body.userID);
+//       console.log(songAddition);
+//       queue=songAddition;
+//     }
+//     var q=queue.shift();
+//     res.send({"queue": queue, "song":q});
+//     queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
+
+//   }
+//   else
+//   {
+//     res.send({"queue":[], "song":"Timeout Running", "color":cr});
+//   }
+//  })
