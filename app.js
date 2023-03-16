@@ -236,19 +236,19 @@ function processDatabase(qpData,user)
     cluster2Arr=qpData.filter(ele=>ele['cluster_number']==2);
     cluster3Arr=qpData.filter(ele=>ele['cluster_number']==3);
 
-    if(queue[0]['cluster_number']==0)
-    {
-      let l=0;
-      while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
-      {
-        l++;
-      }
-      var temp=cluster0Arr.splice(0,l);
-      cluster0Arr=cluster0Arr.concat(temp); 
-      qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
-    }
+    // if(queue[0]['cluster_number']==0)
+    // {
+    //   let l=0;
+    //   while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
+    //   {
+    //     l++;
+    //   }
+    //   var temp=cluster0Arr.splice(0,l);
+    //   cluster0Arr=cluster0Arr.concat(temp); 
+    //   qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
+    // }
     // else if(queue[0]['cluster_number']==1)
-    else if(1==1)
+    if(1==1)
     {
       let l=0;
       while(l<cluster1Arr.length &&  !cluster1Arr[l].user_id.includes(user))
