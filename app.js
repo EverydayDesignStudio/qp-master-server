@@ -52,7 +52,6 @@ app.post('/getTrackToPlay', (req, res) => {
    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
    var songAddition = processDatabase(bpmData, req.body.clientID);
    queue=songAddition;
-   console.log(queue);
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":queue[0]});
    queueUpdateBroadcast(queue,queue[0],currSeek);
