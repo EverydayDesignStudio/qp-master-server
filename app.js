@@ -223,12 +223,12 @@ function getDatafromBPM(qpData, bpm)
 function processDatabase(qpData,user)
 {
   //Include Song Selection Algorithm
-  // if(queue.length == 0)
-  // {
-  //   qpData.sort((a,b)=> a['cluster_number']-b['cluster_number']) 
-  // }
-  // else
-  // {
+  if(queue.length == 0)
+  {
+    qpData.sort((a,b)=> a['cluster_number']-b['cluster_number']) 
+  }
+  else
+  {
     qpData.sort((a,b)=> a['cluster_number']-b['cluster_number'])
     cluster0Arr=qpData.filter(ele=>ele['cluster_number']==0);
     console.log(cluster0Arr);
@@ -236,19 +236,18 @@ function processDatabase(qpData,user)
     cluster2Arr=qpData.filter(ele=>ele['cluster_number']==2);
     cluster3Arr=qpData.filter(ele=>ele['cluster_number']==3);
 
-    // if(queue[0]['cluster_number']==0)
-    // {
-    //   let l=0;
-    //   while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
-    //   {
-    //     l++;
-    //   }
-    //   var temp=cluster0Arr.splice(0,l);
-    //   cluster0Arr=cluster0Arr.concat(temp); 
-    //   qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
-    // }
-    // else if(queue[0]['cluster_number']==1)
-    if(1==1)
+    if(queue[0]['cluster_number']==0)
+    {
+      let l=0;
+      while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
+      {
+        l++;
+      }
+      var temp=cluster0Arr.splice(0,l);
+      cluster0Arr=cluster0Arr.concat(temp); 
+      qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
+    }
+    else if(queue[0]['cluster_number']==1)
     {
       let l=0;
       while(l<cluster1Arr.length &&  !cluster1Arr[l].user_id.includes(user))
@@ -280,7 +279,7 @@ function processDatabase(qpData,user)
       var temp=cluster3Arr.splice(0,l);
       cluster3Arr=cluster3Arr.concat(temp); 
       qpData=cluster3Arr.concat(cluster0Arr,cluster1Arr,cluster2Arr)  
-    // }
+    }
   }
  
   //Choosing the first song for the user interacted
