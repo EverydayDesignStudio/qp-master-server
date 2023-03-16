@@ -55,7 +55,7 @@ app.post('/getTrackToPlay', (req, res) => {
    // userControl(req.body.userID);
    res.send({"queue": queue, "song":queue[0]});
    queueUpdateBroadcast(queue,queue[0],currSeek);
- })
+})
  
  
  // Get the track into the queue 
