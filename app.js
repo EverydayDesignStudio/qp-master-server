@@ -222,7 +222,6 @@ function getDatafromBPM(qpData, bpm)
 //Processing the JSON file data
 function processDatabase(qpData,user)
 {
-  console.log(qpData[0]['cluster_number']);
   //Include Song Selection Algorithm
   if(queue.length == 0)
   {
@@ -231,7 +230,6 @@ function processDatabase(qpData,user)
   else
   {
     qpData.sort((a,b)=> a['cluster_number']-b['cluster_number'])
-    console.log(qpData);
     cluster0Arr=qpData.filter(ele=>ele['cluster_number']==0);
     console.log(cluster0Arr);
     cluster1Arr=qpData.filter(ele=>ele['cluster_number']==1);
@@ -249,7 +247,8 @@ function processDatabase(qpData,user)
       cluster0Arr=cluster0Arr.concat(temp); 
       qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
     }
-    else if(queue[0]['cluster_number']==1)
+    // else if(queue[0]['cluster_number']==1)
+    else if(1==1)
     {
       let l=0;
       while(l<cluster1Arr.length &&  !cluster1Arr[l].user_id.includes(user))
