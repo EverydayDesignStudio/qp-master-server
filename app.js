@@ -237,51 +237,51 @@ function processDatabase(qpData,user)
     cluster1Arr=qpData.filter(ele=>ele['cluster_number']==1);
     cluster2Arr=qpData.filter(ele=>ele['cluster_number']==2);
     cluster3Arr=qpData.filter(ele=>ele['cluster_number']==3);
-  }
- 
-  if(queue[0]['cluster_number']==0)
-  {
-    let l=0;
-    while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
+
+    if(queue[0]['cluster_number']==0)
     {
-      l++;
+      let l=0;
+      while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
+      {
+        l++;
+      }
+      var temp=cluster0Arr.splice(0,l);
+      cluster0Arr=cluster0Arr.concat(temp); 
+      qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
     }
-    var temp=cluster0Arr.splice(0,l);
-    cluster0Arr=cluster0Arr.concat(temp); 
-    qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)  
-  }
-  else if(queue[0]['cluster_number']==1)
-  {
-    let l=0;
-    while(l<cluster1Arr.length &&  !cluster1Arr[l].user_id.includes(user))
+    else if(queue[0]['cluster_number']==1)
     {
-      l++;
+      let l=0;
+      while(l<cluster1Arr.length &&  !cluster1Arr[l].user_id.includes(user))
+      {
+        l++;
+      }
+      var temp=cluster1Arr.splice(0,l);
+      cluster1Arr=cluster1Arr.concat(temp); 
+      qpData=cluster1Arr.concat(cluster0Arr,cluster2Arr,cluster3Arr)  
     }
-    var temp=cluster1Arr.splice(0,l);
-    cluster1Arr=cluster1Arr.concat(temp); 
-    qpData=cluster1Arr.concat(cluster0Arr,cluster2Arr,cluster3Arr)  
-  }
-  else if(queue[0]['cluster_number']==2)
-  {
-    let l=0;
-    while(l<cluster2Arr.length &&  !cluster2Arr[l].user_id.includes(user))
+    else if(queue[0]['cluster_number']==2)
     {
-      l++;
+      let l=0;
+      while(l<cluster2Arr.length &&  !cluster2Arr[l].user_id.includes(user))
+      {
+        l++;
+      }
+      var temp=cluster2Arr.splice(0,l);
+      cluster2Arr=cluster2Arr.concat(temp); 
+      qpData=cluster2Arr.concat(cluster0Arr,cluster1Arr,cluster3Arr)  
     }
-    var temp=cluster2Arr.splice(0,l);
-    cluster2Arr=cluster2Arr.concat(temp); 
-    qpData=cluster2Arr.concat(cluster0Arr,cluster1Arr,cluster3Arr)  
-  }
-  else if(queue[0]['cluster_number']==3)
-  {
-    let l=0;
-    while(l<cluster3Arr.length &&  !cluster3Arr[l].user_id.includes(user))
+    else if(queue[0]['cluster_number']==3)
     {
-      l++;
+      let l=0;
+      while(l<cluster3Arr.length &&  !cluster3Arr[l].user_id.includes(user))
+      {
+        l++;
+      }
+      var temp=cluster3Arr.splice(0,l);
+      cluster3Arr=cluster3Arr.concat(temp); 
+      qpData=cluster3Arr.concat(cluster0Arr,cluster1Arr,cluster2Arr)  
     }
-    var temp=cluster3Arr.splice(0,l);
-    cluster3Arr=cluster3Arr.concat(temp); 
-    qpData=cluster3Arr.concat(cluster0Arr,cluster1Arr,cluster2Arr)  
   }
  
   //Choosing the first song for the user interacted
