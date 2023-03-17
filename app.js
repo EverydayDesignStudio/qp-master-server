@@ -105,8 +105,7 @@ wss.on('connection', (ws) => {
   //send immediatly a feedback to the incoming connection   
   
   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
-  var backup=readBackup()
-  if(backup.json()["queue"].length==0)
+  if(!backup)
   {
     ws.send(JSON.stringify(
       {'colors':{
@@ -116,9 +115,11 @@ wss.on('connection', (ws) => {
         'w':0
       }}
     ));
+    backup = true;
   }
   else
   {
+    var backup=readBackup()
     ws.send(backup.json()["color"])
   }
 });
@@ -143,6 +144,7 @@ var user1Added=false;
 var user2Added=false;
 var user3Added=false;
 var user4Added=false;
+var backup=false;
 var user1Ended=false;
 var user2Ended=false;
 var user3Ended=false;
