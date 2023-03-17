@@ -69,7 +69,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   queueUpdateBroadcast(queue,queue[0],currSeek)
 })
  
- app.get('/continuePlayingImmediate', (req, res)=>{
+app.get('/continuePlayingImmediate', (req, res)=>{
   if(queue.length==0)
   {
     console.log("Here to jump to next BPM");
@@ -84,8 +84,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   }
   res.send({"queue": queue, "song":queue[0]});
   queueUpdateBroadcast(queue,queue[0],currSeek)
-
- })
+})
   
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
@@ -94,16 +93,10 @@ app.post('/updateSeek',(req, res)=>{
   res.send("Seek Updated");
  })
 
- app.get('/getSeek',(req, res)=>{
+app.get('/getSeek',(req, res)=>{
   res.send({seek:currSeek, id:currID});
- })
+})
  
-// app.listen(port, () =>
-//     console.log(
-//       'HTTP Server up. Now go to http://localhost:${port} in your browser.'
-//     )
-//   );
-
 const server = http.createServer(app);
 
 const wss = new WebSocket.Server({ server });
@@ -271,15 +264,6 @@ function processDatabase(qpData,user)
       qpData=cluster3Arr.concat(cluster0Arr,cluster1Arr,cluster2Arr)  
     }
   }
- 
-  //Choosing the first song for the user interacted
-  //  let l=0;
-  //  while(l<qpData.length &&  !qpData[l].user_id.includes(user))
-  //  {
-  //    l++;
-  //  }
-  //  var temp=qpData.splice(0,l);
-  //  qpData=qpData.concat(temp);
   return qpData;
  }
  
