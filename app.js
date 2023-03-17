@@ -105,7 +105,7 @@ wss.on('connection', (ws) => {
   //send immediatly a feedback to the incoming connection   
   
   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
-  if(!backup)
+  if(!backupCheck)
   {
     ws.send(JSON.stringify(
       {'colors':{
@@ -115,7 +115,7 @@ wss.on('connection', (ws) => {
         'w':0
       }}
     ));
-    backup = true;
+    backupCheck = true;
   }
   else
   {
@@ -144,7 +144,7 @@ var user1Added=false;
 var user2Added=false;
 var user3Added=false;
 var user4Added=false;
-var backup=false;
+var backupCheck=false;
 var user1Ended=false;
 var user2Ended=false;
 var user3Ended=false;
