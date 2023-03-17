@@ -105,14 +105,22 @@ wss.on('connection', (ws) => {
   //send immediatly a feedback to the incoming connection   
   
   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
-  ws.send(JSON.stringify(
-    {'colors':{
-      'r':Math.floor(Math.random()*255),
-      'g':Math.floor(Math.random()*255),
-      'b':Math.floor(Math.random()*255),
-      'w':0
-    }}
-  ));
+  var backup=readBackup()
+  if(backup.json()["queue"].length==0)
+  {
+    ws.send(JSON.stringify(
+      {'colors':{
+        'r':Math.floor(Math.random()*255),
+        'g':Math.floor(Math.random()*255),
+        'b':Math.floor(Math.random()*255),
+        'w':0
+      }}
+    ));
+  }
+  else
+  {
+    ws.send(backup.json()["color"])
+  }
 });
 
 //start our server
@@ -344,55 +352,55 @@ function processDatabase(qpData,user)
  
  
  function queueUpdateBroadcast(queue,song,seek)
- {       
+ {    
+  
+    var colorJSON=JSON.stringify(
+      { 
+        "songdata":{
+          "songID":song.track_id,
+          "timestamp":seek,
+          "bpm":song.tempo
+        },
+        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
+        "lights":{
+          "ring1":{
+            "rotate": true,
+            "bpm": queue[0].tempo,
+            "colors":getRGBColors(queue[0])
+            },
+            "ring2":{
+              "rotate": true,
+              "bpm": queue[1].tempo,
+              "colors":getRGBColors(queue[1])
+            },
+            "ring3":{
+              "rotate": true,
+              "bpm": queue[2].tempo,
+              "colors":getRGBColors(queue[2])
+            },
+            "ring4":{
+              "rotate": true,
+              "bpm": queue[3].tempo,
+              "colors":getRGBColors(queue[3])
+            },
+          }
+        }
+    )
     
     // stringify JSON Object
-    var jsonContent = JSON.stringify(queue);
-    
-    fs.writeFile('./backup.json', jsonContent, 'utf8', function (err) {
-        if (err) {
-            console.log("An error occured while writing JSON Object to File.");
-            return console.log(err);
-        }
-    
-        console.log("JSON file has been saved.");
-    });
-
     wss.clients.forEach((ws) => {
-          ws.send(
-            JSON.stringify(
-              { 
-                "songdata":{
-                  "songID":song.track_id,
-                  "timestamp":seek,
-                  "bpm":song.tempo
-                },
-                "activeUsers":[client1Active,client2Active,client3Active,client4Active],
-                "lights":{
-                  "ring1":{
-                    "rotate": true,
-                    "bpm": queue[0].tempo,
-                    "colors":getRGBColors(queue[0])
-                    },
-                    "ring2":{
-                      "rotate": true,
-                      "bpm": queue[1].tempo,
-                      "colors":getRGBColors(queue[1])
-                    },
-                    "ring3":{
-                      "rotate": true,
-                      "bpm": queue[2].tempo,
-                      "colors":getRGBColors(queue[2])
-                    },
-                    "ring4":{
-                      "rotate": true,
-                      "bpm": queue[3].tempo,
-                      "colors":getRGBColors(queue[3])
-                    },
-                  }
-                }
-            )
-          );
+          ws.send(colorJSON);
+      });
+
+      var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
+    
+      fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+          if (err) {
+              console.log("An error occured while writing JSON Object to File.");
+              return console.log(err);
+          }
+      
+          console.log("JSON file has been saved.");
       });
  }
 
