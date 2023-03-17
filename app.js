@@ -102,7 +102,9 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-  //send immediatly a feedback to the incoming connection    
+  //send immediatly a feedback to the incoming connection   
+  
+  // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
   ws.send(JSON.stringify(
     {'colors':{
       'r':Math.floor(Math.random()*255),
@@ -347,7 +349,7 @@ function processDatabase(qpData,user)
     // stringify JSON Object
     var jsonContent = JSON.stringify(queue);
     
-    fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+    fs.writeFile('./backup.json', jsonContent, 'utf8', function (err) {
         if (err) {
             console.log("An error occured while writing JSON Object to File.");
             return console.log(err);
