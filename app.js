@@ -120,7 +120,7 @@ wss.on('connection', (ws) => {
   else
   {
     var backup=readBackup()
-    ws.send(backup.json()["color"])
+    ws.send(backup["color"])
   }
 });
 
