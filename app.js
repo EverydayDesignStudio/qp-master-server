@@ -105,8 +105,8 @@ wss.on('connection', (ws) => {
   //send immediatly a feedback to the incoming connection   
   
   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
-  if(!backupCheck)
-  {
+  // if(!backupCheck)
+  // {
     ws.send(JSON.stringify(
       {'colors':{
         'r':Math.floor(Math.random()*255),
@@ -115,13 +115,13 @@ wss.on('connection', (ws) => {
         'w':0
       }}
     ));
-    backupCheck = true;
-  }
-  else
-  {
-    var backup=readBackup()
-    ws.send(backup["color"])
-  }
+    // backupCheck = true;
+  // }
+  // else
+  // {
+  //   var backup=readBackup()
+  //   ws.send(backup["color"])
+  // }
 });
 
 //start our server
