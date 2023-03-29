@@ -328,22 +328,22 @@ function processDatabase(qpData,user)
     {
       if(qElement.user_id[i]==1)
       {
-        colorArr[n]={"r":255, "g":0,"b":0,"w":0};
+        colorArr[n]={"r":150, "g":75,"b":0,"w":0};
         n++;
       }
       else if(qElement.user_id[i]==2)
       {
-        colorArr[n]={"r":0, "g":255,"b":0,"w":0};
+        colorArr[n]={"r":190, "g":210,"b":5,"w":5};
         n++;
       }
       else if(qElement.user_id[i]==3)
       {
-        colorArr[n]={"r":0, "g":0,"b":255,"w":0};
+        colorArr[n]={"r":150, "g":40,"b":215,"w":0};
         n++;
       }
       else if(qElement.user_id[i]==4)
       {
-        colorArr[n]={"r":255, "g":255,"b":0,"w":0};
+        colorArr[n]={"r":0, "g":70,"b":180,"w":70};
         n++;
       }
       i++;
