@@ -272,7 +272,8 @@ function processDatabase(qpData,user)
 function queueUpdateUser(queue, additionToQueue, offset, user)
 {
   console.log("offset: ", offset);
-  queue=queue.splice(offset,queue.length-offset);
+  queue.splice(offset,queue.length-offset);
+  console.log(queue);
   queue=queue.concat(additionToQueue);
 
   while(queue.length<4)
