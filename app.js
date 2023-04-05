@@ -300,7 +300,7 @@ function queueUpdateAutomatic(queue, user, bpm)
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos,nextBPM);
     var addMoreToQueue = processDatabase(bpmData, user); 
-    queue.concat(addMoreToQueue);
+    queue=queue.concat(addMoreToQueue);
   }
   return queue;
 }
