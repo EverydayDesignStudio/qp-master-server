@@ -274,7 +274,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
   queue.splice(offset,queue.length-offset);
   queue=queue.concat(additionToQueue);
 
-  while(queue.length<4)
+  if(queue.length<4)
   {
     console.log("In queueUpdateUser: ",queue.length)
     var nextBPM=queue[queue.length-1].tempo-1
