@@ -24,23 +24,23 @@ app.get('/', (req, res) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.post('/toggleClientActive',(req, res)=>{
+app.post('/setClientActive',(req, res)=>{
   console.log(req.body.clientID);
   if(req.body.clientID==1)
   {
-    client1Active=!client1Active;
+    client1Active=true;
   }
   else if(req.body.clientID==2)
   {
-    client2Active=!client2Active;
+    client2Active=true;
   }
   else if(req.body.clientID==3)
   {
-    client3Active=!client3Active;
+    client3Active=true;
   }
   else if(req.body.clientID==4)
   {
-    client4Active=!client4Active;
+    client4Active=true;
   }
 
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
@@ -62,28 +62,17 @@ app.post('/getTrackToQueue',(req, res)=>{
   var trackInfos = readDatabase();
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
   var songAddition = processDatabase(bpmData, req.body.userID);
-  queue.splice(req.body.offset,queue.length-req.body.offset);
-  queue=queue.concat(songAddition);
-  // userControl(req.body.userID);
-  res.send({"queue": queue});
-  queueUpdateBroadcast(queue,queue[0],currSeek)
+  var updatedQueue = queueUpdateUser(queue,songAddition,req,body.offset,req.body.userID);
+  userControl(req.body.userID);
+  res.send({"queue": updatedQueue});
+  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
 })
  
 app.get('/continuePlayingImmediate', (req, res)=>{
-  if(queue.length==0)
-  {
-    console.log("Here to jump to next BPM");
-    var trackInfos = readDatabase();
-    var bpmData=getDatafromNextBPM(trackInfos, currBPM);
-    var songAddition = processDatabase(bpmData, req.body.userID);
-    queue=songAddition;
-  }
-  else
-  {
-    queue.shift();
-  }
-  res.send({"queue": queue, "song":queue[0]});
-  queueUpdateBroadcast(queue,queue[0],currSeek)
+
+  var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+  res.send({"queue": updatedQueue, "song":updatedQueue[0]});
+  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
 })
   
 app.post('/updateSeek',(req, res)=>{
@@ -145,17 +134,18 @@ var user2Added=false;
 var user3Added=false;
 var user4Added=false;
 var backupCheck=false;
-var user1Ended=false;
-var user2Ended=false;
-var user3Ended=false;
-var user4Ended=false;
-var user1Refresh=false;
-var user2Refresh=false;
-var user3Refresh=false;
-var user4Refresh=false;
-var timeoutRunning=false;
-const timeoutInterval=0;
-var timer=0;
+
+// var user1Ended=false;
+// var user2Ended=false;
+// var user3Ended=false;
+// var user4Ended=false;
+// var user1Refresh=false;
+// var user2Refresh=false;
+// var user3Refresh=false;
+// var user4Refresh=false;
+// var timeoutRunning=false;
+// const timeoutInterval=0;
+// var timer=0;
  
 // Reading the JSON file data
 function readDatabase()
@@ -190,29 +180,29 @@ function getDatafromBPM(qpData, bpm)
   return qpBPMData;
 }
 
- function getDatafromNextBPM(qpData, bpm)
- {
-    bpm--;
-    var qpBPMData=new Array();
-    while(qpBPMData.length == 0)
-    {
-      for(let i=0;i<qpData.length;i++)
-      {
-        if(qpData[i].tempo==bpm)
-        {
-          qpBPMData.push(qpData[i]);
-        }
-      }
-      bpm--;
-      if(bpm<=0)
-      {
-        bpm=240;
-      }
-    }
-    
-    currBPM=bpm+1;
-    return qpBPMData;
- }
+function getDatafromNextBPM(qpData, bpm)
+{
+   bpm--;
+   var qpBPMData=new Array();
+   while(qpBPMData.length == 0)
+   {
+     for(let i=0;i<qpData.length;i++)
+     {
+       if(qpData[i].tempo==bpm)
+       {
+         qpBPMData.push(qpData[i]);
+       }
+     }
+     bpm--;
+     if(bpm<=0)
+     {
+       bpm=240;
+     }
+   }
+   
+   currBPM=bpm+1;
+   return qpBPMData;
+}
  
  
 //Processing the JSON file data
@@ -277,134 +267,145 @@ function processDatabase(qpData,user)
     }
   }
   return qpData;
- }
- 
- function userControl(userPressed)
- {
-   if(userPressed==1)
-   {
-     user1Added=true;
-   }
-   else if(userPressed==2)
-   {
-     user2Added=true;
-   }
-   else if(userPressed==3)
-   {
-     user3Added=true;
-   }
-   else if(userPressed==4)
-   {
-     user4Added=true;
-   }
- }
- 
- function userCheck(userPressed)
- {
-   if(userPressed==1)
-   {
-     return user1Added;
-   }
-   else if(userPressed==2)
-   {
-     return user2Added;
-   }
-   else if(userPressed==3)
-   {
-     return user3Added;
-   }
-   else if(userPressed==4)
-   {
-     return user4Added;
-   }
- }
- 
- function getRGBColors(qElement)
- {
-    colorArr={};
-    let i=0;
-    let n=1;
-    while(i<qElement.user_id.length)
-    {
-      if(qElement.user_id[i]==1)
-      {
-        colorArr[n]={"r":150, "g":75,"b":0,"w":0};
-        n++;
-      }
-      else if(qElement.user_id[i]==2)
-      {
-        colorArr[n]={"r":190, "g":210,"b":5,"w":5};
-        n++;
-      }
-      else if(qElement.user_id[i]==3)
-      {
-        colorArr[n]={"r":150, "g":40,"b":215,"w":0};
-        n++;
-      }
-      else if(qElement.user_id[i]==4)
-      {
-        colorArr[n]={"r":0, "g":70,"b":180,"w":70};
-        n++;
-      }
-      i++;
-    }
+}
 
-    return colorArr;
- }
- 
- 
- function queueUpdateBroadcast(queue,song,seek)
- {    
-  
-    var colorJSON=JSON.stringify(
-      { 
-        "songdata":{
-          "songID":song.track_id,
-          "timestamp":seek,
-          "bpm":song.tempo
-        },
-        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
-        "lights":{
-          "ring1":{
-            "rotate": true,
-            "bpm": queue[0].tempo,
-            "colors":getRGBColors(queue[0])
-            },
-            "ring2":{
-              "rotate": true,
-              "bpm": queue[1].tempo,
-              "colors":getRGBColors(queue[1])
-            },
-            "ring3":{
-              "rotate": true,
-              "bpm": queue[2].tempo,
-              "colors":getRGBColors(queue[2])
-            },
-            "ring4":{
-              "rotate": true,
-              "bpm": queue[3].tempo,
-              "colors":getRGBColors(queue[3])
-            },
-          }
-        }
-    )
-    
-    // stringify JSON Object
-    wss.clients.forEach((ws) => {
-          ws.send(colorJSON);
-      });
+function queueUpdateUser(queue, additionToQueue, offset, user)
+{
+  queue.splice(offset,queue.length-offset);
+  queue=queue.concat(additionToQueue);
 
-      var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
-    
-      fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-          if (err) {
-              console.log("An error occured while writing JSON Object to File.");
-              return console.log(err);
-          }
-      
-          console.log("JSON file has been saved.");
-      });
- }
+  if(queue.length<4)
+  {
+    var nextBPM=queue[queue.length-1].tempo-1
+    var trackInfos = readDatabase();
+    var bpmData=getDataFromBPM(trackInfos,nextBPM);
+    var addMoreToQueue = processDatabase(bpmData, user); 
+    queue.concat(addMoreToQueue);
+  }
+
+  return queue;
+}
+
+function queueUpdateAutomatic(queue, user, bpm)
+{
+  queue.shift(); 
+  if(queue.length<4)
+  {
+    var nextBPM=bpm-1
+    var trackInfos = readDatabase();
+    var bpmData=getDataFromBPM(trackInfos,nextBPM);
+    var addMoreToQueue = processDatabase(bpmData, user); 
+    queue.concat(addMoreToQueue);
+  }
+  return queue;
+}
+
+ 
+function userControl(userPressed)
+{
+  if(userPressed==1)
+  {
+    user1Added=true;
+  }
+  else if(userPressed==2)
+  {
+    user2Added=true;
+  }
+  else if(userPressed==3)
+  {
+    user3Added=true;
+  }
+  else if(userPressed==4)
+  {
+    user4Added=true;
+  }
+}
+
+
+ 
+function getRGBColors(qElement)
+{
+   colorArr={};
+   let i=0;
+   let n=1;
+   while(i<qElement.user_id.length)
+   {
+     if(qElement.user_id[i]==1)
+     {
+       colorArr[n]={"r":150, "g":75,"b":0,"w":0};
+       n++;
+     }
+     else if(qElement.user_id[i]==2)
+     {
+       colorArr[n]={"r":190, "g":210,"b":5,"w":5};
+       n++;
+     }
+     else if(qElement.user_id[i]==3)
+     {
+       colorArr[n]={"r":150, "g":40,"b":215,"w":0};
+       n++;
+     }
+     else if(qElement.user_id[i]==4)
+     {
+       colorArr[n]={"r":0, "g":70,"b":180,"w":70};
+       n++;
+     }
+     i++;
+   }
+   return colorArr;
+}
+ 
+ 
+function queueUpdateBroadcast(queue,song,seek)
+{    
+   var colorJSON=JSON.stringify(
+     { 
+       "songdata":{
+         "songID":song.track_id,
+         "timestamp":seek,
+         "bpm":song.tempo
+       },
+       "activeUsers":[client1Active,client2Active,client3Active,client4Active],
+       "lights":{
+         "ring1":{
+           "rotate": true,
+           "bpm": queue[0].tempo,
+           "colors":getRGBColors(queue[0])
+           },
+           "ring2":{
+             "rotate": true,
+             "bpm": queue[1].tempo,
+             "colors":getRGBColors(queue[1])
+           },
+           "ring3":{
+             "rotate": true,
+             "bpm": queue[2].tempo,
+             "colors":getRGBColors(queue[2])
+           },
+           "ring4":{
+             "rotate": true,
+             "bpm": queue[3].tempo,
+             "colors":getRGBColors(queue[3])
+           },
+         }
+       }
+   )
+   
+   // stringify JSON Object
+   wss.clients.forEach((ws) => {
+         ws.send(colorJSON);
+     });
+     var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
+   
+     fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+         if (err) {
+             console.log("An error occured while writing JSON Object to File.");
+             return console.log(err);
+         }
+     
+         console.log("JSON file has been saved.");
+     });
+}
 
 
   // Get the track from the queue to automatically continue playing
