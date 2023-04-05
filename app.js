@@ -278,7 +278,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
   {
     var nextBPM=queue[queue.length-1].tempo-1
     var trackInfos = readDatabase();
-    var bpmData=getDataFromBPM(trackInfos,nextBPM);
+    var bpmData=getDatafromBPM(trackInfos,nextBPM);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue.concat(addMoreToQueue);
   }
@@ -293,7 +293,7 @@ function queueUpdateAutomatic(queue, user, bpm)
   {
     var nextBPM=bpm-1
     var trackInfos = readDatabase();
-    var bpmData=getDataFromBPM(trackInfos,nextBPM);
+    var bpmData=getDatafromBPM(trackInfos,nextBPM);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue.concat(addMoreToQueue);
   }
