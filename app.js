@@ -283,6 +283,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     var bpmData=getDatafromBPM(trackInfos,nextBPM);
     console.log(bpmData);
     var addMoreToQueue = processDatabase(bpmData, user); 
+    console.log("Add more to queue: ", addMoreToQueue);
     queue.concat(addMoreToQueue);
     console.log(queue);
   }
