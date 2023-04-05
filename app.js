@@ -59,6 +59,7 @@ app.post('/getTrackToPlay', (req, res) => {
  
 // Get the track into the queue 
 app.post('/getTrackToQueue',(req, res)=>{
+  currOffset=req.body.offset
   var trackInfos = readDatabase();
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
   var songAddition = processDatabase(bpmData, req.body.userID);
@@ -123,6 +124,7 @@ server.listen(port, () => {
  
 var queue = []; 
 var currBPM=-1;
+var currOffset=0;
 var colorArr = [];
 var currSeek=0;
 var currID='';
@@ -366,7 +368,8 @@ function queueUpdateBroadcast(queue,song,seek)
        "songdata":{
          "songID":song.track_id,
          "timestamp":seek,
-         "bpm":song.tempo
+         "bpm":song.tempo,
+         "offset":currOffset
        },
        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
        "lights":{
