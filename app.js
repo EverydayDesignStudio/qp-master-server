@@ -278,12 +278,14 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
   {
     console.log("In queueUpdateUser: ",queue.length)
     var nextBPM=queue[queue.length-1].tempo-1
+    console.group(nextBPM);
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos,nextBPM);
+    console.log(bpmData);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue.concat(addMoreToQueue);
   }
-
+  console.log(queue);
   return queue;
 }
 
