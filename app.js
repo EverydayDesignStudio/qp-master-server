@@ -63,6 +63,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
   var songAddition = processDatabase(bpmData, req.body.userID);
   var updatedQueue = queueUpdateUser(queue,songAddition,req.body.offset,req.body.userID);
+  queue=updatedQueue
   // userControl(req.body.userID);
   res.send({"queue": updatedQueue});
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
@@ -278,16 +279,11 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
 
   while(queue.length<4)
   {
-    console.log("In queueUpdateUser: ",queue.length)
     var nextBPM=queue[queue.length-1].tempo-1
-    console.group(nextBPM);
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos,nextBPM);
-    console.log(bpmData);
     var addMoreToQueue = processDatabase(bpmData, user); 
-    console.log("Add more to queue: ", addMoreToQueue);
     queue=queue.concat(addMoreToQueue);
-    console.log(queue);
   }
   
   return queue;
