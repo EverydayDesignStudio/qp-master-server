@@ -67,7 +67,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   var songAddition = processDatabase(bpmData, req.body.userID);
   var updatedQueue = queueUpdateUser(queue,songAddition,req.body.offset,req.body.userID);
   queue=updatedQueue;
-  rotation[offset]=true;
+  rotation[req.body.offset]=true;
   // userControl(req.body.userID);
   res.send({"queue": updatedQueue});
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
