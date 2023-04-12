@@ -285,6 +285,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     
     if(additionToQueue.length==0)
     {
+      console.log(additionToQueue.length);
       var nextBPM=queue[i-1].tempo-1
       var trackInfos = readDatabase();
       var bpmData=getDatafromBPM(trackInfos,nextBPM);
