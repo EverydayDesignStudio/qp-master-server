@@ -53,6 +53,7 @@ app.post('/getTrackToPlay', (req, res) => {
   var songAddition = processDatabase(bpmData, req.body.clientID);
   var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.userID);
   queue=updatedQueue;
+  rotation[0]=true;
   res.send({"queue": queue, "song":queue[0]});
   queueUpdateBroadcast(queue,queue[0],currSeek);
 })
@@ -66,6 +67,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   var songAddition = processDatabase(bpmData, req.body.userID);
   var updatedQueue = queueUpdateUser(queue,songAddition,req.body.offset,req.body.userID);
   queue=updatedQueue;
+  rotation[offset]=true;
   // userControl(req.body.userID);
   res.send({"queue": updatedQueue});
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
@@ -137,6 +139,7 @@ var user1Added=false;
 var user2Added=false;
 var user3Added=false;
 var user4Added=false;
+var rotation = [false,false,false,false];
 var backupCheck=false;
 
 // var user1Ended=false;
@@ -315,6 +318,8 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
 
 function queueUpdateAutomatic(queue, user, bpm)
 {
+  rotation.shift();
+  rotation=rotation.concat([false]);
   queue.shift(); 
   if(queue.length<4)
   {
@@ -325,11 +330,6 @@ function queueUpdateAutomatic(queue, user, bpm)
     queue=queue.concat(addMoreToQueue);
   }
   return queue;
-}
-
-function queueRepetitionCheck()
-{
-
 }
 
  
@@ -352,8 +352,6 @@ function userControl(userPressed)
     user4Added=true;
   }
 }
-
-
  
 function getRGBColors(qElement)
 {
@@ -401,22 +399,22 @@ function queueUpdateBroadcast(queue,song,seek)
        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
        "lights":{
          "ring1":{
-           "rotate": true,
+           "rotate": rotation[0],
            "bpm": queue[0].tempo,
            "colors":getRGBColors(queue[0])
            },
            "ring2":{
-             "rotate": true,
+             "rotate": rotation[1],
              "bpm": queue[1].tempo,
              "colors":getRGBColors(queue[1])
            },
            "ring3":{
-             "rotate": true,
+             "rotate": rotation[2],
              "bpm": queue[2].tempo,
              "colors":getRGBColors(queue[2])
            },
            "ring4":{
-             "rotate": true,
+             "rotate": rotation[3],
              "bpm": queue[3].tempo,
              "colors":getRGBColors(queue[3])
            },
