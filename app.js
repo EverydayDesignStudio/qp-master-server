@@ -276,21 +276,22 @@ function processDatabase(qpData,user)
 function queueUpdateUser(queue, additionToQueue, offset, user)
 {
   var i=0;
+  var delBPM;
   while(i<queue.length && i<4)
   {
     if(additionToQueue.length>0 && additionToQueue[0].track_id==queue[i].track_id)
     {
+      delBPM=additionToQueue[0].tempo;
       additionToQueue.splice(0,1);
     }
     
     if(additionToQueue.length==0)
     {
       console.log(additionToQueue.length);
-      var nextBPM=queue[i-1].tempo-1
       var trackInfos = readDatabase();
-      var bpmData=getDatafromBPM(trackInfos,nextBPM);
+      var bpmData=getDatafromBPM(trackInfos,delBPM-1);
       additionToQueue = processDatabase(bpmData, user); 
-      i--;
+      i-=2;
     }
     i++
   }
