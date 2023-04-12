@@ -51,7 +51,8 @@ app.post('/getTrackToPlay', (req, res) => {
   var trackInfos = readDatabase();
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
   var songAddition = processDatabase(bpmData, req.body.clientID);
-  queue=songAddition;
+  var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.userID);
+  queue=updatedQueue;
   res.send({"queue": queue, "song":queue[0]});
   queueUpdateBroadcast(queue,queue[0],currSeek);
 })
@@ -183,29 +184,29 @@ function getDatafromBPM(qpData, bpm)
   return qpBPMData;
 }
 
-function getDatafromNextBPM(qpData, bpm)
-{
-   bpm--;
-   var qpBPMData=new Array();
-   while(qpBPMData.length == 0)
-   {
-     for(let i=0;i<qpData.length;i++)
-     {
-       if(qpData[i].tempo==bpm)
-       {
-         qpBPMData.push(qpData[i]);
-       }
-     }
-     bpm--;
-     if(bpm<=0)
-     {
-       bpm=240;
-     }
-   }
+// function getDatafromNextBPM(qpData, bpm)
+// {
+//    bpm--;
+//    var qpBPMData=new Array();
+//    while(qpBPMData.length == 0)
+//    {
+//      for(let i=0;i<qpData.length;i++)
+//      {
+//        if(qpData[i].tempo==bpm)
+//        {
+//          qpBPMData.push(qpData[i]);
+//        }
+//      }
+//      bpm--;
+//      if(bpm<=0)
+//      {
+//        bpm=240;
+//      }
+//    }
    
-   currBPM=bpm+1;
-   return qpBPMData;
-}
+//    currBPM=bpm+1;
+//    return qpBPMData;
+// }
  
  
 //Processing the JSON file data
