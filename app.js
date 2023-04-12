@@ -294,6 +294,8 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     }
     i++
   }
+
+  console.log(additionToQueue);
   
   queue.splice(offset,queue.length-offset);
   queue=queue.concat(additionToQueue);
