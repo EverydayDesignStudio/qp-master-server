@@ -291,7 +291,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
       var trackInfos = readDatabase();
       var bpmData=getDatafromBPM(trackInfos,delBPM-1);
       additionToQueue = processDatabase(bpmData, user); 
-      i-=2;
+      i--;
     }
     i++
   }
