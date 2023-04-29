@@ -99,8 +99,8 @@ wss.on('connection', (ws) => {
   //send immediatly a feedback to the incoming connection   
   
   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
-  // if(!backupCheck)
-  // {
+  if(!backupCheck)
+  {
     ws.send(JSON.stringify(
       {'colors':{
         'r':Math.floor(Math.random()*255),
@@ -109,13 +109,13 @@ wss.on('connection', (ws) => {
         'w':0
       }}
     ));
-    // backupCheck = true;
-  // }
-  // else
-  // {
-  //   var backup=readBackup()
-  //   ws.send(backup["color"])
-  // }
+    backupCheck = true;
+  }
+  else
+  {
+    var backup=readBackup()
+    ws.send(backup["color"])
+  }
 });
 
 //start our server
@@ -142,18 +142,6 @@ var user4Added=false;
 var rotation = [false,false,false,false];
 var backupCheck=false;
 
-// var user1Ended=false;
-// var user2Ended=false;
-// var user3Ended=false;
-// var user4Ended=false;
-// var user1Refresh=false;
-// var user2Refresh=false;
-// var user3Refresh=false;
-// var user4Refresh=false;
-// var timeoutRunning=false;
-// const timeoutInterval=0;
-// var timer=0;
- 
 // Reading the JSON file data
 function readDatabase()
 {
@@ -187,31 +175,6 @@ function getDatafromBPM(qpData, bpm)
   return qpBPMData;
 }
 
-// function getDatafromNextBPM(qpData, bpm)
-// {
-//    bpm--;
-//    var qpBPMData=new Array();
-//    while(qpBPMData.length == 0)
-//    {
-//      for(let i=0;i<qpData.length;i++)
-//      {
-//        if(qpData[i].tempo==bpm)
-//        {
-//          qpBPMData.push(qpData[i]);
-//        }
-//      }
-//      bpm--;
-//      if(bpm<=0)
-//      {
-//        bpm=240;
-//      }
-//    }
-   
-//    currBPM=bpm+1;
-//    return qpBPMData;
-// }
- 
- 
 //Processing the JSON file data
 function processDatabase(qpData,user)
 {
@@ -437,51 +400,3 @@ function queueUpdateBroadcast(queue,song,seek)
          console.log("JSON file has been saved.");
      });
 }
-
-
-  // Get the track from the queue to automatically continue playing
-//  app.post('/continuePlaying', (req, res)=>{
-//   user1Added=false;
-//   user2Added=false;
-//   user3Added=false;
-//   user4Added=false;
-
-//   if(req.body.user_id == 1 && client1Active || req.body.user_id != 1 && !client1Active)
-//   {
-//     user1Refresh=true;
-//   }
-//   if(req.body.user_id == 2 && client2Active || req.body.user_id != 2 && !client2Active)
-//   {
-//     user2Refresh=true;
-//   }
-//   if(req.body.user_id == 3 && client3Active || req.body.user_id != 3 && !client3Active)
-//   {
-//     user3Refresh=true;
-//   }
-//   if(req.body.user_id == 4 && client4Active || req.body.user_id != 4 && !client4Active)
-//   {
-//     user4Refresh=true;
-//   }
-
-//   if(user1Refresh && user2Refresh && user3Refresh && user4Refresh)
-//   {
-//     console.log("All Clients Finished");
-//     if(queue.length==0)
-//     {
-//       console.log("Here to jump to next BPM");
-//       var trackInfos = readDatabase();
-//       var bpmData=getDatafromNextBPM(trackInfos, currBPM);
-//       var songAddition = processDatabase(bpmData, req.body.userID);
-//       console.log(songAddition);
-//       queue=songAddition;
-//     }
-//     var q=queue.shift();
-//     res.send({"queue": queue, "song":q});
-//     queueUpdateBroadcast(queue,queue[0],currSeek, currBPM)
-
-//   }
-//   else
-//   {
-//     res.send({"queue":[], "song":"Timeout Running", "color":cr});
-//   }
-//  })
