@@ -62,9 +62,9 @@ app.post('/getTrackToPlay', (req, res) => {
  
 // Get the track into the queue 
 app.post('/getTrackToQueue',(req, res)=>{
-  currOffset=req.body.offset
   if(userCheck(req.body.userID))
   {
+    currOffset=req.body.offset
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
     var songAddition = processDatabase(bpmData, req.body.userID);
@@ -85,6 +85,7 @@ app.post('/getTrackToQueue',(req, res)=>{
 app.get('/continuePlayingImmediate', (req, res)=>{
 
   var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+  currOffset-=1;
   res.send({"queue": updatedQueue, "song":updatedQueue[0]});
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
 })
