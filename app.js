@@ -290,12 +290,13 @@ function queueUpdateAutomatic(queue, user, bpm)
   rotation.shift();
   rotation=rotation.concat([false]);
 
+  console.log(clientTrackAdded);
   var deletedFromQueue=queue.shift(); 
   var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
   if(indx!=-1)
   { 
     clientTrackAdded[indx]="";
-    userControl(indx);
+    userControl(indx+1);
   }
   
   if(queue.length<4)
