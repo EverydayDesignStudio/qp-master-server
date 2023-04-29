@@ -150,11 +150,10 @@ function readDatabase()
 // Reading the backup JSON file data
 function readBackup()
 {
-  var baku=require("./backup.json");
-  var backu=fs.readFileSync("./backup.json", "utf8");
-  console.log(backu);
-  console.log(baku["color"]);
-  return baku
+  // var baku=require("./backup.json");
+  var backu=fs.readFile("./backup.json", "utf8");
+  backupJSON=JSON.parse(backu);
+  return backupJSON
 }
  
 function getDatafromBPM(qpData, bpm)
