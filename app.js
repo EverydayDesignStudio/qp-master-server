@@ -334,6 +334,7 @@ function userCheck(id)
 {
   if("client"+id+"Added")
   {
+    console.log(id)
     return false;
   }
   return true;
