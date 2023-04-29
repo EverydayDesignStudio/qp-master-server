@@ -53,6 +53,8 @@ app.post('/getTrackToPlay', (req, res) => {
   var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.userID);
   queue=updatedQueue;
   rotation[0]=true;
+  clientTrackAdded[req.body.clientID-1]=queue[0]["track_id"];
+  userControl(req.body.clientID);
   res.send({"queue": queue, "song":queue[0]});
   queueUpdateBroadcast(queue,queue[0],currSeek);
 })
@@ -60,16 +62,24 @@ app.post('/getTrackToPlay', (req, res) => {
  
 // Get the track into the queue 
 app.post('/getTrackToQueue',(req, res)=>{
-  currOffset=req.body.offset
-  var trackInfos = readDatabase();
-  var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
-  var songAddition = processDatabase(bpmData, req.body.userID);
-  var updatedQueue = queueUpdateUser(queue,songAddition,req.body.offset,req.body.userID);
-  queue=updatedQueue;
-  rotation[req.body.offset]=true;
-  // userControl(req.body.userID);
-  res.send({"queue": updatedQueue});
-  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+  if(userCheck(req.body.userID))
+  {
+    currOffset=req.body.offset
+    var trackInfos = readDatabase();
+    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
+    var songAddition = processDatabase(bpmData, req.body.userID);
+    var updatedQueue = queueUpdateUser(queue,songAddition,req.body.offset,req.body.userID);
+    queue=updatedQueue;
+    rotation[req.body.offset]=true;
+    clientTrackAdded[req.body.userID-1]=updatedQueue[req.body.offset]["track_id"];
+    userControl(req.body.userID);
+    res.send({"queue": updatedQueue});
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+  }
+  else
+  {
+    res.send("Already added song")
+  }
 })
  
 app.get('/continuePlayingImmediate', (req, res)=>{
@@ -90,7 +100,6 @@ app.get('/getSeek',(req, res)=>{
 })
  
 const server = http.createServer(app);
-
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
@@ -132,10 +141,11 @@ var client1Active=false;
 var client2Active=false;
 var client3Active=false;
 var client4Active=false;
-var user1Added=false;
-var user2Added=false;
-var user3Added=false;
-var user4Added=false;
+var client1Added=false;
+var client2Added=false;
+var client3Added=false;
+var client4Added=false;
+var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
 var backupCheck=false;
 
@@ -279,7 +289,15 @@ function queueUpdateAutomatic(queue, user, bpm)
 {
   rotation.shift();
   rotation=rotation.concat([false]);
-  queue.shift(); 
+
+  var deletedFromQueue=queue.shift(); 
+  var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
+  if(indx!=-1)
+  { 
+    clientTrackAdded[indx]="";
+    userControl(indx);
+  }
+  
   if(queue.length<4)
   {
     var nextBPM=bpm-1
@@ -292,24 +310,33 @@ function queueUpdateAutomatic(queue, user, bpm)
 }
 
  
-function userControl(userPressed)
+function userControl(id)
 {
-  if(userPressed==1)
+  if(id==1)
   {
-    user1Added=true;
+    client1Added=!client1Added;
   }
-  else if(userPressed==2)
+  else if(id==2)
   {
-    user2Added=true;
+    client2Added=!client2Added;
   }
-  else if(userPressed==3)
+  else if(id==3)
   {
-    user3Added=true;
+    client3Added=!client3Added;
   }
-  else if(userPressed==4)
+  else if(id==4)
   {
-    user4Added=true;
+    client4Added=!client4Added;
   }
+}
+
+function userCheck(id)
+{
+  if("client"+id+"Added")
+  {
+    return false;
+  }
+  return true;
 }
  
 function getRGBColors(qElement)
@@ -355,6 +382,7 @@ function queueUpdateBroadcast(queue,song,seek)
          "bpm":song.tempo,
          "offset":currOffset
        },
+       "userCanAddBPM":[client1Added,client2Added,client3Added,client4Added],
        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
        "lights":{
          "ring1":{
