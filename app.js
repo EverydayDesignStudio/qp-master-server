@@ -78,7 +78,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   }
   else
   {
-    res.send("Already added song")
+    res.send({"queue":"Already added song"})
   }
 })
  
