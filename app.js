@@ -151,9 +151,14 @@ function readDatabase()
 function readBackup()
 {
   // var baku=require("./backup.json");
-  var backu=fs.readFile("./backup.json", "utf8");
-  backupJSON=JSON.parse(backu);
-  return backupJSON
+  var backu
+  fs.readFile('./backup.json', 'utf8', (err, data) => {
+    if (err) throw err;
+  
+    // Parse the JSON string into a JavaScript object
+    backu = JSON.parse(data);
+  });
+  return backu
 }
  
 function getDatafromBPM(qpData, bpm)
