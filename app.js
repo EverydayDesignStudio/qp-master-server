@@ -155,8 +155,10 @@ function readBackup()
     if (err) throw err;
   
     // Parse the JSON string into a JavaScript object
+    console.log(JSON.parse(data));
     return JSON.parse(data);
   });
+  console.log(backu);
   return backu
 }
  
