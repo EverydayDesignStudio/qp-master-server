@@ -62,9 +62,9 @@ app.post('/getTrackToPlay', (req, res) => {
  
 // Get the track into the queue 
 app.post('/getTrackToQueue',(req, res)=>{
+  currOffset=req.body.offset
   if(userCheck(req.body.userID))
   {
-    currOffset=req.body.offset
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
     var songAddition = processDatabase(bpmData, req.body.userID);
