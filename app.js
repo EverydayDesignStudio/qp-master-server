@@ -153,8 +153,6 @@ function readBackup()
   // var baku=require("./backup.json");
   var backu=fs.readFile("backup.json", 'utf8', (err, data) => {
     if (err) throw err;
-  
-    // Parse the JSON string into a JavaScript object
     console.log(data);
     console.log(JSON.parse(data));
     return JSON.parse(data);
