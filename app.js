@@ -54,7 +54,7 @@ app.post('/getTrackToPlay', (req, res) => {
   queue=updatedQueue;
   rotation[0]=true;
   clientTrackAdded[req.body.clientID-1]=queue[0]["track_id"];
-  userControl(req.body.clientID);
+  // userControl(req.body.clientID);
   res.send({"queue": queue, "song":queue[0]});
   queueUpdateBroadcast(queue,queue[0],currSeek);
 })
@@ -62,8 +62,8 @@ app.post('/getTrackToPlay', (req, res) => {
  
 // Get the track into the queue 
 app.post('/getTrackToQueue',(req, res)=>{
-  if(userCheck(req.body.userID))
-  {
+  // if(userCheck(req.body.userID))
+  // {
     currOffset=req.body.offset
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
@@ -72,14 +72,14 @@ app.post('/getTrackToQueue',(req, res)=>{
     queue=updatedQueue;
     rotation[req.body.offset]=true;
     clientTrackAdded[req.body.userID-1]=updatedQueue[req.body.offset]["track_id"];
-    userControl(req.body.userID);
+    // userControl(req.body.userID);
     res.send({"queue": updatedQueue});
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
-  }
-  else
-  {
-    res.send({"queue":"Already added song"})
-  }
+  // }
+  // else
+  // {
+  //   res.send({"queue":"Already added song"})
+  // }
 })
  
 app.get('/continuePlayingImmediate', (req, res)=>{
@@ -292,12 +292,12 @@ function queueUpdateAutomatic(queue, user, bpm)
 
   console.log(clientTrackAdded);
   var deletedFromQueue=queue.shift(); 
-  var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
-  if(indx!=-1)
-  { 
-    clientTrackAdded[indx]="";
-    userControl(indx+1);
-  }
+  // var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
+  // if(indx!=-1)
+  // { 
+  //   clientTrackAdded[indx]="";
+  //   userControl(indx+1);
+  // }
   
   if(queue.length<4)
   {
