@@ -109,7 +109,6 @@ wss.on('connection', (ws) => {
         'w':0
       }}
     ));
-    backupCheck = true;
   }
   else
   {
@@ -396,7 +395,7 @@ function queueUpdateBroadcast(queue,song,seek)
              console.log("An error occured while writing JSON Object to File.");
              return console.log(err);
          }
-     
+         backupCheck = true;
          console.log("JSON file has been saved.");
      });
 }
