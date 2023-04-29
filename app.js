@@ -111,7 +111,6 @@ wss.on('connection', (ws) => {
   else
   {
     var backup=readBackup()
-    console.log(backup)
     ws.send(backup["color"])
   }
 });
@@ -150,7 +149,6 @@ function readDatabase()
 // Reading the backup JSON file data
 function readBackup()
 {
-  // var baku=require("./backup.json");
   var backu=fs.readFileSync("./backup.json", "utf8")
   backu=JSON.parse(backu);
   return backu
