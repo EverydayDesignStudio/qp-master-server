@@ -25,7 +25,6 @@ app.get('/', (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.post('/setClientActive',(req, res)=>{
-  console.log(req.body.clientID);
   if(req.body.clientID==1)
   {
     client1Active=true;
@@ -83,7 +82,6 @@ app.get('/continuePlayingImmediate', (req, res)=>{
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
-  console.log(currSeek,currID);
   res.send("Seek Updated");
  })
 
@@ -253,7 +251,6 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     
     if(additionToQueue.length==0)
     {
-      console.log(additionToQueue.length);
       var trackInfos = readDatabase();
       var bpmData=getDatafromBPM(trackInfos,delBPM-1);
       additionToQueue = processDatabase(bpmData, user); 
@@ -262,7 +259,6 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     i++
   }
 
-  console.log(additionToQueue);
   
   queue.splice(offset,queue.length-offset);
   queue=queue.concat(additionToQueue);
