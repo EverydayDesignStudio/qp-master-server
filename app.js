@@ -395,8 +395,8 @@ function queueUpdateBroadcast(queue,song,seek)
          "bpm":song.tempo,
          "offset":currOffset
        },
-       "userCanAddBPM":[client1Added,client2Added,client3Added,client4Added],
        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
+       "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
        "lights":{
          "ring1":{
            "rotate": rotation[0],
