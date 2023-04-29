@@ -151,7 +151,7 @@ function readDatabase()
 function readBackup()
 {
   var baku=require("./backup.json");
-  console.log(baku[color]);
+  console.log(baku["color"]);
   return baku
 }
  
