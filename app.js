@@ -151,6 +151,7 @@ function readDatabase()
 function readBackup()
 {
   // var baku=require("./backup.json");
+  console.log(fs.readFileSync("./backup.json", "utf8"));
   var backu=fs.readFile("backup.json", 'utf8', (err, data) => {
     if (err) throw err;
     console.log(data);
