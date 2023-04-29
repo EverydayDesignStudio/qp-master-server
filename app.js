@@ -397,5 +397,6 @@ function queueUpdateBroadcast(queue,song,seek)
          }
          backupCheck = true;
          console.log("JSON file has been saved.");
+         console.log(fs.readFileSync("backup.json", "utf8"));
      });
 }
