@@ -113,6 +113,7 @@ wss.on('connection', (ws) => {
   else
   {
     var backup=readBackup()
+    console.log("Sending Backup")
     ws.send(backup["color"])
   }
 });
