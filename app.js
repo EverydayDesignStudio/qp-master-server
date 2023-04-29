@@ -151,6 +151,7 @@ function readDatabase()
 function readBackup()
 {
   var baku=require("./backup.json");
+  console.log(baku[color]);
   return baku
 }
  
@@ -394,6 +395,5 @@ function queueUpdateBroadcast(queue,song,seek)
          }
          backupCheck = true;
          console.log("JSON file has been saved.");
-         console.log(fs.readFileSync("backup.json", "utf8"));
      });
 }
