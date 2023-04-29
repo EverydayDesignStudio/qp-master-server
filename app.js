@@ -333,9 +333,20 @@ function userControl(id)
 
 function userCheck(id)
 {
-  if("client"+id+"Added")
+  if(id==1 && client1Added)
   {
-    console.log(id)
+    return false;
+  }
+  else if(id==2 && client2Added)
+  {
+    return false;
+  }
+  else if(id==3 && client3Added)
+  {
+    return false;
+  }
+  else if(id==4 && client4Added)
+  {
     return false;
   }
   return true;
