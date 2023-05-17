@@ -44,6 +44,27 @@ app.post('/setClientActive',(req, res)=>{
 
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
+
+app.post('/setClientInactive',(req, res)=>{
+  if(req.body.clientID==1)
+  {
+    client1Active=false;
+  }
+  else if(req.body.clientID==2)
+  {
+    client2Active=false;
+  }
+  else if(req.body.clientID==3)
+  {
+    client3Active=false;
+  }
+  else if(req.body.clientID==4)
+  {
+    client4Active=false;
+  }
+
+  res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
+})
    
 //Get the Track to play as requested by the client
 app.post('/getTrackToPlay', (req, res) => {
