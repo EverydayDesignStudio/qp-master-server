@@ -71,7 +71,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID);
     queue=updatedQueue;
     rotation[currOffset]=true;
-    clientTrackAdded[req.body.userID-1]=updatedQueue[req.body.offset]["track_id"];
+    clientTrackAdded[req.body.userID-1]=updatedQueue[currOffset]["track_id"];
     // userControl(req.body.userID);
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     res.send({"queue": updatedQueue});
