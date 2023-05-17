@@ -64,13 +64,13 @@ app.post('/getTrackToPlay', (req, res) => {
 app.post('/getTrackToQueue',(req, res)=>{
   // if(userCheck(req.body.userID))
   // {
-    currOffset=req.body.offset
+    currOffset++;
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
     var songAddition = processDatabase(bpmData, req.body.userID);
-    var updatedQueue = queueUpdateUser(queue,songAddition,req.body.offset,req.body.userID);
+    var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID);
     queue=updatedQueue;
-    rotation[req.body.offset]=true;
+    rotation[currOffset]=true;
     clientTrackAdded[req.body.userID-1]=updatedQueue[req.body.offset]["track_id"];
     // userControl(req.body.userID);
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
@@ -84,6 +84,7 @@ app.post('/getTrackToQueue',(req, res)=>{
  
 app.get('/continuePlayingImmediate', (req, res)=>{
 
+  currOffset--;
   var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
   res.send({"queue": updatedQueue, "song":updatedQueue[0]});
