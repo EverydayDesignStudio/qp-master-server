@@ -85,6 +85,10 @@ app.post('/getTrackToQueue',(req, res)=>{
 app.get('/continuePlayingImmediate', (req, res)=>{
 
   currOffset--;
+  if (currOffset<0)
+  {
+    currOffset=0;
+  }
   var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
   res.send({"queue": updatedQueue, "song":updatedQueue[0]});
