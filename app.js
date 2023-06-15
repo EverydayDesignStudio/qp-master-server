@@ -324,6 +324,7 @@ function queueUpdateAutomatic(queue, user, bpm)
   if(indx!=-1)
   { 
     clientTrackAdded[indx]="";
+    console.log("user free to use is: ", indx+1)
     userControl(indx+1);
   }
   
