@@ -152,7 +152,7 @@ wss.on('connection', (ws) => {
 
 setInterval(() => {
   wss.clients.forEach((ws) => {
-    ws.send({"msg":"Just Checking"});
+    ws.send(JSON.stringify({"msg":"Just Checking"}));
   });
 }, 1000);
 
