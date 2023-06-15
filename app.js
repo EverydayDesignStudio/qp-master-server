@@ -474,5 +474,5 @@ function pingWrapper()
     wss.clients.forEach((ws) => {
         ws.send(JSON.stringify({"msg":"Just Checking"}));
     });
-  }, 1000);
+  }, 10000);
 }
