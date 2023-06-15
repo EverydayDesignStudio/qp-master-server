@@ -150,6 +150,12 @@ wss.on('connection', (ws) => {
   }
 });
 
+setInterval(() => {
+  wss.clients.forEach((client) => {
+    client.send("Just Checking");
+  });
+}, 1000);
+
 //start our server
 server.listen(port, () => {
     console.log(`Server started on port ${server.address().port} :)`);
