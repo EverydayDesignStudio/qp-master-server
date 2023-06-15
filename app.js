@@ -451,19 +451,19 @@ function queueUpdateBroadcast(queue,song,seek)
          }
        }
    )
-
-   ws.send(colorJSON);
-   var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
-
-   fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-      if (err) {
-          console.log("An error occured while writing JSON Object to File.");
-          return console.log(err);
-      }
-      backupCheck = true;
-      console.log("JSON file has been saved.");
-   });
-
+   wss.clients.forEach((ws) => {
+    ws.send(colorJSON);
+    var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
+ 
+    fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+       if (err) {
+           console.log("An error occured while writing JSON Object to File.");
+           return console.log(err);
+       }
+       backupCheck = true;
+       console.log("JSON file has been saved.");
+    });
+  });
    pingWrapper()
 
 }
