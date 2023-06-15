@@ -152,7 +152,25 @@ wss.on('connection', (ws) => {
 
 setInterval(() => {
   wss.clients.forEach((ws) => {
-    ws.send(JSON.stringify({"msg":"Just Checking"}));
+    if(isQueueUpdated) 
+    {
+      ws.send(colorJSON);
+      var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
+   
+      fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+         if (err) {
+             console.log("An error occured while writing JSON Object to File.");
+             return console.log(err);
+         }
+         backupCheck = true;
+         console.log("JSON file has been saved.");
+      });
+      isQueueUpdated=false;
+    }
+    else
+    {
+      ws.send(JSON.stringify({"msg":"Just Checking"}));
+    }
   });
 }, 1000);
 
@@ -180,6 +198,8 @@ var client4Added=false;
 var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
 var backupCheck=false;
+var colorJSON;
+var isQueueUpdated=false;
 
 // Reading the JSON file data
 function readDatabase()
@@ -419,7 +439,8 @@ function getRGBColors(qElement)
  
 function queueUpdateBroadcast(queue,song,seek)
 {    
-   var colorJSON=JSON.stringify(
+  isQueueUpdated=true;
+   colorJSON=JSON.stringify(
      { 
        "songdata":{
          "songID":song.track_id,
@@ -453,19 +474,4 @@ function queueUpdateBroadcast(queue,song,seek)
          }
        }
    )
-   
-   // stringify JSON Object
-   wss.clients.forEach((ws) => {
-         ws.send(colorJSON);
-     });
-     var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
-   
-     fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-         if (err) {
-             console.log("An error occured while writing JSON Object to File.");
-             return console.log(err);
-         }
-         backupCheck = true;
-         console.log("JSON file has been saved.");
-     });
 }
