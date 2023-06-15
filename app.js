@@ -419,6 +419,7 @@ function queueUpdateBroadcast(queue,song,seek)
   clearInterval(ping)
    colorJSON=JSON.stringify(
      { 
+       "msg":"Updated",
        "songdata":{
          "songID":song.track_id,
          "timestamp":seek,
@@ -472,7 +473,7 @@ function pingWrapper()
 {
   ping=setInterval(() => {
     wss.clients.forEach((ws) => {
-        ws.send(JSON.stringify({"msg":"Just Checking"}));
+        ws.send(JSON.stringify({"msg":"Pinged"}));
     });
   }, 10000);
 }
