@@ -344,19 +344,47 @@ function userControl(id)
 {
   if(id==1)
   {
-    client1Added=!client1Added;
+    if(client1Added)
+    {
+      client1Added = false;
+    }
+    else
+    {
+      client1Added = true;
+    }
   }
   else if(id==2)
   {
-    client2Added=!client2Added;
+    if(client2Added)
+    {
+      client2Added = false;
+    }
+    else
+    {
+      client2Added = true;
+    }
   }
   else if(id==3)
   {
-    client3Added=!client3Added;
+    if(client3Added)
+    {
+      client3Added = false;
+    }
+    else
+    {
+      client3Added = true;
+    }
   }
   else if(id==4)
   {
-    client4Added=!client4Added;
+    if(client4Added)
+    {
+      client4Added = false;
+    }
+    else
+    {
+      client4Added = true;
+    }
   }
 }
 
