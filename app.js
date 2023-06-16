@@ -147,6 +147,8 @@ wss.on('connection', (ws) => {
   else
   {
     var backup=readBackup()
+    clientTrackAdded=backup["userTracks"]
+    // queue=backup["queue"]
     ws.send(backup["color"])
   }
 });
@@ -483,7 +485,7 @@ function queueUpdateBroadcast(queue,song,seek)
    )
    wss.clients.forEach((ws) => {
     ws.send(colorJSON);
-    var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON});
+    var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
  
     fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
        if (err) {
