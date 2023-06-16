@@ -148,6 +148,7 @@ wss.on('connection', (ws) => {
   {
     var backup=readBackup()
     clientTrackAdded=backup["userTracks"]
+    console.log(clientTrackAdded);
     // queue=backup["queue"]
     ws.send(backup["color"])
   }
@@ -320,7 +321,6 @@ function queueUpdateAutomatic(queue, user, bpm)
   rotation.shift();
   rotation=rotation.concat([false]);
 
-  console.log(clientTrackAdded);
   var deletedFromQueue=queue.shift(); 
   var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
   if(indx!=-1)
