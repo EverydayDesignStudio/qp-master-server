@@ -149,7 +149,7 @@ wss.on('connection', (ws) => {
     var backup=readBackup()
     clientTrackAdded=backup["userTracks"]
     console.log(clientTrackAdded);
-    // queue=backup["queue"]
+    queue=backup["queue"];
     ws.send(backup["color"])
   }
 });
