@@ -323,6 +323,10 @@ function queueUpdateAutomatic(queue, user, bpm)
 
   var deletedFromQueue=queue.shift(); 
   console.log(deletedFromQueue);
+  if(deletedFromQueue==undefined)
+  {
+    console.log(queue);
+  }
   console.log("/////////////////////////////////////////////////")
   var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
   if(indx!=-1)
