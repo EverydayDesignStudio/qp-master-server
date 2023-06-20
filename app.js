@@ -111,6 +111,7 @@ app.get('/continuePlayingImmediate', (req, res)=>{
     currOffset=0;
   }
   var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+  queue=updatedQueue;
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
   res.send({"queue": updatedQueue, "song":updatedQueue[0]});
 })
@@ -335,15 +336,12 @@ function queueUpdateAutomatic(queue, user, bpm)
   
   while(queue.length<4)
   {
-    var nextBPM=bpm--;
-    console.log(nextBPM)
+    var nextBPM=queue[queue.length-1].tempo-1;
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos,nextBPM);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue=queue.concat(addMoreToQueue);
   }
-  console.log(queue);
-  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   return queue;
 }
 
