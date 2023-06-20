@@ -330,7 +330,7 @@ function queueUpdateAutomatic(queue, user, bpm)
     userControl(indx+1);
   }
   
-  if(queue.length<4)
+  while(queue.length<4)
   {
     var nextBPM=bpm-1
     var trackInfos = readDatabase();
