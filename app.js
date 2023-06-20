@@ -341,6 +341,8 @@ function queueUpdateAutomatic(queue, user, bpm)
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue=queue.concat(addMoreToQueue);
   }
+  console.log(queue);
+  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
   return queue;
 }
 
