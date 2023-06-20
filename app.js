@@ -322,6 +322,7 @@ function queueUpdateAutomatic(queue, user, bpm)
   rotation=rotation.concat([false]);
 
   var deletedFromQueue=queue.shift(); 
+  console.log(deletedFromQueue);
   var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
   if(indx!=-1)
   { 
@@ -332,7 +333,7 @@ function queueUpdateAutomatic(queue, user, bpm)
   
   while(queue.length<4)
   {
-    var nextBPM=bpm-1
+    var nextBPM=bpm--;
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos,nextBPM);
     var addMoreToQueue = processDatabase(bpmData, user); 
@@ -448,7 +449,6 @@ function queueUpdateBroadcast(queue,song,seek)
 {   
   
   // clearInterval(ping)
-  console.log(queue)
    colorJSON=JSON.stringify(
      { 
        "msg":"Updated",
