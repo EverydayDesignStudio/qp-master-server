@@ -323,9 +323,6 @@ function queueUpdateAutomatic(queue, user, bpm)
   rotation=rotation.concat([false]);
 
   var deletedFromQueue=queue.shift(); 
-  // console.log(deletedFromQueue);
-  console.log(queue);
-  console.log("/////////////////////////////////////////////////")
   var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
   if(indx!=-1)
   { 
@@ -497,7 +494,7 @@ function queueUpdateBroadcast(queue,song,seek)
            return console.log(err);
        }
        backupCheck = true;
-      //  console.log("JSON file has been saved.");
+       console.log("JSON file has been saved.");
     });
   });
   //  pingWrapper()
