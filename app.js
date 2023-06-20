@@ -448,6 +448,7 @@ function queueUpdateBroadcast(queue,song,seek)
 {   
   
   // clearInterval(ping)
+  console.log(queue)
    colorJSON=JSON.stringify(
      { 
        "msg":"Updated",
@@ -493,7 +494,7 @@ function queueUpdateBroadcast(queue,song,seek)
            return console.log(err);
        }
        backupCheck = true;
-       console.log("JSON file has been saved.");
+      //  console.log("JSON file has been saved.");
     });
   });
   //  pingWrapper()
