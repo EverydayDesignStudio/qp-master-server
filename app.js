@@ -336,6 +336,7 @@ function queueUpdateAutomatic(queue, user, bpm)
   while(queue.length<4)
   {
     var nextBPM=bpm--;
+    console.log(nextBPM)
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos,nextBPM);
     var addMoreToQueue = processDatabase(bpmData, user); 
