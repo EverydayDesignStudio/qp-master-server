@@ -184,7 +184,7 @@ var ping;
 // Reading the JSON file data
 function readDatabase()
 {
-  var qpDataset=require("./Final Database/qp_multiuser_update.json");
+  var qpDataset=require("./Final Database/qp_multiuser_update_norepeats.json");
   return qpDataset;
 }
 
