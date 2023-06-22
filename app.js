@@ -135,7 +135,7 @@ wss.on('connection', (ws) => {
   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
   if(!backupCheck)
   {
-    // pingWrapper()
+    pingWrapper()
     ws.send(JSON.stringify(
       {'colors':{
         'r':Math.floor(Math.random()*255),
@@ -449,7 +449,7 @@ function getRGBColors(qElement)
 function queueUpdateBroadcast(queue,song,seek)
 {   
   
-  // clearInterval(ping)
+  clearInterval(ping)
    colorJSON=JSON.stringify(
      { 
        "msg":"Updated",
@@ -498,7 +498,7 @@ function queueUpdateBroadcast(queue,song,seek)
        console.log("JSON file has been saved.");
     });
   });
-  //  pingWrapper()
+   pingWrapper()
 
 }
 
