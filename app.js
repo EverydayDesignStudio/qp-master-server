@@ -135,7 +135,7 @@ io.on('connection', (socket) => {
   if(!backupCheck)
   {
     // pingWrapper()
-    ws.send(JSON.stringify(
+    io.emit('message',JSON.stringify(
       {'colors':{
         'r':Math.floor(Math.random()*255),
         'g':Math.floor(Math.random()*255),
@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
     console.log(clientTrackAdded);
     console.log("Accessing Backup")
     queue=backup["queue"];
-    ws.send(backup["color"])
+    io.emit('message',backup["color"])
   }
   socket.on('disconnect', () => {
     console.log('Client disconnected');
