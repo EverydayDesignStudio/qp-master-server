@@ -532,7 +532,7 @@ function queueUpdateBroadcast(queue,song,seek)
    )
 
   io.emit('message', colorJSON)
-  
+
   var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
   fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
      if (err) {
@@ -541,6 +541,7 @@ function queueUpdateBroadcast(queue,song,seek)
      }
      backupCheck = true;
      console.log("JSON file has been saved.");
+     console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
   });
   //  wss.clients.forEach((ws) => {
   //   ws.send(colorJSON);
