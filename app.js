@@ -7,6 +7,7 @@ var fs= require('fs');
 var bodyParser = require("body-parser");
 var http=require('http');
 var WebSocket = require('ws');
+var socketio = require('socket.io');
 
 const port = process.env.PORT || '5000';
  
@@ -127,6 +128,20 @@ app.get('/getSeek',(req, res)=>{
 })
  
 const server = http.createServer(app);
+const io = new socketio.Server(server);
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+
+  socket.on('message', (data) => {
+    io.emit('message', data); // Broadcast the message to all connected clients
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
