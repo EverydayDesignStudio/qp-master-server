@@ -135,7 +135,7 @@ io.on('connection', (socket) => {
 
   socket.on('message', (data) => {
     console.log('Received message:', data);
-    io.emit('message', data);
+    io.emit('message', {data});
   });
   socket.on('disconnect', () => {
     console.log('Client disconnected');
