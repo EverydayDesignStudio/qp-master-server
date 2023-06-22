@@ -148,12 +148,7 @@ io.on('connection', (socket) => {
   {
     // pingWrapper()
     io.emit('message',JSON.stringify(
-      {'colors':{
-        'r':Math.floor(Math.random()*255),
-        'g':Math.floor(Math.random()*255),
-        'b':Math.floor(Math.random()*255),
-        'w':0
-      }}
+      {"msg":"Initial"}
     ));
   }
   else
