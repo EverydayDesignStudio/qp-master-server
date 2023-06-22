@@ -113,19 +113,31 @@ app.post('/getTrackToQueue',(req, res)=>{
  
 app.get('/continuePlayingImmediate', (req, res)=>{
 
-  currOffset--;
-  if (currOffset<0)
+  if(!continueCheck)
   {
-    currOffset=0;
+    continueCheck = true
+    currOffset--;
+    if (currOffset<0)
+    {
+      currOffset=0;
+    } 
+    var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+  
+    queue=updatedQueue;
+  
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+    
+    console.log("Continuing to play the next song")
+    setTimeout(() => {
+      continueCheck = false;
+    }, 10000);
+
+    res.send({"queue": updatedQueue, "song":updatedQueue[0]});
   }
-  var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-
-  queue=updatedQueue;
-
-  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
-
-  console.log("Continuing to play the next song")
-  res.send({"queue": updatedQueue, "song":updatedQueue[0]});
+  else
+  {
+    res.send({"queue": updatedQueue, "song":updatedQueue[0]});
+  }
 })
   
 app.post('/updateSeek',(req, res)=>{
@@ -205,11 +217,12 @@ server.listen(port, () => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
 var queue = []; 
+var colorArr = [];
 var currBPM=-1;
 var currOffset=0;
-var colorArr = [];
 var currSeek=0;
 var currID='';
+var currNext='';
 var client1Active=false;
 var client2Active=false;
 var client3Active=false;
@@ -221,7 +234,7 @@ var client4Added=false;
 var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
 var backupCheck=false;
-var ping;
+var continueCheck=false;
 
 // Reading the JSON file data
 function readDatabase()
