@@ -133,10 +133,15 @@ const io = new socketio.Server(server);
 io.on('connection', (socket) => {
   console.log('Client connected');
 
-  socket.on('message', (data) => {
-    console.log('Received message:', data);
-    io.emit('message', {data});
-  });
+// Emit JSON data every 2 seconds
+  setInterval(() => {
+    const jsonData = {
+      name: 'John Doe',
+      age: 25,
+      city: 'New York'
+    };
+    socket.emit('json', jsonData);
+  }, 2000);
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
