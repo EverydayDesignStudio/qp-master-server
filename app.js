@@ -135,20 +135,21 @@ io.on('connection', (socket) => {
 
   socket.on('message', (data) => {
     console.log('Received message:', data);
+    io.emit('message', JSON.stringify(
+      {'colors':{
+        'r':Math.floor(Math.random()*255),
+        'g':Math.floor(Math.random()*255),
+        'b':Math.floor(Math.random()*255),
+        'w':0
+      }}
+    )); // Broadcast the message to all connected clients
   });
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
 });
 
-io.emit('message', JSON.stringify(
-  {'colors':{
-    'r':Math.floor(Math.random()*255),
-    'g':Math.floor(Math.random()*255),
-    'b':Math.floor(Math.random()*255),
-    'w':0
-  }}
-)); // Broadcast the message to all connected clients
+
 
 // const wss = new WebSocket.Server({ server });
 
