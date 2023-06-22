@@ -134,6 +134,7 @@ io.on('connection', (socket) => {
   console.log('Client connected');
 
   socket.on('message', (data) => {
+    console.log('Received message:', data);
     io.emit('message', data); // Broadcast the message to all connected clients
   });
 
