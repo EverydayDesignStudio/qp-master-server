@@ -132,17 +132,27 @@ const io = new socketio.Server(server);
 
 io.on('connection', (socket) => {
   console.log('Client connected');
-
-// Emit JSON data every 2 seconds
-  setInterval(() => {
-    const jsonData = {
-      name: 'John Doe',
-      age: 25,
-      city: 'New York'
-    };
-    console.log('Sending JSON');
-    io.emit('message', jsonData);
-  }, 2000);
+  if(!backupCheck)
+  {
+    // pingWrapper()
+    ws.send(JSON.stringify(
+      {'colors':{
+        'r':Math.floor(Math.random()*255),
+        'g':Math.floor(Math.random()*255),
+        'b':Math.floor(Math.random()*255),
+        'w':0
+      }}
+    ));
+  }
+  else
+  {
+    var backup=readBackup()
+    clientTrackAdded=backup["userTracks"]
+    console.log(clientTrackAdded);
+    console.log("Accessing Backup")
+    queue=backup["queue"];
+    ws.send(backup["color"])
+  }
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
@@ -472,7 +482,7 @@ function getRGBColors(qElement)
 function queueUpdateBroadcast(queue,song,seek)
 {   
   
-  clearInterval(ping)
+  // clearInterval(ping)
    colorJSON=JSON.stringify(
      { 
        "msg":"Updated",
@@ -508,20 +518,31 @@ function queueUpdateBroadcast(queue,song,seek)
          }
        }
    )
-   wss.clients.forEach((ws) => {
-    ws.send(colorJSON);
-    var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
- 
-    fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-       if (err) {
-           console.log("An error occured while writing JSON Object to File.");
-           return console.log(err);
-       }
-       backupCheck = true;
-       console.log("JSON file has been saved.");
-    });
+
+  io.emit('message', colorJSON)
+  var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
+  fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+     if (err) {
+         console.log("An error occured while writing JSON Object to File.");
+         return console.log(err);
+     }
+     backupCheck = true;
+     console.log("JSON file has been saved.");
   });
-   pingWrapper()
+  //  wss.clients.forEach((ws) => {
+  //   ws.send(colorJSON);
+  //   var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
+ 
+  //   fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+  //      if (err) {
+  //          console.log("An error occured while writing JSON Object to File.");
+  //          return console.log(err);
+  //      }
+  //      backupCheck = true;
+  //      console.log("JSON file has been saved.");
+  //   });
+  // });
+  //  pingWrapper()
 
 }
 
