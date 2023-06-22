@@ -140,7 +140,8 @@ io.on('connection', (socket) => {
       age: 25,
       city: 'New York'
     };
-    socket.emit('json', jsonData);
+    console.log('Sending JSON');
+    io.emit('message', jsonData);
   }, 2000);
   socket.on('disconnect', () => {
     console.log('Client disconnected');
