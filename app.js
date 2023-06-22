@@ -136,7 +136,7 @@ app.get('/continuePlayingImmediate', (req, res)=>{
   }
   else
   {
-    res.send({"queue": updatedQueue, "song":updatedQueue[0]});
+    res.send({"queue": queue, "song":queue[0]});
   }
 })
   
