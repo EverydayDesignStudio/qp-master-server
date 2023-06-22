@@ -143,34 +143,34 @@ io.on('connection', (socket) => {
   });
 });
 
-const wss = new WebSocket.Server({ server });
+// const wss = new WebSocket.Server({ server });
 
-wss.on('connection', (ws) => {
-  //send immediatly a feedback to the incoming connection   
+// wss.on('connection', (ws) => {
+//   //send immediatly a feedback to the incoming connection   
   
-  // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
-  if(!backupCheck)
-  {
-    pingWrapper()
-    ws.send(JSON.stringify(
-      {'colors':{
-        'r':Math.floor(Math.random()*255),
-        'g':Math.floor(Math.random()*255),
-        'b':Math.floor(Math.random()*255),
-        'w':0
-      }}
-    ));
-  }
-  else
-  {
-    var backup=readBackup()
-    clientTrackAdded=backup["userTracks"]
-    console.log(clientTrackAdded);
-    console.log("Accessing Backup")
-    queue=backup["queue"];
-    ws.send(backup["color"])
-  }
-});
+//   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
+//   if(!backupCheck)
+//   {
+//     pingWrapper()
+//     ws.send(JSON.stringify(
+//       {'colors':{
+//         'r':Math.floor(Math.random()*255),
+//         'g':Math.floor(Math.random()*255),
+//         'b':Math.floor(Math.random()*255),
+//         'w':0
+//       }}
+//     ));
+//   }
+//   else
+//   {
+//     var backup=readBackup()
+//     clientTrackAdded=backup["userTracks"]
+//     console.log(clientTrackAdded);
+//     console.log("Accessing Backup")
+//     queue=backup["queue"];
+//     ws.send(backup["color"])
+//   }
+// });
 
 //start our server
 server.listen(port, () => {
