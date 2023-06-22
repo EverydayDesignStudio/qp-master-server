@@ -1,14 +1,14 @@
 //Depedency variables
 const express = require('express')
 var cors = require('cors');
-var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
-var fs= require('fs');
 var bodyParser = require("body-parser");
+var fs= require('fs');
 var http=require('http');
 var WebSocket = require('ws');
 var socketio = require('socket.io');
 
+// Defining the port
 const port = process.env.PORT || '5000';
  
 //Initialising the express server
@@ -42,7 +42,8 @@ app.post('/setClientActive',(req, res)=>{
   {
     client4Active=true;
   }
-
+  
+  console.log("Active Clients: ", [client1Active,client2Active,client3Active,client4Active])
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
 
@@ -73,11 +74,13 @@ app.post('/getTrackToPlay', (req, res) => {
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
   var songAddition = processDatabase(bpmData, req.body.clientID);
   var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.userID);
+
   queue=updatedQueue;
   rotation[0]=true;
-  // clientTrackAdded[req.body.clientID-1]=queue[0]["track_id"];
-  // userControl(req.body.clientID);
+
   queueUpdateBroadcast(queue,queue[0],currSeek);
+
+  console.log("Playing First Song ", queue[0]["track_name"])
   res.send({"queue": queue, "song":queue[0]});
 })
  
@@ -91,11 +94,15 @@ app.post('/getTrackToQueue',(req, res)=>{
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
     var songAddition = processDatabase(bpmData, req.body.userID);
     var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID);
+
     queue=updatedQueue;
     rotation[currOffset]=true;
     clientTrackAdded[req.body.userID-1]=updatedQueue[currOffset]["track_id"];
     userControl(req.body.userID);
+
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+
+    console.log("Adding to Queue")
     res.send({"queue": updatedQueue});
   }
   else
@@ -112,8 +119,12 @@ app.get('/continuePlayingImmediate', (req, res)=>{
     currOffset=0;
   }
   var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+
   queue=updatedQueue;
+
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+
+  console.log("Continuing to play the next song")
   res.send({"queue": updatedQueue, "song":updatedQueue[0]});
 })
   
@@ -124,6 +135,7 @@ app.post('/updateSeek',(req, res)=>{
  })
 
 app.get('/getSeek',(req, res)=>{
+  console.log("Seeking the song: "+currID+" to timestamp: "+currSeek)
   res.send({seek:currSeek, id:currID});
 })
  
@@ -148,9 +160,10 @@ io.on('connection', (socket) => {
   {
     var backup=readBackup()
     clientTrackAdded=backup["userTracks"]
+    queue=backup["queue"];
+
     console.log(clientTrackAdded);
     console.log("Accessing Backup")
-    queue=backup["queue"];
     io.emit('message',backup["color"])
   }
   socket.on('disconnect', () => {
@@ -194,7 +207,7 @@ server.listen(port, () => {
     console.log(`Server started on port ${server.address().port} :)`);
 });
 
-//////////// Server Helper Functions ///////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
 var queue = []; 
 var currBPM=-1;
@@ -335,7 +348,6 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     i++
   }
 
-  
   queue.splice(offset,queue.length-offset);
   queue=queue.concat(additionToQueue);
 
@@ -520,6 +532,7 @@ function queueUpdateBroadcast(queue,song,seek)
    )
 
   io.emit('message', colorJSON)
+  
   var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
   fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
      if (err) {
