@@ -113,7 +113,7 @@ app.post('/getTrackToQueue',(req, res)=>{
  
 app.get('/continuePlayingImmediate', (req, res)=>{
 
-  console.log("User ID: ", req.body.user.id)
+  console.log("User ID: ", req.body.userID)
   if(!continueCheck)
   {
     continueCheck = true
