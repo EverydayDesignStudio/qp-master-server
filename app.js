@@ -252,7 +252,7 @@ function readBackup()
   return backu
 }
  
-function getDatafromBPM(qpData, bpm,user)
+function getDatafromBPM(qpData, bpm, user)
 {
   //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
   userCheckBPM=false;
@@ -364,7 +364,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     if(additionToQueue.length==0)
     {
       var trackInfos = readDatabase();
-      var bpmData=getDatafromBPM(trackInfos,delBPM-1);
+      var bpmData=getDatafromBPM(trackInfos,delBPM-1,user);
       additionToQueue = processDatabase(bpmData, user); 
       i--;
     }
@@ -378,7 +378,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
   {
     var nextBPM=queue[queue.length-1].tempo-1
     var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos,nextBPM);
+    var bpmData=getDatafromBPM(trackInfos,nextBPM,user);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue=queue.concat(addMoreToQueue);
   }
@@ -404,7 +404,7 @@ function queueUpdateAutomatic(queue, user, bpm)
   {
     var nextBPM=queue[queue.length-1].tempo-1;
     var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos,nextBPM);
+    var bpmData=getDatafromBPM(trackInfos,nextBPM,user);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue=queue.concat(addMoreToQueue);
   }
