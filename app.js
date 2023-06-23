@@ -71,7 +71,7 @@ app.post('/setClientInactive',(req, res)=>{
 //Get the Track to play as requested by the client
 app.post('/getTrackToPlay', (req, res) => {
   var trackInfos = readDatabase();
-  var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
+  var bpmData=getDatafromBPM(trackInfos, req.body.bpm,req.body.clientID);
   var songAddition = processDatabase(bpmData, req.body.clientID);
   var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.userID);
 
@@ -91,7 +91,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   {
     currOffset++;
     var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
+    var bpmData=getDatafromBPM(trackInfos, req.body.bpm,req.body.clientID);
     var songAddition = processDatabase(bpmData, req.body.userID);
     var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID);
 
@@ -235,6 +235,7 @@ var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
 var backupCheck=false;
 var continueCheck=false;
+var userCheckBPM=false;
 
 // Reading the JSON file data
 function readDatabase()
@@ -251,9 +252,10 @@ function readBackup()
   return backu
 }
  
-function getDatafromBPM(qpData, bpm)
+function getDatafromBPM(qpData, bpm,user)
 {
   //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
+  userCheckBPM=false;
   var qpBPMData=new Array();
   while(qpBPMData.length == 0)
   {
@@ -263,6 +265,15 @@ function getDatafromBPM(qpData, bpm)
       {
         qpBPMData.push(qpData[i]);
       }
+      if(qpData[i].user_id.includes(user))
+      {
+        userCheckBPM=true
+      }
+    }
+
+    if(!userCheckBPM)
+    {
+      qpBPMData=new Array();
     }
     bpm--;
   }
