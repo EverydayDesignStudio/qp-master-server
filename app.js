@@ -71,7 +71,7 @@ app.post('/setClientInactive',(req, res)=>{
 //Get the Track to play as requested by the client
 app.post('/getTrackToPlay', (req, res) => {
   var trackInfos = readDatabase();
-  var bpmData=getDatafromBPM(trackInfos, req.body.bpm,req.body.clientID);
+  var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID);
   var songAddition = processDatabase(bpmData, req.body.clientID);
   var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.clientID);
 
