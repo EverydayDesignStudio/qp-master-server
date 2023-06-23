@@ -292,7 +292,14 @@ function processDatabase(qpData,user)
   //Include Song Selection Algorithm
   if(queue.length == 0)
   {
-    qpData.sort((a,b)=> a['cluster_number']-b['cluster_number']) 
+    qpData.sort((a,b)=> a['cluster_number']-b['cluster_number'])
+    let l=0;
+    while(l<qpData.length &&  !qpData[l].user_id.includes(user))
+    {
+      l++;
+    }
+    var temp=qpData.splice(0,l);
+    qpData=qpData.concat(temp); 
   }
   else
   {
