@@ -257,6 +257,7 @@ function getDatafromBPM(qpData, bpm,user)
   //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
   userCheckBPM=false;
   var qpBPMData=new Array();
+  console.log(bpm)
   while(qpBPMData.length == 0)
   {
     for(let i=0;i<qpData.length;i++)
@@ -273,6 +274,8 @@ function getDatafromBPM(qpData, bpm,user)
 
     if(!userCheckBPM)
     {
+      console.log("No User data in this bpm")
+      console.log(bpm)
       qpBPMData=new Array();
     }
     bpm--;
