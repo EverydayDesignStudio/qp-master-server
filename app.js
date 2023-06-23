@@ -523,8 +523,7 @@ function getRGBColors(qElement)
  
  
 function queueUpdateBroadcast(queue,song,seek)
-{   
-  
+{    
   // clearInterval(ping)
    colorJSON=JSON.stringify(
      { 
