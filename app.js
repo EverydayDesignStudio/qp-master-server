@@ -258,6 +258,7 @@ function getDatafromBPM(qpData, bpm,user)
   userCheckBPM=false;
   var qpBPMData=new Array();
   console.log(bpm)
+  console.log(user)
   while(qpBPMData.length == 0)
   {
     for(let i=0;i<qpData.length;i++)
@@ -266,6 +267,7 @@ function getDatafromBPM(qpData, bpm,user)
       {
         qpBPMData.push(qpData[i]);
       }
+      console.log(qpData[i].user_id)
       if(qpData[i].user_id.includes(user))
       {
         userCheckBPM=true
@@ -274,8 +276,8 @@ function getDatafromBPM(qpData, bpm,user)
 
     if(!userCheckBPM)
     {
-      console.log("No User data in this bpm")
-      console.log(bpm)
+      // console.log("No User data in this bpm")
+      // console.log(bpm)
       qpBPMData=new Array();
     }
     bpm--;
