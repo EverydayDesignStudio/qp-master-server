@@ -265,19 +265,18 @@ function getDatafromBPM(qpData, bpm,user)
     {
       if(qpData[i].tempo==bpm)
       {
+        if(qpData[i].user_id.includes(user))
+        {
+          userCheckBPM=true
+        }
         qpBPMData.push(qpData[i]);
       }
-      console.log(qpData[i].user_id)
-      if(qpData[i].user_id.includes(user))
-      {
-        userCheckBPM=true
-      }
+
+
     }
 
     if(!userCheckBPM)
     {
-      // console.log("No User data in this bpm")
-      // console.log(bpm)
       qpBPMData=new Array();
     }
     bpm--;
