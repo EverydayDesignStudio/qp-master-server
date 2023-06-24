@@ -43,7 +43,10 @@ app.post('/setClientActive',(req, res)=>{
     client4Active=true;
   }
   
-  queueUpdateBroadcast(queue,queue[0],currSeek);
+  if(queue.length>4)
+  {
+    queueUpdateBroadcast(queue,queue[0],currSeek);
+  }
 
   console.log("Active Clients: ", [client1Active,client2Active,client3Active,client4Active])
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
@@ -67,7 +70,11 @@ app.post('/setClientInactive',(req, res)=>{
     client4Active=false;
   }
 
-  queueUpdateBroadcast(queue,queue[0],currSeek);
+  if(queue.length>4)
+  {
+    queueUpdateBroadcast(queue,queue[0],currSeek);
+  }
+  
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
    
