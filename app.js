@@ -215,37 +215,6 @@ io.on('connection', (socket) => {
   });
 });
 
-
-
-// const wss = new WebSocket.Server({ server });
-
-// wss.on('connection', (ws) => {
-//   //send immediatly a feedback to the incoming connection   
-  
-//   // if first connection then send acknowledgement, check this by reading backup.json for the last updated colorJSON 
-//   if(!backupCheck)
-//   {
-//     pingWrapper()
-//     ws.send(JSON.stringify(
-//       {'colors':{
-//         'r':Math.floor(Math.random()*255),
-//         'g':Math.floor(Math.random()*255),
-//         'b':Math.floor(Math.random()*255),
-//         'w':0
-//       }}
-//     ));
-//   }
-//   else
-//   {
-//     var backup=readBackup()
-//     clientTrackAdded=backup["userTracks"]
-//     console.log(clientTrackAdded);
-//     console.log("Accessing Backup")
-//     queue=backup["queue"];
-//     ws.send(backup["color"])
-//   }
-// });
-
 //start our server
 server.listen(port, () => {
     console.log(`Server started on port ${server.address().port} :)`);
@@ -569,7 +538,6 @@ function getRGBColors(qElement)
  
 function queueUpdateBroadcast(queue,song,seek)
 {    
-  // clearInterval(ping)
    colorJSON=JSON.stringify(
      { 
        "msg":"Updated",
@@ -618,28 +586,4 @@ function queueUpdateBroadcast(queue,song,seek)
      console.log("JSON file has been saved.");
      console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
   });
-  //  wss.clients.forEach((ws) => {
-  //   ws.send(colorJSON);
-  //   var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
- 
-  //   fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-  //      if (err) {
-  //          console.log("An error occured while writing JSON Object to File.");
-  //          return console.log(err);
-  //      }
-  //      backupCheck = true;
-  //      console.log("JSON file has been saved.");
-  //   });
-  // });
-  //  pingWrapper()
-
-}
-
-function pingWrapper()
-{
-  ping=setInterval(() => {
-    wss.clients.forEach((ws) => {
-        ws.send(JSON.stringify({"msg":"Pinged"}));
-    });
-  }, 10000);
 }
