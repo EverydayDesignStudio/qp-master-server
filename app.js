@@ -124,6 +124,7 @@ app.post('/getTrackToQueue',(req, res)=>{
 app.get('/continuePlayingImmediate', (req, res)=>{
 
   console.log("User ID: ", req.body.userID)
+  var updatedQueue
   if(!continueCheck)
   {
     continueCheck = true
@@ -132,7 +133,7 @@ app.get('/continuePlayingImmediate', (req, res)=>{
     {
       currOffset=0;
     } 
-    var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+    updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
   
     queue=updatedQueue;
   
@@ -141,13 +142,13 @@ app.get('/continuePlayingImmediate', (req, res)=>{
     console.log("Continuing to play the next song")
     setTimeout(() => {
       continueCheck = false;
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+      // queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     }, 10000);
 
     res.send({"queue": updatedQueue, "song":updatedQueue[0]});
   }
-  else
-  {
+  // else
+  // {
     if(req.body.userID==1)
     {
       client1Ended=true
@@ -173,8 +174,8 @@ app.get('/continuePlayingImmediate', (req, res)=>{
       client4Ended=false;
       queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     }
-    res.send({"queue": queue, "song":queue[0]});
-  }
+    // res.send({"queue": queue, "song":queue[0]});
+  // }
 })
   
 app.post('/updateSeek',(req, res)=>{
