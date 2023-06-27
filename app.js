@@ -270,8 +270,13 @@ function getDatafromBPM(qpData, bpm, user)
   var qpBPMData=new Array();
   console.log(bpm)
   console.log(user)
-  while(qpBPMData.length == 0 && bpm>0)
+  while(qpBPMData.length == 0)
   {
+    if(bpm<=0)
+    {
+      bpm=239
+    }
+    
     for(let i=0;i<qpData.length;i++)
     {
       if(qpData[i].tempo==bpm)
@@ -291,21 +296,7 @@ function getDatafromBPM(qpData, bpm, user)
     bpm--;
   }
 
-  if(qpBPMData.length == 0 && bpm<=0)
-  {
-    for(let i=0;i<qpData.length;i++)
-    {
-      if(qpData[i].tempo==239)
-      {
-        qpBPMData.push(qpData[i])
-      }
-    }
-    currBPM=239
-  }
-  else
-  {
-    currBPM=bpm+1;
-  }
+  currBPM=bpm+1;
 
   return qpBPMData;
 }
