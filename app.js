@@ -121,7 +121,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   }
 })
  
-app.get('/continuePlayingImmediate', (req, res)=>{
+app.get('/continuePlaying', (req, res)=>{
 
   console.log("User ID: ", req.body.userID)
   var updatedQueue
@@ -139,44 +139,42 @@ app.get('/continuePlayingImmediate', (req, res)=>{
   
     // queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     
-    console.log("Continuing to play the next song")
-    setTimeout(() => {
-      continueCheck = false;
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
-    }, 10000);
-
     res.send({"queue": updatedQueue, "song":updatedQueue[0]});
   }
-  // else
-  // {
-    if(req.body.userID==1)
-    {
-      client1Ended=true
-    }
-    else if(req.body.userID==2)
-    {
-      client2Ended=true
-    }
-    else if(req.body.userID==3)
-    {
-      client3Ended=true
-    }
-    else if(req.body.userID==4)
-    {
-      client4Ended=true
-    }
 
-    if(client1Ended==client1Active && client2Ended==client2Active && client3Ended==client3Active && client4Ended==client4Active)
-    {
-      client1Ended=false;
-      client2Ended=false;
-      client3Ended=false;
-      client4Ended=false;
-      continueCheck = false;
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
-    }
-    // res.send({"queue": queue, "song":queue[0]});
-  // }
+  if(req.body.userID==1)
+  {
+    client1Ended=true
+  }
+  else if(req.body.userID==2)
+  {
+    client2Ended=true
+  }
+  else if(req.body.userID==3)
+  {
+    client3Ended=true
+  }
+  else if(req.body.userID==4)
+  {
+    client4Ended=true
+  }
+
+  if(client1Ended==client1Active && client2Ended==client2Active && client3Ended==client3Active && client4Ended==client4Active)
+  {
+    client1Ended=false;
+    client2Ended=false;
+    client3Ended=false;
+    client4Ended=false;
+    continueCheck = false;
+    console.log("Continuing to play the next song")
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
+  }
+
+  setTimeout(() => {
+    continueCheck = false;
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
+  }, 10000);
+
 })
   
 app.post('/updateSeek',(req, res)=>{
