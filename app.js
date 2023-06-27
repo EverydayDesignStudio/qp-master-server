@@ -124,7 +124,6 @@ app.post('/getTrackToQueue',(req, res)=>{
 app.get('/continuePlaying', (req, res)=>{
 
   console.log("User ID: ", req.body.userID)
-  var updatedQueue
   if(!continueCheck)
   {
     continueCheck = true
@@ -246,6 +245,7 @@ var rotation = [false,false,false,false];
 var backupCheck=false;
 var continueCheck=false;
 var userCheckBPM=false;
+var updatedQueue=[]
 
 // Reading the JSON file data
 function readDatabase()
