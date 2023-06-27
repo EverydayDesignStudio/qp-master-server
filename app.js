@@ -140,7 +140,6 @@ app.get('/continuePlaying', (req, res)=>{
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     setTimeout(() => {
       continueCheck = false;
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
     }, 10000);
   }
   else
@@ -209,16 +208,11 @@ var client1Added=false;
 var client2Added=false;
 var client3Added=false;
 var client4Added=false;
-var client1Ended=false;
-var client2Ended=false;
-var client3Ended=false;
-var client4Ended=false;
 var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
 var backupCheck=false;
 var continueCheck=false;
 var userCheckBPM=false;
-var updatedQueue=[]
 
 // Reading the JSON file data
 function readDatabase()
