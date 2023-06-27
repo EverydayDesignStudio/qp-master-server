@@ -172,7 +172,7 @@ app.get('/continuePlaying', (req, res)=>{
 
   setTimeout(() => {
     continueCheck = false;
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
   }, 10000);
 
 })
