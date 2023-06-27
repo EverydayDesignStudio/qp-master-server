@@ -268,9 +268,10 @@ function getDatafromBPM(qpData, bpm, user)
   //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
   userCheckBPM=false;
   var qpBPMData=new Array();
+  var tempBPM=bpm
   console.log(bpm)
   console.log(user)
-  while(qpBPMData.length == 0)
+  while(qpBPMData.length == 0 && bpm>0)
   {
     for(let i=0;i<qpData.length;i++)
     {
@@ -282,8 +283,6 @@ function getDatafromBPM(qpData, bpm, user)
         }
         qpBPMData.push(qpData[i]);
       }
-
-
     }
 
     if(!userCheckBPM)
@@ -292,7 +291,37 @@ function getDatafromBPM(qpData, bpm, user)
     }
     bpm--;
   }
-  currBPM=bpm+1;
+
+  if(qpBPMData.length == 0 && bpm<=0)
+  {
+    bpm=tempBPM
+    while(qpBPMData.length == 0)
+    {
+      for(let i=0;i<qpData.length;i++)
+      {
+        if(qpData[i].tempo==bpm)
+        {
+          if(qpData[i].user_id.includes(user))
+          {
+            userCheckBPM=true
+          }
+          qpBPMData.push(qpData[i]);
+        }
+      }
+
+      if(!userCheckBPM)
+      {
+        qpBPMData=new Array();
+      }
+      bpm++;
+    }
+    currBPM = bpm-1;
+  }
+  else
+  {
+    currBPM=bpm+1;
+  }
+
   return qpBPMData;
 }
 
