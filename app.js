@@ -142,7 +142,7 @@ app.get('/continuePlayingImmediate', (req, res)=>{
     console.log("Continuing to play the next song")
     setTimeout(() => {
       continueCheck = false;
-      // queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
     }, 10000);
 
     res.send({"queue": updatedQueue, "song":updatedQueue[0]});
@@ -173,7 +173,7 @@ app.get('/continuePlayingImmediate', (req, res)=>{
       client3Ended=false;
       client4Ended=false;
       continueCheck = false;
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
     }
     // res.send({"queue": queue, "song":queue[0]});
   // }
