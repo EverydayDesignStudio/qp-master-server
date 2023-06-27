@@ -172,6 +172,7 @@ app.get('/continuePlayingImmediate', (req, res)=>{
       client2Ended=false;
       client3Ended=false;
       client4Ended=false;
+      continueCheck = false;
       queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     }
     // res.send({"queue": queue, "song":queue[0]});
