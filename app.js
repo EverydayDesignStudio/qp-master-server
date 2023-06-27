@@ -132,48 +132,21 @@ app.get('/continuePlaying', (req, res)=>{
     {
       currOffset=0;
     } 
-    updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+    var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
   
     queue=updatedQueue;
   
-    // queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
-    
-    res.send({"queue": updatedQueue, "song":updatedQueue[0]});
-  }
-
-  if(req.body.userID==1)
-  {
-    client1Ended=true
-  }
-  else if(req.body.userID==2)
-  {
-    client2Ended=true
-  }
-  else if(req.body.userID==3)
-  {
-    client3Ended=true
-  }
-  else if(req.body.userID==4)
-  {
-    client4Ended=true
-  }
-
-  if(client1Ended==client1Active && client2Ended==client2Active && client3Ended==client3Active && client4Ended==client4Active)
-  {
-    client1Ended=false;
-    client2Ended=false;
-    client3Ended=false;
-    client4Ended=false;
-    continueCheck = false;
     console.log("Continuing to play the next song")
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+    setTimeout(() => {
+      continueCheck = false;
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
+    }, 10000);
   }
-
-  setTimeout(() => {
-    continueCheck = false;
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],0)
-  }, 10000);
-
+  else
+  {
+    res.send({"queue": queue, "song":queue[0]});
+  }
 })
   
 app.post('/updateSeek',(req, res)=>{
