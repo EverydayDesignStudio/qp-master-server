@@ -136,17 +136,43 @@ app.get('/continuePlayingImmediate', (req, res)=>{
   
     queue=updatedQueue;
   
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+    // queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     
     console.log("Continuing to play the next song")
     setTimeout(() => {
       continueCheck = false;
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
     }, 10000);
 
     res.send({"queue": updatedQueue, "song":updatedQueue[0]});
   }
   else
   {
+    if(req.body.userID==1)
+    {
+      client1Ended=true
+    }
+    else if(req.body.userID==2)
+    {
+      client2Ended=true
+    }
+    else if(req.body.userID==3)
+    {
+      client3Ended=true
+    }
+    else if(req.body.userID==4)
+    {
+      client4Ended=true
+    }
+
+    if(client1Ended==client1Active && client2Ended==client2Active && client3Ended==client3Active && client4Ended==client4Active)
+    {
+      client1Ended=false;
+      client2Ended=false;
+      client3Ended=false;
+      client4Ended=false;
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+    }
     res.send({"queue": queue, "song":queue[0]});
   }
 })
@@ -242,6 +268,10 @@ var client1Added=false;
 var client2Added=false;
 var client3Added=false;
 var client4Added=false;
+var client1Ended=false;
+var client2Ended=false;
+var client3Ended=false;
+var client4Ended=false;
 var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
 var backupCheck=false;
