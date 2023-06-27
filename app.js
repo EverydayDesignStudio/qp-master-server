@@ -141,6 +141,8 @@ app.get('/continuePlaying', (req, res)=>{
     setTimeout(() => {
       continueCheck = false;
     }, 10000);
+
+    res.send({"queue": queue, "song":queue[0]});
   }
   else
   {
