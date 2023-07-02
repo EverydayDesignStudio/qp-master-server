@@ -43,9 +43,17 @@ app.post('/setClientActive',(req, res)=>{
     client4Active=true;
   }
   
+  clientState=[client1Active,client2Active,client3Active,client4Active]
   if(queue.length>4)
   {
-    queueUpdateBroadcast(queue,queue[0],currSeek);
+    if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
+    {
+      queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
+    }
+    else
+    {
+      queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
+    }
   }
 
   console.log("Active Clients: ", [client1Active,client2Active,client3Active,client4Active])
@@ -72,7 +80,7 @@ app.post('/setClientInactive',(req, res)=>{
 
   if(queue.length>4)
   {
-    queueUpdateBroadcast(queue,queue[0],currSeek);
+    queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
   }
   
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
@@ -88,7 +96,7 @@ app.post('/getTrackToPlay', (req, res) => {
   queue=updatedQueue;
   rotation[0]=true;
 
-  queueUpdateBroadcast(queue,queue[0],currSeek);
+  queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
 
   console.log("Playing First Song ", queue[0]["track_name"])
   res.send({"queue": queue, "song":queue[0]});
@@ -110,7 +118,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     clientTrackAdded[req.body.userID-1]=updatedQueue[currOffset]["track_id"];
     userControl(req.body.userID);
 
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
 
     console.log("Adding to Queue")
     res.send({"queue": updatedQueue});
@@ -137,7 +145,7 @@ app.get('/continuePlaying', (req, res)=>{
     queue=updatedQueue;
   
     console.log("Continuing to play the next song")
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek)
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
     setTimeout(() => {
       continueCheck = false;
     }, 10000);
@@ -212,6 +220,8 @@ var client3Added=false;
 var client4Added=false;
 var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
+var clientState=[false,false,false,false]
+var prevClientState=[false,false,false,false];
 var backupCheck=false;
 var continueCheck=false;
 var userCheckBPM=false;
@@ -505,43 +515,58 @@ function getRGBColors(qElement)
 }
  
  
-function queueUpdateBroadcast(queue,song,seek)
+function queueUpdateBroadcast(queue,song,seek, msg)
 {    
-   colorJSON=JSON.stringify(
-     { 
-       "msg":"Updated",
-       "songdata":{
-         "songID":song.track_id,
-         "timestamp":seek,
-         "bpm":song.tempo,
-         "offset":currOffset
-       },
-       "activeUsers":[client1Active,client2Active,client3Active,client4Active],
-       "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
-       "lights":{
-         "ring1":{
-           "rotate": rotation[0],
-           "bpm": queue[0].tempo,
-           "colors":getRGBColors(queue[0])
-           },
-           "ring2":{
-             "rotate": rotation[1],
-             "bpm": queue[1].tempo,
-             "colors":getRGBColors(queue[1])
-           },
-           "ring3":{
-             "rotate": rotation[2],
-             "bpm": queue[2].tempo,
-             "colors":getRGBColors(queue[2])
-           },
-           "ring4":{
-             "rotate": rotation[3],
-             "bpm": queue[3].tempo,
-             "colors":getRGBColors(queue[3])
-           },
-         }
-       }
-   )
+   prevClientState=[client1Active,client2Active,client3Active,client4Active]
+   if(msg=="Updated")
+   {
+    colorJSON=JSON.stringify(
+      { 
+        "msg":"Updated",
+        "songdata":{
+          "songID":song.track_id,
+          "timestamp":seek,
+          "bpm":song.tempo,
+          "offset":currOffset
+        },
+        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
+        "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
+        "lights":{
+          "ring1":{
+            "rotate": rotation[0],
+            "bpm": queue[0].tempo,
+            "colors":getRGBColors(queue[0])
+            },
+            "ring2":{
+              "rotate": rotation[1],
+              "bpm": queue[1].tempo,
+              "colors":getRGBColors(queue[1])
+            },
+            "ring3":{
+              "rotate": rotation[2],
+              "bpm": queue[2].tempo,
+              "colors":getRGBColors(queue[2])
+            },
+            "ring4":{
+              "rotate": rotation[3],
+              "bpm": queue[3].tempo,
+              "colors":getRGBColors(queue[3])
+            },
+          }
+        }
+      )
+   }
+
+   else if(msg="Seeking")
+   {
+    colorJSON=JSON.stringify(
+      {
+        "msg":"Seeking",
+        "activeUsers":[client1Active,client2Active,client3Active,client4Active]
+      }
+    )
+   }
+
 
   io.emit('message', colorJSON)
 
