@@ -150,7 +150,8 @@ app.get('/continuePlaying', (req, res)=>{
     setTimeout(() => {
       continueCheck = false;
     }, 10000);
-
+    currID=queue[0].track_id;
+    currSeek=0
     res.send({"queue": queue, "song":queue[0]});
   }
   else
