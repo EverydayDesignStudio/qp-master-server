@@ -100,6 +100,8 @@ app.post('/getTrackToPlay', (req, res) => {
   queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
 
   console.log("Playing First Song ", queue[0]["track_name"])
+  currID=queue[0].track_id;
+  currSeek=0
   res.send({"queue": queue, "song":queue[0]});
 })
  
