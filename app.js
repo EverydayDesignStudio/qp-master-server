@@ -46,15 +46,15 @@ app.post('/setClientActive',(req, res)=>{
   clientState=[client1Active,client2Active,client3Active,client4Active]
   if(queue.length>4)
   {
-    // if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
-    // {
-    //   queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
-    // }
-    // else
-    // {
-    //   queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
-    // }
-    queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
+    if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
+    {
+      queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
+    }
+    else
+    {
+      queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
+    }
+    // queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
   }
 
   console.log("Active Clients: ", [client1Active,client2Active,client3Active,client4Active])
