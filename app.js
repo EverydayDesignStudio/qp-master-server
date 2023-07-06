@@ -96,7 +96,7 @@ app.post('/getTrackToPlay', (req, res) => {
 
   queue=updatedQueue;
   rotation[0]=true;
-  
+
   currID=queue[0].track_id;
   currSeek=0
   queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
@@ -136,6 +136,11 @@ app.post('/getTrackToQueue',(req, res)=>{
 app.get('/continuePlaying', (req, res)=>{
 
   console.log("User ID: ", req.body.userID)
+  if(req.body.msg=="Immediate")
+  {
+    continueCheck=False
+  }
+  
   if(!continueCheck)
   {
     continueCheck = true
