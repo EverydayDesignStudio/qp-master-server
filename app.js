@@ -138,9 +138,9 @@ app.get('/continuePlaying', (req, res)=>{
   console.log("User ID: ", req.body.userID)
   if(req.body.msg=="Immediate")
   {
-    continueCheck=False
+    continueCheck=false
   }
-  
+
   if(!continueCheck)
   {
     continueCheck = true
