@@ -96,12 +96,13 @@ app.post('/getTrackToPlay', (req, res) => {
 
   queue=updatedQueue;
   rotation[0]=true;
-
+  
+  currID=queue[0].track_id;
+  currSeek=0
   queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
 
   console.log("Playing First Song ", queue[0]["track_name"])
-  currID=queue[0].track_id;
-  currSeek=0
+
   res.send({"queue": queue, "song":queue[0]});
 })
  
@@ -148,12 +149,13 @@ app.get('/continuePlaying', (req, res)=>{
     queue=updatedQueue;
   
     console.log("Continuing to play the next song")
+    currID=queue[0].track_id;
+    currSeek=0
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
     setTimeout(() => {
       continueCheck = false;
     }, 10000);
-    currID=queue[0].track_id;
-    currSeek=0
+
     res.send({"queue": queue, "song":queue[0]});
   }
   else
