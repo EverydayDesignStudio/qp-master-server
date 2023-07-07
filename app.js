@@ -159,6 +159,7 @@ app.get('/continuePlaying', (req, res)=>{
     currSeek=0
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
     continueTimeout=setTimeout(() => {
+      console.log("Timeout functionality ended")
       continueCheck = false;
     }, 10000);
 
