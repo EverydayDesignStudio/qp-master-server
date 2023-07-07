@@ -139,6 +139,7 @@ app.get('/continuePlaying', (req, res)=>{
   if(req.body.msg=="Immediate")
   {
     continueCheck=false
+    clearTimeout(continueTimeout);
   }
 
   if(!continueCheck)
@@ -157,7 +158,7 @@ app.get('/continuePlaying', (req, res)=>{
     currID=queue[0].track_id;
     currSeek=0
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
-    setTimeout(() => {
+    continueTimeout=setTimeout(() => {
       continueCheck = false;
     }, 10000);
 
@@ -236,6 +237,7 @@ var prevClientState=[false,false,false,false];
 var backupCheck=false;
 var continueCheck=false;
 var userCheckBPM=false;
+var continueTimeout;
 
 // Reading the JSON file data
 function readDatabase()
