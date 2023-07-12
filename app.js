@@ -510,7 +510,7 @@ function getRGBColors(qElement)
      }
      else if(qElement.user_id[i]==2)
      {
-       colorArr[n]={"r":190, "g":210,"b":5,"w":5};
+       colorArr[n]={"r":170, "g":140,"b":1,"w":5};
        n++;
      }
      else if(qElement.user_id[i]==3)
