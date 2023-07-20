@@ -134,7 +134,10 @@ app.post('/getTrackToQueue',(req, res)=>{
 })
 
 app.get('/continuePlaying',(req,res)=>{
+
   continueState[req.body.userID-1]=true;
+  console.log("Continue State:",continueState);
+  console.log("Client State:",clientState);
   if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
     continueTimeout=setTimeout(() => {
@@ -152,7 +155,7 @@ app.get('/continuePlaying',(req,res)=>{
       currSeek=0
       continueState=[false,false,false,false];
       queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Song")
-      
+
     }, 10000);
   }
   else
