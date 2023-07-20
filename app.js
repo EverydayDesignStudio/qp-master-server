@@ -574,11 +574,10 @@ function getRGBColors(qElement)
 function queueUpdateBroadcast(queue,song,seek, msg)
 {    
    prevClientState=[client1Active,client2Active,client3Active,client4Active]
-   if(msg=="Updated")
-   {
+
     colorJSON=JSON.stringify(
       { 
-        "msg":"Updated",
+        "msg":msg,
         "songdata":{
           "songID":song.track_id,
           "timestamp":seek,
@@ -611,17 +610,6 @@ function queueUpdateBroadcast(queue,song,seek, msg)
           }
         }
       )
-   }
-
-   else if(msg="Seeking")
-   {
-    colorJSON=JSON.stringify(
-      {
-        "msg":"Seeking",
-        "activeUsers":[client1Active,client2Active,client3Active,client4Active]
-      }
-    )
-   }
 
 
   io.emit('message', colorJSON)
