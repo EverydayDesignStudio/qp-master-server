@@ -133,29 +133,28 @@ app.post('/getTrackToQueue',(req, res)=>{
   }
 })
 
-// app.get('/continuePlaying',(req,res)=>{
-//   if(clientState!=continueState)
-//   {
-//     //this means that a new client is also playing a song and now the timeout of 10 seconds will be started
-//   }
-//   else
-//   {
-
-//   }
-// })
- 
-app.get('/continuePlaying', (req, res)=>{
-
-  console.log("User ID: ", req.body.userID)
-  if(req.body.msg=="Immediate")
+app.get('/continuePlaying',(req,res)=>{
+  continueState[req.body.userID-1]=true;
+  if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
-    continueCheck=false
-    clearTimeout(continueTimeout);
+    continueTimeout=setTimeout(() => {
+      currOffset--;
+      if (currOffset<0)
+      {
+        currOffset=0;
+      } 
+      var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+    
+      queue=updatedQueue;
+    
+      console.log("Continuing to play the next song")
+      currID=queue[0].track_id;
+      currSeek=0
+
+    }, 10000);
   }
-
-  if(!continueCheck)
+  else
   {
-    continueCheck = true
     currOffset--;
     if (currOffset<0)
     {
@@ -168,20 +167,50 @@ app.get('/continuePlaying', (req, res)=>{
     console.log("Continuing to play the next song")
     currID=queue[0].track_id;
     currSeek=0
+    clearTimeout(continueTimeout);
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
-
-    continueTimeout=setTimeout(() => {
-      console.log("Timeout functionality ended")
-      continueCheck = false;
-    }, 10000);
-
-    res.send({"queue": queue, "song":queue[0]});
   }
-  else
-  {
-    res.send({"queue": queue, "song":queue[0]});
-  }
+  res.send() 
 })
+ 
+// app.get('/continuePlaying', (req, res)=>{
+
+//   console.log("User ID: ", req.body.userID)
+//   if(req.body.msg=="Immediate")
+//   {
+//     continueCheck=false
+//     clearTimeout(continueTimeout);
+//   }
+
+//   if(!continueCheck)
+//   {
+//     continueCheck = true
+//     currOffset--;
+//     if (currOffset<0)
+//     {
+//       currOffset=0;
+//     } 
+//     var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+  
+//     queue=updatedQueue;
+  
+//     console.log("Continuing to play the next song")
+//     currID=queue[0].track_id;
+//     currSeek=0
+//     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
+
+//     continueTimeout=setTimeout(() => {
+//       console.log("Timeout functionality ended")
+//       continueCheck = false;
+//     }, 10000);
+
+//     res.send({"queue": queue, "song":queue[0]});
+//   }
+//   else
+//   {
+//     res.send({"queue": queue, "song":queue[0]});
+//   }
+// })
   
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
@@ -252,7 +281,6 @@ var continueCheck=false;
 var userCheckBPM=false;
 var continueTimeout;
 var continueState=[false,false,false,false]
-var prevContinueState=[false,false,false,false]
 
 // Reading the JSON file data
 function readDatabase()
