@@ -151,7 +151,6 @@ app.get('/continuePlaying',(req,res)=>{
     
       queue=updatedQueue;
     
-      console.log("Continuing to play the next song")
       currID=queue[0].track_id;
       currSeek=0
       continueState=[false,false,false,false];
@@ -170,7 +169,6 @@ app.get('/continuePlaying',(req,res)=>{
   
     queue=updatedQueue;
   
-    console.log("Continuing to play the next song")
     currID=queue[0].track_id;
     currSeek=0
     clearTimeout(continueTimeout);
