@@ -52,7 +52,7 @@ app.post('/setClientActive',(req, res)=>{
     }
     else
     {
-      queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
+      queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
     }
     // queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
   }
@@ -81,7 +81,7 @@ app.post('/setClientInactive',(req, res)=>{
 
   if(queue.length>4)
   {
-    queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
+    queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
   }
   
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
@@ -99,7 +99,7 @@ app.post('/getTrackToPlay', (req, res) => {
 
   currID=queue[0].track_id;
   currSeek=0
-  queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
+  queueUpdateBroadcast(queue,queue[0],currSeek, "Song");
 
   console.log("Playing First Song ", queue[0]["track_name"])
 
@@ -122,7 +122,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     clientTrackAdded[req.body.userID-1]=updatedQueue[currOffset]["track_id"];
     userControl(req.body.userID);
 
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Queue")
 
     console.log("Adding to Queue")
     res.send({"queue": updatedQueue});
@@ -168,7 +168,7 @@ app.get('/continuePlaying',(req,res)=>{
     currID=queue[0].track_id;
     currSeek=0
     clearTimeout(continueTimeout);
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Song")
   }
   res.send() 
 })
