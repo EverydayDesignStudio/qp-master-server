@@ -150,7 +150,9 @@ app.get('/continuePlaying',(req,res)=>{
       console.log("Continuing to play the next song")
       currID=queue[0].track_id;
       currSeek=0
-
+      continueState=[false,false,false,false];
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Song")
+      
     }, 10000);
   }
   else
