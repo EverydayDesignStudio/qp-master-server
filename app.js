@@ -140,6 +140,7 @@ app.get('/continuePlaying',(req,res)=>{
   console.log("Client State:",clientState);
   if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
+    console.log("Starting Timeout")
     continueTimeout=setTimeout(() => {
       currOffset--;
       if (currOffset<0)
@@ -249,6 +250,7 @@ io.on('connection', (socket) => {
 
     console.log(clientTrackAdded);
     console.log("Accessing Backup")
+    backup["color"]["msg"]="Backup"
     io.emit('message',backup["color"])
   }
   socket.on('disconnect', () => {
@@ -577,7 +579,7 @@ function getRGBColors(qElement)
 }
  
  
-function queueUpdateBroadcast(queue,song,seek, msg)
+function queueUpdateBroadcast(queue,song,seek,msg)
 {    
    prevClientState=[client1Active,client2Active,client3Active,client4Active]
 
