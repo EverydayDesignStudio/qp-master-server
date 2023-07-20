@@ -132,6 +132,17 @@ app.post('/getTrackToQueue',(req, res)=>{
     res.send({"queue":"Already added song"})
   }
 })
+
+// app.get('/continuePlaying',(req,res)=>{
+//   if(clientState!=continueState)
+//   {
+//     //this means that a new client is also playing a song and now the timeout of 10 seconds will be started
+//   }
+//   else
+//   {
+
+//   }
+// })
  
 app.get('/continuePlaying', (req, res)=>{
 
@@ -158,6 +169,7 @@ app.get('/continuePlaying', (req, res)=>{
     currID=queue[0].track_id;
     currSeek=0
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
+
     continueTimeout=setTimeout(() => {
       console.log("Timeout functionality ended")
       continueCheck = false;
@@ -239,6 +251,8 @@ var backupCheck=false;
 var continueCheck=false;
 var userCheckBPM=false;
 var continueTimeout;
+var continueState=[false,false,false,false]
+var prevContinueState=[false,false,false,false]
 
 // Reading the JSON file data
 function readDatabase()
