@@ -48,7 +48,14 @@ app.post('/setClientActive',(req, res)=>{
   {
     if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
     {
-      queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
+      if(clientState.filter(item => item === true).length==1)
+      {
+        queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
+      }
+      else
+      {
+        queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
+      }
     }
     else
     {
@@ -221,7 +228,10 @@ app.get('/continuePlaying',(req,res)=>{
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
-  queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
+  if(req.body.prompt!="Continue")
+  {
+    queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
+  }
   res.send("Seek Updated");
  })
 
