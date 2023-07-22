@@ -221,6 +221,7 @@ app.get('/continuePlaying',(req,res)=>{
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
+  queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
   res.send("Seek Updated");
  })
 
