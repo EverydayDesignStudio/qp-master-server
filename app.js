@@ -224,7 +224,9 @@ io.on('connection', (socket) => {
     // console.log(backup["color"]["msg"])
     // io.emit('message',backup["color"])
   }
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (sid) => {
+    client_data = io.get_session(sid)
+    clientState[client_data-1]=false
     console.log('Client disconnected');
   });
 });
