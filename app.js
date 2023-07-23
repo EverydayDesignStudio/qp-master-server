@@ -228,7 +228,7 @@ io.on('connection', (socket) => {
     console.log('Client disconnected');
   });
 
-  socket.on('disconnect_data',(reason)=>{
+  io.on('disconnect_data',(reason)=>{
     console.log("CLient"+reason+" disconnected")
     clientState[reason-1]=false
   })
