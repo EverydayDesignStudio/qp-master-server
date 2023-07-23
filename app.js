@@ -224,11 +224,14 @@ io.on('connection', (socket) => {
     // console.log(backup["color"]["msg"])
     // io.emit('message',backup["color"])
   }
-  socket.on('disconnect', (cid) => {
-    console.log(cid)
-    clientState[cid-1]=false
+  socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
+
+  socket.on('disconnect_data',(reason)=>{
+    console.log("CLient"+reason+" disconnected")
+    clientState[reason-1]=false
+  })
 });
 
 //start our server
