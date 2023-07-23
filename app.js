@@ -245,7 +245,7 @@ const io = new socketio.Server(server);
 
 io.on('connection', (socket) => {
   console.log('Client connected');
-  if(!backupCheck)
+  if(!backupCheck || clientState.filter(item => item === true).length!=1)
   {
     // pingWrapper()
     io.emit('message',JSON.stringify(
