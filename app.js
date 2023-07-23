@@ -258,12 +258,11 @@ io.on('connection', (socket) => {
     var backup=readBackup()
     clientTrackAdded=backup["userTracks"]
     queue=backup["queue"];
-
-    console.log(clientTrackAdded);
-    console.log("Accessing Backup")
-    backup["color"]["msg"]="Backup"
-    console.log(backup["color"]["msg"])
-    io.emit('message',backup["color"])
+    // console.log(clientTrackAdded);
+    // console.log("Accessing Backup")
+    // backup["color"]["msg"]="Backup"
+    // console.log(backup["color"]["msg"])
+    // io.emit('message',backup["color"])
   }
   socket.on('disconnect', () => {
     console.log('Client disconnected');
