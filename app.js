@@ -61,7 +61,6 @@ app.post('/setClientActive',(req, res)=>{
     {
       queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
     }
-    // queueUpdateBroadcast(queue,queue[0],currSeek, "Updated");
   }
 
   console.log("Active Clients: ", [client1Active,client2Active,client3Active,client4Active])
@@ -187,45 +186,6 @@ app.get('/continuePlaying',(req,res)=>{
   res.send() 
 })
  
-// app.get('/continuePlaying', (req, res)=>{
-
-//   console.log("User ID: ", req.body.userID)
-//   if(req.body.msg=="Immediate")
-//   {
-//     continueCheck=false
-//     clearTimeout(continueTimeout);
-//   }
-
-//   if(!continueCheck)
-//   {
-//     continueCheck = true
-//     currOffset--;
-//     if (currOffset<0)
-//     {
-//       currOffset=0;
-//     } 
-//     var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-  
-//     queue=updatedQueue;
-  
-//     console.log("Continuing to play the next song")
-//     currID=queue[0].track_id;
-//     currSeek=0
-//     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Updated")
-
-//     continueTimeout=setTimeout(() => {
-//       console.log("Timeout functionality ended")
-//       continueCheck = false;
-//     }, 10000);
-
-//     res.send({"queue": queue, "song":queue[0]});
-//   }
-//   else
-//   {
-//     res.send({"queue": queue, "song":queue[0]});
-//   }
-// })
-  
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
