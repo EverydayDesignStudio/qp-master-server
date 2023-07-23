@@ -44,7 +44,7 @@ app.post('/setClientActive',(req, res)=>{
   }
   
   clientState=[client1Active,client2Active,client3Active,client4Active]
-  if(queue.length>4)
+  if(queue.length>=4)
   {
     if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
     {
@@ -86,7 +86,7 @@ app.post('/setClientInactive',(req, res)=>{
     client4Active=false;
   }
 
-  if(queue.length>4)
+  if(queue.length>=4)
   {
     queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
   }
