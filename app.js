@@ -530,7 +530,7 @@ function colorFromUser(user)
   }
   else if(user==2)
   {
-    return {"r":150, "g":75,"b":1,"w":5}
+    return {"r":130, "g":204,"b":0,"w":5};
   }
   else if(user==3)
   {
