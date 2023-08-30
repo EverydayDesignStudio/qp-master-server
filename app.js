@@ -526,19 +526,19 @@ function colorFromUser(user)
 {
   if(user==1)
   {
-    return {"r":150, "g":75,"b":0,"w":0};
+    return [150,75,0,0];
   }
   else if(user==2)
   {
-    return {"r":130, "g":204,"b":0,"w":5};
+    return [130,204,0,5];
   }
   else if(user==3)
   {
-    return {"r":150, "g":40,"b":215,"w":0};
+    return [150,40,215,0];
   }
   else if(user==4)
   {
-    return {"r":200, "g":45,"b":0,"w":0};
+    return [200, 45,0,0];
   }
 }
  
