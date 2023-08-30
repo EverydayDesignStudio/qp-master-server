@@ -103,7 +103,7 @@ app.post('/getTrackToPlay', (req, res) => {
 
   queue=updatedQueue;
   rotation[0]=true;
-
+  ringLight.fill(colorFromUser(req.body.clientID),0,ringLight.length);
   currID=queue[0].track_id;
   currSeek=0
   queueUpdateBroadcast(queue,queue[0],currSeek, "Song");
@@ -126,6 +126,7 @@ app.post('/getTrackToQueue',(req, res)=>{
 
     queue=updatedQueue;
     rotation[currOffset]=true;
+    ringLight.fill(colorFromUser(req.body.userID),currOffset,ringLight.length);
     clientTrackAdded[req.body.userID-1]=updatedQueue[currOffset]["track_id"];
     userControl(req.body.userID);
 
@@ -253,6 +254,7 @@ var client3Added=false;
 var client4Added=false;
 var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
+var ringLight =["","","","",""];
 var clientState=[false,false,false,false]
 var prevClientState=[false,false,false,false];
 var backupCheck=false;
@@ -427,6 +429,9 @@ function queueUpdateAutomatic(queue, user, bpm)
   rotation.shift();
   rotation=rotation.concat([false]);
 
+  ringLight.shift();
+  ringLight=ringLight.concat([ringLight[ringLight.length-1]])
+
   var deletedFromQueue=queue.shift(); 
   var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
   if(indx!=-1)
@@ -516,6 +521,26 @@ function userCheck(id)
   }
   return true;
 }
+
+function colorFromUser(user)
+{
+  if(user==1)
+  {
+    return {"r":150, "g":75,"b":0,"w":0};
+  }
+  else if(user==2)
+  {
+    return {"r":150, "g":75,"b":1,"w":5}
+  }
+  else if(user==3)
+  {
+    return {"r":150, "g":40,"b":215,"w":0};
+  }
+  else if(user==4)
+  {
+    return {"r":200, "g":45,"b":0,"w":0};
+  }
+}
  
 function getRGBColors(qElement)
 {
@@ -568,21 +593,25 @@ function queueUpdateBroadcast(queue,song,seek,msg)
         "lights":{
           "ring1":{
             "rotate": rotation[0],
+            "rlight":ringLight[0],
             "bpm": queue[0].tempo,
             "colors":getRGBColors(queue[0])
             },
             "ring2":{
               "rotate": rotation[1],
+              "rlight":ringLight[1],
               "bpm": queue[1].tempo,
               "colors":getRGBColors(queue[1])
             },
             "ring3":{
               "rotate": rotation[2],
+              "rlight":ringLight[2],
               "bpm": queue[2].tempo,
               "colors":getRGBColors(queue[2])
             },
             "ring4":{
               "rotate": rotation[3],
+              "rlight":ringLight[3],
               "bpm": queue[3].tempo,
               "colors":getRGBColors(queue[3])
             },
