@@ -85,10 +85,10 @@ app.post('/setClientInactive',(req, res)=>{
     client4Active=false;
   }
 
-  if(queue.length>=4)
-  {
-    queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
-  }
+  // if(queue.length>=4)
+  // {
+  //   queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
+  // }
   clientState=[client1Active,client2Active,client3Active,client4Active]
   
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
