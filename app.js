@@ -48,9 +48,10 @@ app.post('/setClientActive',(req, res)=>{
   {
     if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
     {
-      console.log("Returning Active state")
+      
       if(clientState.filter(item => item === true).length==1)
       {
+        console.log("Only for returning active state with one client")
         queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
       }
       else
