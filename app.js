@@ -44,8 +44,11 @@ app.post('/setClientActive',(req, res)=>{
   }
   
   clientState=[client1Active,client2Active,client3Active,client4Active]
+  print(queue.length)
   if(queue.length>=4)
   {
+    print(JSON.stringify(clientState))
+    print(JSON.stringify(prevClientState))
     if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
     {
       
