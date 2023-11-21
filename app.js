@@ -212,11 +212,14 @@ const io = new socketio.Server(server);
 
 io.on('connection', (socket) => {
 
-  socket.on('connect', (conlis) => {
-    console.log(socket.id);
-    console.log(conlis.userID)
-    console.log('Client Connected');
-  });
+  console.log(socket.id);
+  console.log("Client Connected")
+  console.log(socket.userID)
+  // socket.on('connect', () => {
+  //   console.log(socket.id);
+  //   console.log(conlis.userID)
+  //   console.log('Client Connected');
+  // });
 
   if(!backupCheck)
   {
