@@ -215,11 +215,10 @@ io.on('connection', (socket) => {
   console.log(socket.id);
   console.log("Client Connected")
   console.log(socket.userID)
-  // socket.on('connect', () => {
-  //   console.log(socket.id);
-  //   console.log(conlis.userID)
-  //   console.log('Client Connected');
-  // });
+
+  socket.on('connect', (msg) => {
+    console.log(msg.userID);
+  });
 
   if(!backupCheck)
   {
