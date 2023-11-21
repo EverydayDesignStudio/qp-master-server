@@ -212,6 +212,7 @@ const io = new socketio.Server(server);
 
 io.on('connection', (socket) => {
   console.log('Client connected');
+  console.log(socket.id);
   if(!backupCheck)
   {
     // pingWrapper()
@@ -231,6 +232,7 @@ io.on('connection', (socket) => {
     // io.emit('message',backup["color"])
   }
   socket.on('disconnect', () => {
+    console.log(socket.id);
     console.log('Client disconnected');
   });
 });
