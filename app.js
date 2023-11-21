@@ -216,9 +216,7 @@ io.on('connection', (socket) => {
   console.log("Client Connected")
   console.log(socket.userID)
 
-  socket.on('connect_user', (msg) => {
-    console.log(msg.userID);
-  });
+ 
 
   if(!backupCheck)
   {
@@ -241,6 +239,9 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log(socket.id);
     console.log('Client disconnected');
+    socket.on('connect_user', (msg) => {
+      console.log(msg.userID);
+    });
   });
 });
 
