@@ -211,8 +211,13 @@ const server = http.createServer(app);
 const io = new socketio.Server(server);
 
 io.on('connection', (socket) => {
-  console.log('Client connected');
-  console.log(socket.id);
+
+  socket.on('connect', (conlis) => {
+    console.log(socket.id);
+    console.log(conlis.userID)
+    console.log('Client Connected');
+  });
+
   if(!backupCheck)
   {
     // pingWrapper()
