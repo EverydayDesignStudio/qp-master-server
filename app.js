@@ -214,7 +214,6 @@ io.on('connection', (socket) => {
 
   console.log(socket.id);
   console.log("Client Connected")
-  console.log(socket.userID)
 
   socket.on('connect_user', (msg) => {
     console.log(msg.userID);
