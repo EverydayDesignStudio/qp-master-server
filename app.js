@@ -217,6 +217,23 @@ io.on('connection', (socket) => {
 
   socket.on('connect_user', (msg) => {
     console.log(msg.userID);
+    if(msg.userID==1)
+    {
+      client1Socket=socket.id
+    }
+    else if(msg.userID==2)
+    {
+      client2Socket=socket.id
+    }
+    else if(msg.userID==3)
+    {
+      client3Socket=socket.id
+    }
+    else if(msg.userID==4)
+    {
+      client4Socket=socket.id
+    }
+    
   });
 
   if(!backupCheck)
@@ -239,6 +256,22 @@ io.on('connection', (socket) => {
   }
   socket.on('disconnect', () => {
     console.log(socket.id);
+    if(socket.id==client1Socket)
+    {
+      client1Active=false
+    }
+    else if(socket.id==client2Socket)
+    {
+      client2Active=false
+    }
+    else if(socket.id==client3Socket)
+    {
+      client3Active=false
+    }
+    else if(socket.id==client4Socket)
+    {
+      client4Active=false
+    }
     console.log('Client disconnected');
   });
 });
@@ -265,6 +298,10 @@ var client1Added=false;
 var client2Added=false;
 var client3Added=false;
 var client4Added=false;
+var client1Socket=false;
+var client2Socket=false;
+var client3Socket=false;
+var client4Socket=false;
 var clientTrackAdded=["","","",""];
 var rotation = [false,false,false,false];
 var ringLight =["","","","",""];
