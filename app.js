@@ -272,7 +272,8 @@ io.on('connection', (socket) => {
     {
       client4Active=false
     }
-    clientState=[client1Active,client2Active,client3Active,client4Active]
+    prevClientState=[client1Active,client2Active,client3Active,client4Active]
+    console.log(clientState);
     console.log('Client disconnected');
   });
 });
