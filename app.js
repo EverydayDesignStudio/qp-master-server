@@ -107,6 +107,7 @@ app.post('/setClientInactive',(req, res)=>{
    
 //Get the Track to play as requested by the client
 app.post('/getTrackToPlay', (req, res) => {
+  console.log("No song in queue, BPM: ",req.body.bpm,"added by QP",req.body.clientID);
   var trackInfos = readDatabase();
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID);
   var songAddition = processDatabase(bpmData, req.body.clientID);
