@@ -18,7 +18,6 @@ const { ppid } = require('process');
  
 app.use(cors())
   .use(cookieParser());
-
 app.get('/', (req, res) => {
   res.send("Queue Server Up!!");
 });
@@ -28,74 +27,81 @@ app.get('/', (req, res) => {
 app.post('/setClientActive',(req, res)=>{
   if(req.body.clientID==1)
   {
+    console.log("QP1 is set active");
     client1Active=true;
   }
   else if(req.body.clientID==2)
   {
+    console.log("QP2 is set active");
     client2Active=true;
   }
   else if(req.body.clientID==3)
   {
+    console.log("QP3 is set active");
     client3Active=true;
   }
   else if(req.body.clientID==4)
   {
+    console.log("QP4 is set active");
     client4Active=true;
   }
   
   clientState=[client1Active,client2Active,client3Active,client4Active]
-  console.log(queue.length)
   if(queue.length>=4)
   {
-    console.log(JSON.stringify(clientState))
-    console.log(JSON.stringify(prevClientState))
+    console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
+    console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
     if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
     {
-      
       if(clientState.filter(item => item === true).length==1)
       {
-        console.log("Only for returning active state with one client")
+        console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
         queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
       }
       else
       {
+        console.log("Sending the JSON to the client with prompt to seek from other active clients")
         queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
       }
     }
     else
     {
+      console.log("First client to be active in the queue, responsible for creating the queue")
       queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
     }
   }
 
-  console.log("Active Clients: ", [client1Active,client2Active,client3Active,client4Active])
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
 
 app.post('/setClientInactive',(req, res)=>{
   if(req.body.clientID==1)
   {
+    console.log("QP1 is set inactive");
     client1Active=false;
   }
   else if(req.body.clientID==2)
   {
+    console.log("QP2 is set inactive");
     client2Active=false;
   }
   else if(req.body.clientID==3)
   {
+    console.log("QP3 is set inactive");
     client3Active=false;
   }
   else if(req.body.clientID==4)
   {
+    console.log("QP4 is set inactive");
     client4Active=false;
   }
 
+  clientState=[client1Active,client2Active,client3Active,client4Active]
   if(queue.length>=4)
   {
     queueUpdateBroadcast(queue,queue[0],currSeek, "InActive");
   }
-  clientState=[client1Active,client2Active,client3Active,client4Active]
-  
+
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
    
@@ -238,7 +244,7 @@ io.on('connection', (socket) => {
 
   if(!backupCheck)
   {
-    // pingWrapper()
+
     io.emit('message',JSON.stringify(
       {"msg":"Initial"}
     ));
