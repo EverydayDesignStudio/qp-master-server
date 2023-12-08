@@ -204,6 +204,7 @@ app.post('/updateSeek',(req, res)=>{
   currID=req.body.song;
   if(req.body.prompt!="Continue")
   {
+    print("Auto play should happen")
     queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
   }
   res.send("Seek Updated");
