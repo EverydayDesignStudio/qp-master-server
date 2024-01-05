@@ -193,6 +193,7 @@ app.get('/continuePlaying',(req,res)=>{
     currID=queue[0].track_id;
     currSeek=0
     clearTimeout(continueTimeout);
+    clearTimeout(continueTimeout);
     continueState=[false,false,false,false];
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
   }
