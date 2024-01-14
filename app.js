@@ -321,7 +321,7 @@ var ringLight =["","","","",""];
 var clientState=[false,false,false,false]
 var prevClientState=[false,false,false,false];
 var backupCheck=false;
-var continueCheck=false;i
+var continueCheck=false;
 var userCheckBPM=false;
 var continueTimeout;
 var continueState=[false,false,false,false]
@@ -639,6 +639,7 @@ function getRGBColors(qElement)
 function queueUpdateBroadcast(queue,song,seek,msg)
 {    
    prevClientState=[client1Active,client2Active,client3Active,client4Active]
+   continueCheck=false;
 
     colorJSON=JSON.stringify(
       { 
