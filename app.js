@@ -162,38 +162,40 @@ app.get('/continuePlaying',(req,res)=>{
   {
     console.log("Starting Timeout")
     continueTimeout=setTimeout(() => {
-      currOffset--;
-      if (currOffset<0)
+      if(!continueCheck)
       {
-        currOffset=0;
-      } 
-      var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-    
-      queue=updatedQueue;
-    
-      currID=queue[0].track_id;
-      currSeek=0
-      continueState=[false,false,false,false];
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+        continueCheck=true;
+        currOffset--;
+        if (currOffset<0)
+        {
+          currOffset=0;
+        } 
 
+        var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+        queue=updatedQueue;
+      
+        currID=queue[0].track_id;
+        currSeek=0
+        continueState=[false,false,false,false];
+        queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+      }
     }, 10000);
   }
   else
   {
     console.log("No Timeout Required")
+    continueCheck=true;
     currOffset--;
     if (currOffset<0)
     {
       currOffset=0;
     } 
+
     var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-  
     queue=updatedQueue;
   
     currID=queue[0].track_id;
     currSeek=0
-    clearTimeout(continueTimeout);
-    clearTimeout(continueTimeout);
     continueState=[false,false,false,false];
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
   }
@@ -319,7 +321,7 @@ var ringLight =["","","","",""];
 var clientState=[false,false,false,false]
 var prevClientState=[false,false,false,false];
 var backupCheck=false;
-var continueCheck=false;
+var continueCheck=false;i
 var userCheckBPM=false;
 var continueTimeout;
 var continueState=[false,false,false,false]
