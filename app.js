@@ -339,13 +339,11 @@ function readBackup()
   return backu
 }
  
-function getDatafromBPM(qpData, bpm, user)
+function getDatafromBPM(qpData, bpm, user, cln)
 {
   //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
   userCheckBPM=false;
   var qpBPMData=new Array();
-  console.log(bpm)
-  console.log(user)
   while(qpBPMData.length == 0)
   {
     if(bpm<=0)
@@ -357,7 +355,7 @@ function getDatafromBPM(qpData, bpm, user)
     {
       if(qpData[i].tempo==bpm)
       {
-        if(qpData[i].user_id.includes(user))
+        if(qpData[i].user_id.includes(user) && qpData[i].cluster_number==cln)
         {
           userCheckBPM=true
         }
@@ -403,7 +401,7 @@ function processDatabase(qpData,user)
     if(queue[0]['cluster_number']==0)
     {
       let l=0;
-      while(l<cluster0Arr.length &&  !cluster0Arr[l].user_id.includes(user))
+      while(l<cluster0Arr.length && !cluster0Arr[l].user_id.includes(user))
       {
         l++;
       }
@@ -414,7 +412,7 @@ function processDatabase(qpData,user)
     else if(queue[0]['cluster_number']==1)
     {
       let l=0;
-      while(l<cluster1Arr.length &&  !cluster1Arr[l].user_id.includes(user))
+      while(l<cluster1Arr.length && !cluster1Arr[l].user_id.includes(user))
       {
         l++;
       }
@@ -425,7 +423,7 @@ function processDatabase(qpData,user)
     else if(queue[0]['cluster_number']==2)
     {
       let l=0;
-      while(l<cluster2Arr.length &&  !cluster2Arr[l].user_id.includes(user))
+      while(l<cluster2Arr.length && !cluster2Arr[l].user_id.includes(user))
       {
         l++;
       }
@@ -436,7 +434,7 @@ function processDatabase(qpData,user)
     else if(queue[0]['cluster_number']==3)
     {
       let l=0;
-      while(l<cluster3Arr.length &&  !cluster3Arr[l].user_id.includes(user))
+      while(l<cluster3Arr.length && !cluster3Arr[l].user_id.includes(user))
       {
         l++;
       }
@@ -647,6 +645,7 @@ function queueUpdateBroadcast(queue,song,seek,msg)
           "songID":song.track_id,
           "timestamp":seek,
           "bpm":song.tempo,
+          "cluster_number": song.cluster_number,
           "offset":currOffset
         },
         "activeUsers":[client1Active,client2Active,client3Active,client4Active],
