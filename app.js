@@ -109,7 +109,7 @@ app.post('/setClientInactive',(req, res)=>{
 app.post('/getTrackToPlay', (req, res) => {
   console.log("No song in queue, BPM: ",req.body.bpm,"added by QP",req.body.clientID);
   var trackInfos = readDatabase();
-  var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID);
+  var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID, req.body.cln);
   var songAddition = processDatabase(bpmData, req.body.clientID);
   var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.clientID);
 
@@ -132,7 +132,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   {
     currOffset++;
     var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.userID);
+    var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.userID, req.body.cln);
     var songAddition = processDatabase(bpmData, req.body.userID);
     var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID);
 
@@ -446,7 +446,7 @@ function processDatabase(qpData,user)
   return qpData;
 }
 
-function queueUpdateUser(queue, additionToQueue, offset, user)
+function queueUpdateUser(queue, additionToQueue, offset, user,cln)
 {
   var i=0;
   var delBPM;
@@ -461,7 +461,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
     if(additionToQueue.length==0)
     {
       var trackInfos = readDatabase();
-      var bpmData=getDatafromBPM(trackInfos,delBPM-1,user);
+      var bpmData=getDatafromBPM(trackInfos,delBPM-1,user,cln);
       additionToQueue = processDatabase(bpmData, user); 
       i--;
     }
@@ -475,7 +475,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
   {
     var nextBPM=queue[queue.length-1].tempo-1
     var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos,nextBPM,user);
+    var bpmData=getDatafromBPM(trackInfos,nextBPM,user,cln);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue=queue.concat(addMoreToQueue);
   }
@@ -483,7 +483,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user)
   return queue;
 }
 
-function queueUpdateAutomatic(queue, user, bpm)
+function queueUpdateAutomatic(queue, user, bpm,cln)
 {
   rotation.shift();
   rotation=rotation.concat([false]);
@@ -504,7 +504,7 @@ function queueUpdateAutomatic(queue, user, bpm)
   {
     var nextBPM=queue[queue.length-1].tempo-1;
     var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos,nextBPM,user);
+    var bpmData=getDatafromBPM(trackInfos,nextBPM,user,cln);
     var addMoreToQueue = processDatabase(bpmData, user); 
     queue=queue.concat(addMoreToQueue);
   }
