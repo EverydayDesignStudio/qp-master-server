@@ -132,6 +132,7 @@ app.post('/getTrackToQueue',(req, res)=>{
   {
     currOffset++;
     var trackInfos = readDatabase();
+    console.log(req.body.cln);
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.userID, req.body.cln);
     var songAddition = processDatabase(bpmData, req.body.userID);
     var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID,req.body.cln);
