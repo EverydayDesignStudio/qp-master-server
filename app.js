@@ -179,7 +179,7 @@ app.get('/continuePlaying',(req,res)=>{
         currID=queue[0].track_id;
         currSeek=0
         continueState=[false,false,false,false];
-        queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+        queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"TimeoutSong")
       }
     }, 10000);
   }
