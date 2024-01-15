@@ -165,6 +165,7 @@ app.get('/continuePlaying',(req,res)=>{
     continueTimeout=setTimeout(() => {
       if(!continueCheck)
       {
+        console.log("The clients didn't align within 10 seconds")
         continueCheck=true;
         currOffset--;
         if (currOffset<0)
