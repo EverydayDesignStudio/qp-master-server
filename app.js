@@ -162,26 +162,26 @@ app.get('/continuePlaying',(req,res)=>{
   if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
     console.log("Starting Timeout")
-    continueTimeout=setTimeout(() => {
-      if(!continueCheck)
-      {
-        console.log("The clients didn't align within 10 seconds")
-        continueCheck=true;
-        currOffset--;
-        if (currOffset<0)
-        {
-          currOffset=0;
-        } 
+    // continueTimeout=setTimeout(() => {
+    //   if(!continueCheck)
+    //   {
+    //     console.log("The clients didn't align within 10 seconds")
+    //     continueCheck=true;
+    //     currOffset--;
+    //     if (currOffset<0)
+    //     {
+    //       currOffset=0;
+    //     } 
 
-        var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-        queue=updatedQueue;
+    //     var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+    //     queue=updatedQueue;
       
-        currID=queue[0].track_id;
-        currSeek=0
-        continueState=[false,false,false,false];
-        queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"TimeoutSong")
-      }
-    }, 10000);
+    //     currID=queue[0].track_id;
+    //     currSeek=0
+    //     continueState=[false,false,false,false];
+    //     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"TimeoutSong")
+    //   }
+    // }, 10000);
   }
   else
   {
