@@ -360,6 +360,7 @@ function getDatafromBPM(qpData, bpm, user, cln)
       {
         if(qpData[i].user_id.includes(user) && qpData[i].cluster_number==cln)
         {
+          console.log("found a song in this BPM with this user and this cluster number")
           userCheckBPM=true
         }
         qpBPMData.push(qpData[i]);
