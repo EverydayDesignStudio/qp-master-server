@@ -111,7 +111,7 @@ app.post('/getTrackToPlay', (req, res) => {
   var trackInfos = readDatabase();
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID,0);
   var songAddition = processDatabase(bpmData, req.body.clientID);
-  var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.clientID);
+  var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.clientID,0);
 
   queue=updatedQueue;
   rotation[0]=true;
@@ -134,7 +134,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.userID, req.body.cln);
     var songAddition = processDatabase(bpmData, req.body.userID);
-    var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID);
+    var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID,req.body.cln);
 
     queue=updatedQueue;
     rotation[currOffset]=true;
