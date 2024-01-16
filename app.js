@@ -246,18 +246,22 @@ io.on('connection', (socket) => {
     console.log(msg.userID);
     if(msg.userID==1)
     {
+      console.log("Socket ID registered for QP1")
       client1Socket=socket.id
     }
     else if(msg.userID==2)
     {
+      console.log("Socket ID registered for QP2")
       client2Socket=socket.id
     }
     else if(msg.userID==3)
     {
+      console.log("Socket ID registered for QP3")
       client3Socket=socket.id
     }
     else if(msg.userID==4)
     {
+      console.log("Socket ID registered for QP4")
       client4Socket=socket.id
     }
     
@@ -285,18 +289,22 @@ io.on('connection', (socket) => {
     console.log(socket.id);
     if(socket.id==client1Socket)
     {
+      console.log("QP1 disconnected")
       client1Active=false
     }
     else if(socket.id==client2Socket)
     {
+      console.log("QP2 disconnected")
       client2Active=false
     }
     else if(socket.id==client3Socket)
     {
+      console.log("QP3 disconnected")
       client3Active=false
     }
     else if(socket.id==client4Socket)
     {
+      console.log("QP4 disconnected")
       client4Active=false
     }
     prevClientState=[client1Active,client2Active,client3Active,client4Active]
