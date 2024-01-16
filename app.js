@@ -193,7 +193,7 @@ app.get('/continuePlaying',(req,res)=>{
       currOffset=0;
     } 
 
-    var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+    var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM, req.body.cln)
     queue=updatedQueue;
   
     currID=queue[0].track_id;
