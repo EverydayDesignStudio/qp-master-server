@@ -51,23 +51,30 @@ app.post('/setClientActive',(req, res)=>{
   {
     console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
     console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
-    if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
+    if(continueCheck)
     {
-      if(clientState.filter(item => item === true).length==1)
-      {
-        console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
-        queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
-      }
-      else
-      {
-        console.log("Sending the JSON to the client with prompt to seek from other active clients")
-        queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
-      }
+      console.log("waiting for clients to sync up")
     }
     else
     {
-      console.log("First client to be active in the queue, responsible for creating the queue")
-      queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
+      if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
+      {
+        if(clientState.filter(item => item === true).length==1)
+        {
+          console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
+          queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
+        }
+        else
+        {
+          console.log("Sending the JSON to the client with prompt to seek from other active clients")
+          queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
+        }
+      }
+      else
+      {
+        console.log("First client to be active in the queue, responsible for creating the queue")
+        queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
+      }
     }
   }
 
@@ -159,6 +166,7 @@ app.get('/continuePlaying',(req,res)=>{
   continueState[req.body.userID-1]=true;
   console.log("Continue State:",continueState);
   console.log("Client State:",clientState);
+  continueCheck=true;
   if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
     console.log("Starting Timeout")
@@ -186,7 +194,6 @@ app.get('/continuePlaying',(req,res)=>{
   else
   {
     console.log("No Timeout Required")
-    continueCheck=true;
     currOffset--;
     if (currOffset<0)
     {
