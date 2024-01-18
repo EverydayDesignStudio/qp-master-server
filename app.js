@@ -177,30 +177,33 @@ app.get('/continuePlaying',(req,res)=>{
   if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
     console.log("Starting Timeout")
-    // continueTimeout=setTimeout(() => {
-    //   if(!continueCheck)
-    //   {
-    //     console.log("The clients didn't align within 10 seconds")
-    //     continueCheck=true;
-    //     currOffset--;
-    //     if (currOffset<0)
-    //     {
-    //       currOffset=0;
-    //     } 
+    continueTimeout[req.body.userID-1]=setTimeout(() => {
+      console.log("The clients didn't align within 10 seconds")
+      currOffset--;
+      if (currOffset<0)
+      {
+        currOffset=0;
+      } 
 
-    //     var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-    //     queue=updatedQueue;
-      
-    //     currID=queue[0].track_id;
-    //     currSeek=0
-    //     continueState=[false,false,false,false];
-    //     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"TimeoutSong")
-    //   }
-    // }, 10000);
+      var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+      queue=updatedQueue;
+    
+      currID=queue[0].track_id;
+      currSeek=0
+      continueState=[false,false,false,false];
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"TimeoutSong")
+    }, 10000);
   }
   else
   {
     console.log("No Timeout Required")
+    for(var i=0;i<4;i++)
+    {
+      if(req.body.userID-1 != i)
+      {
+        clearTimeout(continueTimeout[i])
+      }
+    }
     currOffset--;
     if (currOffset<0)
     {
@@ -347,7 +350,7 @@ var prevClientState=[false,false,false,false];
 var backupCheck=false;
 var continueCheck=false;
 var userCheckBPM=false;
-var continueTimeout;
+var continueTimeout=["","","",""];
 var continueState=[false,false,false,false]
 
 // Reading the JSON file data
@@ -663,61 +666,61 @@ function getRGBColors(qElement)
  
 function queueUpdateBroadcast(queue,song,seek,msg)
 {    
-   prevClientState=[client1Active,client2Active,client3Active,client4Active]
-   continueCheck=false;
+  prevClientState=[client1Active,client2Active,client3Active,client4Active]
+  continueCheck=false;
 
-    colorJSON=JSON.stringify(
-      { 
-        "msg":msg,
-        "songdata":{
-          "songID":song.track_id,
-          "timestamp":seek,
-          "bpm":song.tempo,
-          "cluster_number": song.cluster_number,
-          "offset":currOffset
-        },
-        "activeUsers":[client1Active,client2Active,client3Active,client4Active],
-        "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
-        "lights":{
-          "ring1":{
-            "rotate": rotation[0],
-            "rlight":ringLight[0],
-            "bpm": queue[0].tempo,
-            "colors":getRGBColors(queue[0])
-            },
-            "ring2":{
-              "rotate": rotation[1],
-              "rlight":ringLight[1],
-              "bpm": queue[1].tempo,
-              "colors":getRGBColors(queue[1])
-            },
-            "ring3":{
-              "rotate": rotation[2],
-              "rlight":ringLight[2],
-              "bpm": queue[2].tempo,
-              "colors":getRGBColors(queue[2])
-            },
-            "ring4":{
-              "rotate": rotation[3],
-              "rlight":ringLight[3],
-              "bpm": queue[3].tempo,
-              "colors":getRGBColors(queue[3])
-            },
-          }
+  colorJSON=JSON.stringify(
+    { 
+      "msg":msg,
+      "songdata":{
+        "songID":song.track_id,
+        "timestamp":seek,
+        "bpm":song.tempo,
+        "cluster_number": song.cluster_number,
+        "offset":currOffset
+      },
+      "activeUsers":[client1Active,client2Active,client3Active,client4Active],
+      "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
+      "lights":{
+        "ring1":{
+          "rotate": rotation[0],
+          "rlight":ringLight[0],
+          "bpm": queue[0].tempo,
+          "colors":getRGBColors(queue[0])
+          },
+          "ring2":{
+            "rotate": rotation[1],
+            "rlight":ringLight[1],
+            "bpm": queue[1].tempo,
+            "colors":getRGBColors(queue[1])
+          },
+          "ring3":{
+            "rotate": rotation[2],
+            "rlight":ringLight[2],
+            "bpm": queue[2].tempo,
+            "colors":getRGBColors(queue[2])
+          },
+          "ring4":{
+            "rotate": rotation[3],
+            "rlight":ringLight[3],
+            "bpm": queue[3].tempo,
+            "colors":getRGBColors(queue[3])
+          },
         }
-      )
+      }
+    )
 
 
   io.emit('message', colorJSON)
 
   var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
   fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-     if (err) {
-         console.log("An error occured while writing JSON Object to File.");
-         return console.log(err);
-     }
-     backupCheck = true;
-     console.log("JSON file has been saved.");
-     console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
+      if (err) {
+          console.log("An error occured while writing JSON Object to File.");
+          return console.log(err);
+      }
+      backupCheck = true;
+      console.log("JSON file has been saved.");
+      console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
   });
 }
