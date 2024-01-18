@@ -178,7 +178,7 @@ app.get('/continuePlaying',(req,res)=>{
   {
     console.log("Starting Timeout")
     continueTimeout[req.body.userID-1]=setTimeout(() => {
-      if(continueState==[false,false,false,false])
+      if(continueState!=[false,false,false,false])
       {
         console.log("The clients didn't align within 10 seconds")
         currOffset--;
