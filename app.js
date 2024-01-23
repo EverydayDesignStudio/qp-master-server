@@ -178,28 +178,27 @@ app.get('/continuePlaying',(req,res)=>{
   {
     console.log("Starting Timeout")
     continueTimeout[req.body.userID-1]=setTimeout(() => {
-      if(continueState!=[false,false,false,false])
+
+      console.log("The clients didn't align within 10 seconds")
+      for(var i=0;i<4;i++)
       {
-        console.log("The clients didn't align within 10 seconds")
-        console.log("Continue State: " + continueState)
-        currOffset--;
-        if (currOffset<0)
-        {
-          currOffset=0;
-        } 
-  
-        var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-        queue=updatedQueue;
-      
-        currID=queue[0].track_id;
-        currSeek=0
-        continueState=[false,false,false,false];
-        queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+          console.log("clearing all timeouts")
+          clearTimeout(continueTimeout[i])
       }
-      else
+      console.log("Continue State: " + continueState)
+      currOffset--;
+      if (currOffset<0)
       {
-        console.log("already forced clients to continue, so no need for this timeout")
-      }
+        currOffset=0;
+      } 
+
+      var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+      queue=updatedQueue;
+    
+      currID=queue[0].track_id;
+      currSeek=0
+      continueState=[false,false,false,false];
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
     }, 7000);
   }
   else
@@ -207,11 +206,8 @@ app.get('/continuePlaying',(req,res)=>{
     console.log("No Timeout Required")
     for(var i=0;i<4;i++)
     {
-      if(req.body.userID-1 != i)
-      {
-        console.log("clearing all timeouts")
-        clearTimeout(continueTimeout[i])
-      }
+      console.log("clearing all timeouts")
+      clearTimeout(continueTimeout[i])
     }
     currOffset--;
     if (currOffset<0)
