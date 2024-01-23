@@ -181,6 +181,7 @@ app.get('/continuePlaying',(req,res)=>{
       if(continueState!=[false,false,false,false])
       {
         console.log("The clients didn't align within 10 seconds")
+
         currOffset--;
         if (currOffset<0)
         {
@@ -195,7 +196,11 @@ app.get('/continuePlaying',(req,res)=>{
         continueState=[false,false,false,false];
         queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
       }
-    }, 10000);
+      else
+      {
+        console.log("already forced clients to continue, so no need for this timeout")
+      }
+    }, 7000);
   }
   else
   {
@@ -204,6 +209,7 @@ app.get('/continuePlaying',(req,res)=>{
     {
       if(req.body.userID-1 != i)
       {
+        console.log("clearing all timeouts")
         clearTimeout(continueTimeout[i])
       }
     }
@@ -221,7 +227,8 @@ app.get('/continuePlaying',(req,res)=>{
     continueState=[false,false,false,false];
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
   }
-  res.send() 
+
+  res.send("Continue Playing Function Called") 
 })
  
 app.post('/updateSeek',(req, res)=>{
