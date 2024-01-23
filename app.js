@@ -181,7 +181,7 @@ app.get('/continuePlaying',(req,res)=>{
       if(continueState!=[false,false,false,false])
       {
         console.log("The clients didn't align within 10 seconds")
-
+        console.log("Continue State: " + continueState)
         currOffset--;
         if (currOffset<0)
         {
