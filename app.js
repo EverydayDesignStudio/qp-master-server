@@ -199,7 +199,7 @@ app.get('/continuePlaying',(req,res)=>{
       currSeek=0
       continueState=[false,false,false,false];
       queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
-    }, 7000);
+    }, 5000);
   }
   else
   {
