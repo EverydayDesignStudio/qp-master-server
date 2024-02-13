@@ -177,16 +177,30 @@ app.get('/continuePlaying',(req,res)=>{
   continueCheck=true;
   if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
-    if(!timeoutCheck)
-    {
-      console.log("Starting Timeout")
-      timeoutCheck=true;
-      startDelayedExecution()
-    }
-    else
-    {
-      console.log("Timeout timer has already started")
-    }
+    console.log("Starting Timeout")
+    continueTimeout[req.body.userID-1]=setTimeout(() => {
+
+      console.log("The clients didn't align within 10 seconds")
+      for(var i=0;i<4;i++)
+      {
+          console.log("clearing all timeouts")
+          clearTimeout(continueTimeout[i])
+      }
+      console.log("Continue State: " + continueState)
+      currOffset--;
+      if (currOffset<0)
+      {
+        currOffset=0;
+      } 
+
+      var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+      queue=updatedQueue;
+    
+      currID=queue[0].track_id;
+      currSeek=0
+      continueState=[false,false,false,false];
+      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+    }, 7000);
   }
   else
   {
