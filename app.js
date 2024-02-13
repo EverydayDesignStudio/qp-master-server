@@ -190,7 +190,7 @@ app.get('/continuePlaying',(req,res)=>{
   }
   else
   {
-    timeoutCheck=false
+    timeoutCheck=false;
     currOffset--;
     if (currOffset<0)
     {
