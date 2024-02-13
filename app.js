@@ -15,6 +15,7 @@ const port = process.env.PORT || '5000';
 const app = express();
 app.use(bodyParser.json());
 const { ppid } = require('process');
+const { time } = require('console');
  
 app.use(cors())
   .use(cookieParser());
@@ -176,39 +177,20 @@ app.get('/continuePlaying',(req,res)=>{
   continueCheck=true;
   if(JSON.stringify(clientState) != JSON.stringify(continueState))
   {
-    console.log("Starting Timeout")
-    continueTimeout[req.body.userID-1]=setTimeout(() => {
-
-      console.log("The clients didn't align within 10 seconds")
-      for(var i=0;i<4;i++)
-      {
-          console.log("clearing all timeouts")
-          clearTimeout(continueTimeout[i])
-      }
-      console.log("Continue State: " + continueState)
-      currOffset--;
-      if (currOffset<0)
-      {
-        currOffset=0;
-      } 
-
-      var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-      queue=updatedQueue;
-    
-      currID=queue[0].track_id;
-      currSeek=0
-      continueState=[false,false,false,false];
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
-    }, 7000);
+    if(!timeoutCheck)
+    {
+      console.log("Starting Timeout")
+      timeoutCheck=true;
+      startDelayedExecution()
+    }
+    else
+    {
+      console.log("Timeout timer has already started")
+    }
   }
   else
   {
-    console.log("No Timeout Required")
-    for(var i=0;i<4;i++)
-    {
-      console.log("clearing all timeouts")
-      clearTimeout(continueTimeout[i])
-    }
+    timeoutCheck=false
     currOffset--;
     if (currOffset<0)
     {
@@ -227,6 +209,51 @@ app.get('/continuePlaying',(req,res)=>{
   res.send("Continue Playing Function Called") 
 })
  
+
+function startDelayedExecution() {
+  const delay = 10; // Delay in seconds
+
+  startTime = new Date().getTime();
+  console.log(`Delayed execution will occur after ${delay} seconds.`);
+
+  function loop() {
+    if (timeoutCheck) {
+      console.log('Delayed execution stopped.');
+      return;
+    }
+
+    const currentTime = new Date().getTime();
+    const elapsedTime = (currentTime - startTime) / 1000; // Convert milliseconds to seconds
+
+    if (elapsedTime >= delay) {
+      executeFunction();
+      console.log('Delayed execution completed!');
+    } else {
+      requestAnimationFrame(loop);
+    }
+  }
+
+  loop();
+}
+
+function executeFunction() {
+  // Your function to be executed after the delay
+  console.log('Executing the delayed function!');
+  currOffset--;
+  if (currOffset<0)
+  {
+    currOffset=0;
+  } 
+
+  var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+  queue=updatedQueue;
+
+  currID=queue[0].track_id;
+  currSeek=0
+  continueState=[false,false,false,false];
+  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+}
+
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
@@ -356,6 +383,7 @@ var prevClientState=[false,false,false,false];
 var backupCheck=false;
 var continueCheck=false;
 var userCheckBPM=false;
+var timeoutCheck=false;
 var continueTimeout=["","","",""];
 var continueState=[false,false,false,false]
 
