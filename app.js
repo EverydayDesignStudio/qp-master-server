@@ -1,4 +1,4 @@
-//Depedency variables
+//Depedency variables for node server setup
 const express = require('express')
 var cors = require('cors');
 var cookieParser = require('cookie-parser');
@@ -24,6 +24,12 @@ app.get('/', (req, res) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+Input: clientID via the req.body
+Output: server variable client{ID}Active set to true
+Description or Flow: A client sends its respective client id to the server and the respective client{ID}Active variable of 
+the server is set to true. The clientState array is also updated with the new values of all the clients.
+*/
 app.post('/setClientActive',(req, res)=>{
   if(req.body.clientID==1)
   {
@@ -47,16 +53,29 @@ app.post('/setClientActive',(req, res)=>{
   }
   
   clientState=[client1Active,client2Active,client3Active,client4Active]
+
   if(queue.length>=4)
   {
     console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
     console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
+
+    /*
+    IF Block Explanation
+    The server checks if the clients are in transition or continuing between songs, if true it does not send a json to all the
+    active clients and waits for the next song to play
+    */
     if(continueCheck)
     {
       console.log("waiting for clients to sync up")
     }
     else
     {
+      /*
+      IF Block Explanation
+      The server checks if the clientState before and after the new client activation to handle the corner case of only one 
+      client active to play song from the start, else it would send a json seeking for the most updated timestamp from other 
+      active clients
+      */
       if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
       {
         if(clientState.filter(item => item === true).length==1)
@@ -81,6 +100,13 @@ app.post('/setClientActive',(req, res)=>{
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
 
+/*
+Input: clientID via the req.body
+Output: server variable client{ID}Active set to false
+Description or Flow: A client sends its respective client id to the server and the respective client{ID}Active variable of 
+the server is set to false. The clientState array is also updated with the new values of all the clients.And a json is sent to
+all the clients with the updated clientState array
+*/
 app.post('/setClientInactive',(req, res)=>{
   if(req.body.clientID==1)
   {
@@ -119,7 +145,18 @@ app.post('/setClientInactive',(req, res)=>{
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
    
-//Get the Track to play as requested by the client
+/*
+Input: bpm, clientID via req.body
+Output: a queue created with the BPM (or the next lowest one where the client has a common song)
+Description or Flow: A client sends the bpm and id during the very first time when the queue is empty and to start 
+the queue creation process of queue player system. The flow for the server is as follows:
+[1] - read the database
+[2] - get song details from the client input BPM
+[3] - sort the database based on ML clusters but since its the first time the order is retained
+[4] - update the queue
+[5] - for the json , the first ring from the top i.e. rotation[0] would be set to true, ringLight is based on clientID
+current value of seek or the timestamp for the server is set to 0
+*/
 app.post('/getTrackToPlay', (req, res) => {
   console.log("No song in queue, BPM: ",req.body.bpm,"added by QP",req.body.clientID);
   var trackInfos = readDatabase();
@@ -140,7 +177,18 @@ app.post('/getTrackToPlay', (req, res) => {
 })
  
  
-// Get the track into the queue 
+/*
+Input: bpm, clientID and cluster number (cln) via req.body
+Output: a queue created with the BPM (or the next lowest one where the client has a common song)
+Description or Flow: A client sends the bpm ,id and cluster number to an already filled queue and updates the queue.
+The flow for the server is as follows:
+[1] - Check if the client already has a song in the queue
+[2] - if not then, update the currOffset variable to update the queue from the right index
+[3] - read the database, get song details from input BPM and process them based on the previous song cluster to update the queue
+[4] - for the json broadcast, the rotation[currOffset] is set to true to determine the addition of a new BPM in the lights
+[5] - ringLight is also updated according to the latest client which updated the queue
+[6] - client ID recorded so as to not let the same client another BPM until its song has exited the queue
+*/
 app.post('/getTrackToQueue',(req, res)=>{
   if(userCheck(req.body.userID))
   {
@@ -168,6 +216,11 @@ app.post('/getTrackToQueue',(req, res)=>{
   }
 })
 
+/*
+Input: clientID via req.body
+Output: trigger to play the next songs to all the clients
+Description or Flow: 
+*/
 app.get('/continuePlaying',(req,res)=>{
 
   continueState[req.body.userID-1]=true;
@@ -226,7 +279,16 @@ app.get('/continuePlaying',(req,res)=>{
 
   res.send("Continue Playing Function Called") 
 })
- 
+
+
+/*
+Input: timestamp and song id information of the playing song by the client
+Output: updates the seek/timestamp and songID variable of the server
+Description or Flow: The flow for the server is as follows:
+[1] - update the currSeek and currID by the inputs given by the client
+[2] - if the clients are not continuing or transitioning to the next song then let the newly joined client play the song
+and sync with other clients
+*/ 
 app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
@@ -238,6 +300,11 @@ app.post('/updateSeek',(req, res)=>{
   res.send("Seek Updated");
  })
 
+/*
+Input: N/A
+Output: get the updated song and timestamp info for the newly joined client to sync up with the rest of the clients
+Description or Flow: N/A
+*/
 app.get('/getSeek',(req, res)=>{
   console.log("Seeking the song: "+currID+" to timestamp: "+currSeek)
   res.send({seek:currSeek, id:currID});
@@ -246,6 +313,13 @@ app.get('/getSeek',(req, res)=>{
 const server = http.createServer(app);
 const io = new socketio.Server(server);
 
+
+/*
+Input: N/A
+Output: socket connection object which contains socket.id
+Description or Flow: 
+[1] - 
+*/
 io.on('connection', (socket) => {
 
   console.log(socket.id);
@@ -288,11 +362,6 @@ io.on('connection', (socket) => {
     var backup=readBackup()
     clientTrackAdded=backup["userTracks"]
     queue=backup["queue"];
-    // console.log(clientTrackAdded);
-    // console.log("Accessing Backup")
-    // backup["color"]["msg"]="Backup"
-    // console.log(backup["color"]["msg"])
-    // io.emit('message',backup["color"])
   }
   socket.on('disconnect', () => {
     console.log(socket.id);
@@ -329,35 +398,38 @@ server.listen(port, () => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
-var queue = []; 
-var colorArr = [];
-var currBPM=-1;
-var currOffset=0;
-var currSeek=-1;
-var currID='';
-var currNext='';
-var client1Active=false;
+var queue = [];             // array containing the queue for the queue player system
+var colorArr = [];          // array containing the color information for each of the 4 slots in the device
+var currBPM=-1;             // stores the current BPM playing in the queue player system
+var currOffset=0;           // stores the index upto which the queue player has been updated by the user and from where the new song will be added to the queue
+var currSeek=-1;            // stores the timestamp information of the currently playing song in the clients
+var currID='';              // stores the song/track ID of the currently playing song in the clients
+
+var client1Active=false;    // client state checking variables
 var client2Active=false;
 var client3Active=false;
 var client4Active=false;
-var client1Added=false;
+
+var client1Added=false;     // client updates to queue checking variables
 var client2Added=false;
 var client3Added=false;
 var client4Added=false;
-var client1Socket=false;
+
+var client1Socket=false;    // stores the socket id client-server connection to properly disconnect when client becomes inactive
 var client2Socket=false;
 var client3Socket=false;
 var client4Socket=false;
-var clientTrackAdded=["","","",""];
-var rotation = [false,false,false,false];
-var ringLight =["","","","",""];
-var clientState=[false,false,false,false]
-var prevClientState=[false,false,false,false];
-var backupCheck=false;
-var continueCheck=false;
-var userCheckBPM=false;
-var continueTimeout=["","","",""];
-var continueState=[false,false,false,false]
+
+var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
+var rotation = [false,false,false,false]; // array to control the 4 slots of lights to indicate which BPM is newly added by another client
+var ringLight =["","","","",""];          // array to map ringLight colors for each song in the queue
+var clientState=[false,false,false,false] // array to store all the current client states 
+var prevClientState=[false,false,false,false]; // array to store all the previous client states before a new client joins in
+var backupCheck=false;                  // boolean to check if backup has been created 
+var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
+var userCheckBPM=false;                 
+var continueTimeout=["","","",""];      
+var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
 
 // Reading the JSON file data
 function readDatabase()
