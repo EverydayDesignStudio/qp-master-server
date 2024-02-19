@@ -226,6 +226,7 @@ app.get('/continuePlaying',(req,res)=>{
   if(!continueCheck)
   {
     continueCheck=true // so that other client ending their songs don't start their timer again
+    res.send("Continue Playing Timeout Called") 
     startTimer(5000, function() {
       console.log("Timer done, transition every client to next song in queue!");
     });
