@@ -223,63 +223,44 @@ Description or Flow:
 */
 app.get('/continuePlaying',(req,res)=>{
 
-  continueState[req.body.userID-1]=true;
-  console.log("Continue State:",continueState);
-  console.log("Client State:",clientState);
-  continueCheck=true;
-  if(JSON.stringify(clientState) != JSON.stringify(continueState))
+  if(!continueCheck)
   {
-    console.log("Starting Timeout")
-    continueTimeout[req.body.userID-1]=setTimeout(() => {
-
-      console.log("The clients didn't align within 10 seconds")
-      for(var i=0;i<4;i++)
-      {
-          console.log("clearing all timeouts")
-          clearTimeout(continueTimeout[i])
-      }
-      console.log("Continue State: " + continueState)
-      currOffset--;
-      if (currOffset<0)
-      {
-        currOffset=0;
-      } 
-
-      var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
-      queue=updatedQueue;
-    
-      currID=queue[0].track_id;
-      currSeek=0
-      continueState=[false,false,false,false];
-      queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
-    }, 5000);
-  }
-  else
-  {
-    console.log("No Timeout Required")
-    for(var i=0;i<4;i++)
-    {
-      console.log("clearing all timeouts")
-      clearTimeout(continueTimeout[i])
-    }
-    currOffset--;
-    if (currOffset<0)
-    {
-      currOffset=0;
-    } 
-
-    var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM, req.body.cln)
-    queue=updatedQueue;
-  
-    currID=queue[0].track_id;
-    currSeek=0
-    continueState=[false,false,false,false];
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+    continueCheck=true // so that other client ending their songs don't start their timer again
+    startTimer(5000, function() {
+      console.log("Timer done, transition every client to next song in queue!");
+    });
   }
 
   res.send("Continue Playing Function Called") 
 })
 
+function startTimer(duration, callback) {
+  var start = new Date().getTime();
+  var elapsed = 0;
+
+  // Loop until the elapsed time is equal to or greater than the duration
+  while (elapsed < duration) {
+      elapsed = new Date().getTime() - start;
+  }
+
+  // Once the timer completes
+
+  continueCheck=false
+  //Algo for playing next song in the queue
+  currOffset--;
+  if (currOffset<0)
+  {
+    currOffset=0;
+  } 
+
+  var updatedQueue=queueUpdateAutomatic(queue,req.body.userID,currBPM)
+  queue=updatedQueue;
+
+  currID=queue[0].track_id;
+  currSeek=0
+  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+  //
+}
 
 /*
 Input: timestamp and song id information of the playing song by the client
@@ -745,7 +726,6 @@ function getRGBColors(qElement)
 function queueUpdateBroadcast(queue,song,seek,msg)
 {    
   prevClientState=[client1Active,client2Active,client3Active,client4Active]
-  continueCheck=false;
 
   colorJSON=JSON.stringify(
     { 
