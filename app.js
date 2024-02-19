@@ -223,11 +223,12 @@ Description or Flow:
 */
 app.get('/continuePlaying',(req,res)=>{
 
+  console.log(req.body.userID)
   if(!continueCheck)
   {
     continueCheck=true // so that other client ending their songs don't start their timer again
     res.send("Continue Playing Timeout Called") 
-    startTimer(5000, function() {
+    startTimer(5000,req,function() {
       console.log("Timer done, transition every client to next song in queue!");
     });
   }
@@ -235,7 +236,7 @@ app.get('/continuePlaying',(req,res)=>{
   res.send("Continue Playing Function Called") 
 })
 
-function startTimer(duration, callback) {
+function startTimer(duration,req) {
   var start = new Date().getTime();
   var elapsed = 0;
 
