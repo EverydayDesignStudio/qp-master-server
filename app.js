@@ -51,8 +51,9 @@ app.post('/setClientActive',(req, res)=>{
     console.log("QP4 is set active");
     client4Active=true;
   }
-  
+
   clientState=[client1Active,client2Active,client3Active,client4Active]
+  console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
   if(queue.length>=4)
   {
@@ -137,6 +138,8 @@ app.post('/setClientInactive',(req, res)=>{
   }
 
   clientState=[client1Active,client2Active,client3Active,client4Active]
+  console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
+ 
   if(queue.length>=4)
   {
     queueUpdateBroadcast(queue,queue[0],currSeek, "InActive");
@@ -784,3 +787,4 @@ function queueUpdateBroadcast(queue,song,seek,msg)
       console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
   });
 }
+ 
