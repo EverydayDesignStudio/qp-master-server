@@ -227,12 +227,12 @@ Description or Flow:
 app.get('/continuePlaying',(req,res)=>{
 
   console.log(req.body.userID)
-  reqCopy=req
+  userIDForContinue=req.body.userID
   if(!continueCheck)
   {
     continueCheck=true // so that other client ending their songs don't start their timer again
     res.send("Continue Playing Timeout Called") 
-    startTimer(5000,reqCopy,function() {
+    startTimer(5000,userIDForContinue,function() {
       console.log("Timer done, transition every client to next song in queue!");
     });
   }
@@ -240,7 +240,7 @@ app.get('/continuePlaying',(req,res)=>{
   res.send("Continue Playing Function Called") 
 })
 
-function startTimer(duration,reqCopy) {
+function startTimer(duration,userIDForContinue) {
   var start = new Date().getTime();
   var elapsed = 0;
 
@@ -259,7 +259,7 @@ function startTimer(duration,reqCopy) {
     currOffset=0;
   } 
 
-  var updatedQueue=queueUpdateAutomatic(queue,reqCopy.body.userID,currBPM)
+  var updatedQueue=queueUpdateAutomatic(queue,userIDForContinue,currBPM)
   queue=updatedQueue;
 
   currID=queue[0].track_id;
