@@ -236,8 +236,10 @@ app.get('/continuePlaying',(req,res)=>{
       console.log("Timer done, transition every client to next song in queue!");
     });
   }
+  else{
+    res.send("Continue Playing Function Called") 
+  }
 
-  res.send("Continue Playing Function Called") 
 })
 
 function startTimer(duration,userIDForContinue) {
