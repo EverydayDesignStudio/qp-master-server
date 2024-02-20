@@ -227,7 +227,7 @@ Description or Flow:
 app.get('/continuePlaying',(req,res)=>{
 
   console.log(req.body.userID)
-  reqCopy=JSON.parse(JSON.stringify(req));
+  reqCopy=req
   if(!continueCheck)
   {
     continueCheck=true // so that other client ending their songs don't start their timer again
