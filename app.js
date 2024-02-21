@@ -226,17 +226,21 @@ Description or Flow:
 */
 app.get('/continuePlaying',(req,res)=>{
 
-  console.log(req.body.userID)
+  console.log("## ContinuePlaying Request Received from client ", req.body.userID)
+  console.log("    ## ContinueCheck: ", continueCheck)
   userIDForContinue=req.body.userID
   if(!continueCheck)
   {
-    continueCheck=true // so that other client ending their songs don't start their timer again
+    console.log("    ## This is the first Continue request. Locking the flag.")
+    continueCheck=true // so that other clients ending their songs don't start their timer again
     res.send("Continue Playing Timeout Called") 
+    console.log("    ## Now starting the timer. No other ContinuePlaying request should be accepted.")
     startTimer(5000,userIDForContinue,function() {
       console.log("Timer done, transition every client to next song in queue!");
     });
   }
   else{
+    console.log("    ## Continue request received by client ", userIDForContinue ,", but ContinuePlaying is already initiated.")
     res.send("Continue Playing Function Called") 
   }
 
@@ -246,6 +250,7 @@ function startTimer(duration,userIDForContinue) {
   var start = new Date().getTime();
   var elapsed = 0;
 
+  console.log("#### StartTimer for ContinuePlaying..")
   // Loop until the elapsed time is equal to or greater than the duration
   while (elapsed < duration) {
       elapsed = new Date().getTime() - start;
@@ -253,7 +258,10 @@ function startTimer(duration,userIDForContinue) {
 
   // Once the timer completes
 
+  console.log("#### StartTimer done. Unlocking the flag..")
+  // ### TODO: we may need to unlock the flag at the very end after the broadcast AND move the broadcast logic outside of StartTimer
   continueCheck=false
+ 
   //Algo for playing next song in the queue
   currOffset--;
   if (currOffset<0)
@@ -261,11 +269,14 @@ function startTimer(duration,userIDForContinue) {
     currOffset=0;
   } 
 
+  console.log("#### StartTimer done. Updating the queue..")
   var updatedQueue=queueUpdateAutomatic(queue,userIDForContinue,currBPM)
   queue=updatedQueue;
 
   currID=queue[0].track_id;
   currSeek=0
+ 
+  console.log("#### StartTimer done. Broadcasting the next song to all clients..")
   queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
   //
 }
