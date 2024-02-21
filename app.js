@@ -798,7 +798,6 @@ function queueUpdateBroadcast(queue,song,seek,msg)
       }
       backupCheck = true;
       console.log("JSON file has been saved.");
-      console.log(jsonContent);
       console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
   });
 }
