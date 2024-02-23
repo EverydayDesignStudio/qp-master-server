@@ -227,8 +227,10 @@ Description or Flow:
 app.get('/continuePlaying',(req,res)=>{
 
   console.log("## ContinuePlaying Request Received from client ", req.body.userID)
+  console.log(req.body)
   console.log("    ## ContinueCheck: ", continueCheck)
   userIDForContinue=req.body.userID
+ // TODO: instead of having a flag to control the concurrency, we should compare songs to decide whether to process or reject the request
   if(!continueCheck)
   {
     console.log("    ## This is the first Continue request. Locking the flag.")
@@ -264,6 +266,7 @@ function startTimer(duration,userIDForContinue) {
  
   //Algo for playing next song in the queue
   currOffset--;
+  console.log("#### move to the next song in the queue.. CurrOffset: ", currOffset)
   if (currOffset<0)
   {
     currOffset=0;
@@ -593,29 +596,40 @@ function queueUpdateUser(queue, additionToQueue, offset, user,cln)
 
 function queueUpdateAutomatic(queue, user, bpm,cln)
 {
+  console.log("## Inside of queueUpdateAutomatic")
+  console.log("## rotation shift")
   rotation.shift();
   rotation=rotation.concat([false]);
 
+  console.log("## ring light shift")
   ringLight.shift();
   ringLight=ringLight.concat([ringLight[ringLight.length-1]])
 
+  console.log("## get rid of the first song in the queue")
   var deletedFromQueue=queue.shift(); 
+  console.log(deletedFromQueue)
+  console.log("## track_id for the current song that's finished: ", deletedFromQueue["track_id"])
   var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
+  console.log("## clientID of the finished song: ", indx+1)
   if(indx!=-1)
   { 
     clientTrackAdded[indx]="";
     console.log("user free to use is: ", indx+1)
     userControl(indx+1);
   }
-  
+
+  console.log("## queue size : ", queue.length)
   while(queue.length<4)
   {
     var nextBPM=queue[queue.length-1].tempo-1;
+    console.log("    ## next bpm to fill the queue: ", nextBPM)
     var trackInfos = readDatabase();
     var bpmData=getDatafromBPM(trackInfos,nextBPM,user,cln);
     var addMoreToQueue = processDatabase(bpmData, user); 
+    console.log("    ## adding extra songs to the queue: ", addMoreToQueue.length)
     queue=queue.concat(addMoreToQueue);
   }
+  console.log("## queue size is now: ", queue.length)
   return queue;
 }
 
