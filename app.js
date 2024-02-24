@@ -65,6 +65,7 @@ app.post('/setClientActive',(req, res)=>{
     if (fs.existsSync("backup.json")) {
       console.log("Found a backup file!")
       var backup=readBackup()
+     console.log(backup)
       clientTrackAdded=backup["userTracks"]
       queue=backup["queue"];
      
