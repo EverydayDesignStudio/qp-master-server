@@ -61,18 +61,25 @@ app.post('/setClientActive',(req, res)=>{
 
   if (queue.length == 0)
   {
+    console.log("Empty queue. Loading a backup file..")
     if (fs.existsSync("backup.json")) {
+      console.log("Found a backup file!")
       var backup=readBackup()
       clientTrackAdded=backup["userTracks"]
       queue=backup["queue"];
      
       console.log("Queue length is now : ", queue.length)
     }
+    else
+    {
+       console.log("Backup file not found..")
+    }
   }
   
   if (queue.length < 4)
   {
     // fill the queue with the active client and a random cluster
+    console.log("Filling the queue with the nearest BPM..")
     queue = queueFillwithNearestBPM(queue, req.body.clientID, Math.floor(Math.random() * 4))
     console.log("Queue length is now : ", queue.length)
   }
