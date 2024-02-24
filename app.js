@@ -52,9 +52,12 @@ app.post('/setClientActive',(req, res)=>{
     client4Active=true;
   }
 
+  console.log(req.body)
+
   clientState=[client1Active,client2Active,client3Active,client4Active]
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
+  console.log("Queue Length: ", queue.length)
   if(queue.length>=4)
   {
     console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
@@ -355,10 +358,12 @@ io.on('connection', (socket) => {
 
   if(!backupCheck)
   {
-
-    io.emit('message',JSON.stringify(
-      {"msg":"Initial"}
-    ));
+    // send "Initial" message only when there is NO back-up JSON
+    if (!fs.existsSync("backup.json")) {
+      io.emit('message',JSON.stringify(
+        {"msg": "Initial"}
+      ));
+    }
   }
   else
   {
