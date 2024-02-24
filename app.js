@@ -57,49 +57,66 @@ app.post('/setClientActive',(req, res)=>{
   clientState=[client1Active,client2Active,client3Active,client4Active]
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
-  console.log("Queue Length: ", queue.length)
-  if(queue.length>=4)
-  {
-    console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
-    console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
+  console.log("Queue length: ", queue.length)
 
+  if (queue.length == 0)
+  {
+    if (fs.existsSync("backup.json")) {
+      var backup=readBackup()
+      clientTrackAdded=backup["userTracks"]
+      queue=backup["queue"];
+     
+      console.log("Queue length is now : ", queue.length)
+    }
+  }
+  
+  if (queue.length < 4)
+  {
+    // fill the queue with the active client and a random cluster
+    queue = queueFillwithNearestBPM(queue, req.body.clientID, Math.floor(Math.random() * 4))
+    console.log("Queue length is now : ", queue.length)
+  }
+ 
+  console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
+  console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
+
+  /*
+  IF Block Explanation
+  The server checks if the clients are in transition or continuing between songs, if true it does not send a json to all the
+  active clients and waits for the next song to play
+  */
+  if(continueCheck)
+  {
+    console.log("waiting for clients to sync up")
+  }
+  else
+  {
     /*
     IF Block Explanation
-    The server checks if the clients are in transition or continuing between songs, if true it does not send a json to all the
-    active clients and waits for the next song to play
+    The server checks if the clientState before and after the new client activation to handle the corner case of only one 
+    client active to play song from the start, else it would send a json seeking for the most updated timestamp from other 
+    active clients
     */
-    if(continueCheck)
+    if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
     {
-      console.log("waiting for clients to sync up")
-    }
-    else
-    {
-      /*
-      IF Block Explanation
-      The server checks if the clientState before and after the new client activation to handle the corner case of only one 
-      client active to play song from the start, else it would send a json seeking for the most updated timestamp from other 
-      active clients
-      */
-      if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
+      if(clientState.filter(item => item === true).length==1)
       {
-        if(clientState.filter(item => item === true).length==1)
-        {
-          console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
-          queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
-        }
-        else
-        {
-          console.log("Sending the JSON to the client with prompt to seek from other active clients")
-          queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
-        }
+        console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
+        queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
       }
       else
       {
-        console.log("First client to be active in the queue, responsible for creating the queue")
-        queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
+        console.log("Sending the JSON to the client with prompt to seek from other active clients")
+        queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
       }
     }
+    else
+    {
+      console.log("First client to be active in the queue, responsible for creating the queue")
+      queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
+    }
   }
+
 
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
