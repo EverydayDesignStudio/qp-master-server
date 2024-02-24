@@ -557,7 +557,7 @@ function processDatabase(qpData,user)
   return qpData;
 }
 
-function queueUpdateUser(queue, additionToQueue, offset, user,cln)
+function queueUpdateUser(queue, additionToQueue, offset, user, cln)
 {
   var i=0;
   var delBPM;
@@ -582,15 +582,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user,cln)
   queue.splice(offset,queue.length-offset);
   queue=queue.concat(additionToQueue);
 
-  while(queue.length<4)
-  {
-    var nextBPM=queue[queue.length-1].tempo-1
-    var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos,nextBPM,user,cln);
-    var addMoreToQueue = processDatabase(bpmData, user); 
-    queue=queue.concat(addMoreToQueue);
-  }
-  
+  queue = queueFillwithNearestBPM(queue, user, cln)
   return queue;
 }
 
@@ -618,19 +610,25 @@ function queueUpdateAutomatic(queue, user, bpm,cln)
     userControl(indx+1);
   }
 
+  queue = queueFillwithNearestBPM(queue, user, cln)
+  return queue;
+}
+
+function queueFillwithNearestBPM(queue, user, cln)
+{
   console.log("## queue size : ", queue.length)
   while(queue.length<4)
   {
     var nextBPM=queue[queue.length-1].tempo-1;
     console.log("    ## next bpm to fill the queue: ", nextBPM)
     var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos,nextBPM,user,cln);
+    var bpmData=getDatafromBPM(trackInfos,nextBPM, user, cln);
     var addMoreToQueue = processDatabase(bpmData, user); 
     console.log("    ## adding extra songs to the queue: ", addMoreToQueue.length)
     queue=queue.concat(addMoreToQueue);
   }
   console.log("## queue size is now: ", queue.length)
-  return queue;
+  return queue
 }
 
  
