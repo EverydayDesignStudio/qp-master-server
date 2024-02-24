@@ -833,23 +833,43 @@ function queueUpdateBroadcast(queue,song,seek,msg)
   io.emit('message', colorJSON)
 
   var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
-  fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-      if (err) {
-          console.log("An error occured while writing JSON Object to File.");
-          return console.log(err);
-      }
-      backupCheck = true;
-      console.log("JSON file has been saved.");
-      console.log("  ## Printing the first four songs in the queue.");
-      console.log(queue[0]);
-      console.log(queue[1]);
-      console.log(queue[2]);
-      console.log(queue[3]);
-      console.log("  ## Printing the color info.");
-      console.log(colorJSON);
-      console.log("  ## Printing the user tracks.");
-      console.log(clientTrackAdded);
-      console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
-  });
+  try {
+    fs.writeFileSync("backup.json", jsonContent)
+  } catch (e) {
+    console.log("An error occurred while writing JSON Object to File.");
+    console.log(e); // will log an error because file already exists
+  } 
+ 
+  backupCheck = true;
+  console.log("JSON file has been saved.");
+  console.log("  ## Printing the first four songs in the queue.");
+  console.log(queue[0]);
+  console.log(queue[1]);
+  console.log(queue[2]);
+  console.log(queue[3]);
+  console.log("  ## Printing the color info.");
+  console.log(colorJSON);
+  console.log("  ## Printing the user tracks.");
+  console.log(clientTrackAdded);
+  console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
+ 
+ // fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
+ //      if (err) {
+ //          console.log("An error occured while writing JSON Object to File.");
+ //          return console.log(err);
+ //      }
+ //      backupCheck = true;
+ //      console.log("JSON file has been saved.");
+ //      console.log("  ## Printing the first four songs in the queue.");
+ //      console.log(queue[0]);
+ //      console.log(queue[1]);
+ //      console.log(queue[2]);
+ //      console.log(queue[3]);
+ //      console.log("  ## Printing the color info.");
+ //      console.log(colorJSON);
+ //      console.log("  ## Printing the user tracks.");
+ //      console.log(clientTrackAdded);
+ //      console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
+ //  });
 }
  
