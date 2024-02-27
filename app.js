@@ -59,23 +59,25 @@ app.post('/setClientActive',(req, res)=>{
 
   console.log("Queue length: ", queue.length)
 
-  if (queue.length == 0)
-  {
-    console.log("Empty queue. Loading a backup file..")
-    if (fs.existsSync("backup.json")) {
-      console.log("Found a backup file!")
-      var backup=readBackup()
-     console.log(backup)
-      clientTrackAdded=backup["userTracks"]
-      queue=backup["queue"];
+  // TODO: what to do when the queue is empty?
+ 
+  // if (queue.length == 0)
+  // {
+  //   console.log("Empty queue. Loading a backup file..")
+  //   if (fs.existsSync("backup.json")) {
+  //     console.log("Found a backup file!")
+  //     var backup=readBackup()
+  //     console.log(backup)
+  //     clientTrackAdded=backup["userTracks"]
+  //     queue=backup["queue"];
      
-      console.log("Queue length is now : ", queue.length)
-    }
-    else
-    {
-       console.log("Backup file not found..")
-    }
-  }
+  //     console.log("Queue length is now : ", queue.length)
+  //   }
+  //   else
+  //   {
+  //      console.log("Backup file not found..")
+  //   }
+  // }
   
   if (queue.length < 4)
   {
@@ -383,18 +385,27 @@ io.on('connection', (socket) => {
 
   if(!backupCheck)
   {
-    // send "Initial" message only when there is NO back-up JSON
-    if (!fs.existsSync("backup.json")) {
-      io.emit('message',JSON.stringify(
-        {"msg": "Initial"}
-      ));
-    }
+    io.emit('message',JSON.stringify(
+      {"msg": "Initial"}
+    ));
+    // // send "Initial" message only when there is NO back-up JSON
+    // if (!fs.existsSync("backup.json")) {
+    //   io.emit('message',JSON.stringify(
+    //     {"msg": "Initial"}
+    //   ));
+    // }
   }
   else
   {
-    var backup=readBackup()
-    clientTrackAdded=backup["userTracks"]
-    queue=backup["queue"];
+    // TODO: what to do when this fails?
+    try {
+      var backup=readBackup()
+      clientTrackAdded=backup["userTracks"]
+      queue=backup["queue"];
+    } catch(e) {
+      console.log("Error while reading a backup JSON");
+      console.log(e);
+    }
   }
   socket.on('disconnect', () => {
     console.log(socket.id);
