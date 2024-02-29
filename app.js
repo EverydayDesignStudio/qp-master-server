@@ -466,12 +466,13 @@ var client4Socket=false;
 
 var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
 var isBPMTapped = [false,false,false,false]; // boolean array for 4 slots of queueLights to indicate which entry(BPM) is newly added by a client
-var ringLight =["","","","",""];          // array to map ringLight colors for each song in the queue
+// var ringLight =["","","","",""];          
+var ringLight =["","","",""];          // array to map ringLight colors for each song in the queue
 var clientState=[false,false,false,false] // array to store all the current client states 
 var prevClientState=[false,false,false,false]; // array to store all the previous client states before a new client joins in
 var backupCheck=false;                  // boolean to check if backup has been created 
 var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
-var userCheckBPM=false;                 
+var userHasBPM=false;                   // boolean to check if a specific user owns songs in the given BPM     
 var continueTimeout=["","","",""];      
 var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
 
@@ -494,7 +495,7 @@ function readBackup()
 function getDatafromBPM(qpData, bpm, user, cln)
 {
   //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
-  userCheckBPM=false;
+  userHasBPM=false;
   var qpBPMData=new Array();
   while(qpBPMData.length == 0)
   {
@@ -510,13 +511,13 @@ function getDatafromBPM(qpData, bpm, user, cln)
         if(qpData[i].user_id.includes(user) && qpData[i].cluster_number==cln)
         {
           console.log("found a song in this BPM with this user and this cluster number")
-          userCheckBPM=true
+          userHasBPM=true
         }
         qpBPMData.push(qpData[i]);
       }
     }
 
-    if(!userCheckBPM)
+    if(!userHasBPM)
     {
       qpBPMData=new Array();
     }
