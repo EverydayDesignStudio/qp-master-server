@@ -223,20 +223,20 @@ The flow for the server is as follows:
 [6] - client ID recorded so as to not let the same client another BPM until its song has exited the queue
 */
 app.post('/getTrackToQueue',(req, res)=>{
-  if(userCheck(req.body.userID))
+  if(userCheck(req.body.clientID))
   {
     currOffset++;
     var trackInfos = readDatabase();
     console.log(req.body.cln);
-    var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.userID, req.body.cln);
-    var songAddition = processDatabase(bpmData, req.body.userID);
-    var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.userID,req.body.cln);
+    var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID, req.body.cln);
+    var songAddition = processDatabase(bpmData, req.body.clientID);
+    var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.clientID,req.body.cln);
 
     queue=updatedQueue;
     rotation[currOffset]=true;
-    ringLight.fill(colorFromUser(req.body.userID),currOffset,ringLight.length);
-    clientTrackAdded[req.body.userID-1]=updatedQueue[currOffset]["track_id"];
-    userControl(req.body.userID);
+    ringLight.fill(colorFromUser(req.body.clientID),currOffset,ringLight.length);
+    clientTrackAdded[req.body.clientID-1]=updatedQueue[currOffset]["track_id"];
+    userControl(req.body.clientID);
 
     queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Queue")
 
@@ -256,10 +256,10 @@ Description or Flow:
 */
 app.get('/continuePlaying',(req,res)=>{
 
-  console.log("## ContinuePlaying Request Received from client ", req.body.userID)
+  console.log("## ContinuePlaying Request Received from client ", req.body.clientID)
   console.log(req.body)
   console.log("    ## ContinueCheck: ", continueCheck)
-  userIDForContinue=req.body.userID
+  clientIDForContinue=req.body.clientID
  // TODO: instead of having a flag to control the concurrency, we should compare songs to decide whether to process or reject the request
   if(!continueCheck)
   {
@@ -267,18 +267,18 @@ app.get('/continuePlaying',(req,res)=>{
     continueCheck=true // so that other clients ending their songs don't start their timer again
     res.send("Continue Playing Timeout Called") 
     console.log("    ## Now starting the timer. No other ContinuePlaying request should be accepted.")
-    startTimer(5000,userIDForContinue,function() {
+    startTimer(5000,clientIDForContinue,function() {
       console.log("Timer done, transition every client to next song in queue!");
     });
   }
   else{
-    console.log("    ## Continue request received by client ", userIDForContinue ,", but ContinuePlaying is already initiated.")
+    console.log("    ## Continue request received by client ", clientIDForContinue ,", but ContinuePlaying is already initiated.")
     res.send("Continue Playing Function Called") 
   }
 
 })
 
-function startTimer(duration,userIDForContinue) {
+function startTimer(duration,clientIDForContinue) {
   var start = new Date().getTime();
   var elapsed = 0;
 
@@ -303,7 +303,7 @@ function startTimer(duration,userIDForContinue) {
   } 
 
   console.log("#### StartTimer done. Updating the queue..")
-  var updatedQueue=queueUpdateAutomatic(queue,userIDForContinue,currBPM)
+  var updatedQueue=queueUpdateAutomatic(queue,clientIDForContinue,currBPM)
   queue=updatedQueue;
 
   currID=queue[0].track_id;
@@ -359,23 +359,23 @@ io.on('connection', (socket) => {
   console.log("Client Connected")
 
   socket.on('connect_user', (msg) => {
-    console.log(msg.userID);
-    if(msg.userID==1)
+    console.log(msg.clientID);
+    if(msg.clientID==1)
     {
       console.log("Socket ID registered for QP1")
       client1Socket=socket.id
     }
-    else if(msg.userID==2)
+    else if(msg.clientID==2)
     {
       console.log("Socket ID registered for QP2")
       client2Socket=socket.id
     }
-    else if(msg.userID==3)
+    else if(msg.clientID==3)
     {
       console.log("Socket ID registered for QP3")
       client3Socket=socket.id
     }
-    else if(msg.userID==4)
+    else if(msg.clientID==4)
     {
       console.log("Socket ID registered for QP4")
       client4Socket=socket.id
