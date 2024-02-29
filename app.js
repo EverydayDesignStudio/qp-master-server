@@ -187,7 +187,7 @@ the queue creation process of queue player system. The flow for the server is as
 [2] - get song details from the client input BPM
 [3] - sort the database based on ML clusters but since its the first time the order is retained
 [4] - update the queue
-[5] - for the json , the first ring from the top i.e. rotation[0] would be set to true, ringLight is based on clientID
+[5] - for the json , the first ring from the top i.e. isBPMTapped[0] would be set to true, ringLight is based on clientID
 current value of seek or the timestamp for the server is set to 0
 */
 app.post('/getTrackToPlay', (req, res) => {
@@ -198,7 +198,7 @@ app.post('/getTrackToPlay', (req, res) => {
   var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.clientID,0);
 
   queue=updatedQueue;
-  rotation[0]=true;
+  isBPMTapped[0]=true;
   ringLight.fill(colorFromUser(req.body.clientID),0,ringLight.length);
   currID=queue[0].track_id;
   currSeek=0
@@ -218,7 +218,7 @@ The flow for the server is as follows:
 [1] - Check if the client already has a song in the queue
 [2] - if not then, update the currOffset variable to update the queue from the right index
 [3] - read the database, get song details from input BPM and process them based on the previous song cluster to update the queue
-[4] - for the json broadcast, the rotation[currOffset] is set to true to determine the addition of a new BPM in the lights
+[4] - for the json broadcast, the isBPMTapped[currOffset] is set to true to determine the addition of a new BPM in the lights
 [5] - ringLight is also updated according to the latest client which updated the queue
 [6] - client ID recorded so as to not let the same client another BPM until its song has exited the queue
 */
@@ -233,7 +233,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.clientID,req.body.cln);
 
     queue=updatedQueue;
-    rotation[currOffset]=true;
+    isBPMTapped[currOffset]=true;
     ringLight.fill(colorFromUser(req.body.clientID),currOffset,ringLight.length);
     clientTrackAdded[req.body.clientID-1]=updatedQueue[currOffset]["track_id"];
     userControl(req.body.clientID);
@@ -465,7 +465,7 @@ var client3Socket=false;
 var client4Socket=false;
 
 var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
-var rotation = [false,false,false,false]; // array to control the 4 slots of lights to indicate which BPM is newly added by another client
+var isBPMTapped = [false,false,false,false]; // boolean array for 4 slots of queueLights to indicate which entry(BPM) is newly added by a client
 var ringLight =["","","","",""];          // array to map ringLight colors for each song in the queue
 var clientState=[false,false,false,false] // array to store all the current client states 
 var prevClientState=[false,false,false,false]; // array to store all the previous client states before a new client joins in
@@ -632,9 +632,9 @@ function queueUpdateUser(queue, additionToQueue, offset, user, cln)
 function queueUpdateAutomatic(queue, user, bpm,cln)
 {
   console.log("## Inside of queueUpdateAutomatic")
-  console.log("## rotation shift")
-  rotation.shift();
-  rotation=rotation.concat([false]);
+  console.log("## isBPMTapped shift")
+  isBPMTapped.shift();
+  isBPMTapped=isBPMTapped.concat([false]);
 
   console.log("## ring light shift")
   ringLight.shift();
@@ -814,27 +814,27 @@ function queueUpdateBroadcast(queue,song,seek,msg)
       "activeUsers":[client1Active,client2Active,client3Active,client4Active],
       "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
       "lights":{
-        "ring1":{
-          "rotate": rotation[0],
-          "rlight":ringLight[0],
+        "queueLight1":{
+          "isNewBPM": isBPMTapped[0],
+          "ringLight":ringLight[0],
           "bpm": queue[0].tempo,
           "colors":getRGBColors(queue[0])
           },
-          "ring2":{
-            "rotate": rotation[1],
-            "rlight":ringLight[1],
+          "queueLight2":{
+            "isNewBPM": isBPMTapped[1],
+            "ringLight":ringLight[1],
             "bpm": queue[1].tempo,
             "colors":getRGBColors(queue[1])
           },
-          "ring3":{
-            "rotate": rotation[2],
-            "rlight":ringLight[2],
+          "queueLight3":{
+            "isNewBPM": isBPMTapped[2],
+            "ringLight":ringLight[2],
             "bpm": queue[2].tempo,
             "colors":getRGBColors(queue[2])
           },
-          "ring4":{
-            "rotate": rotation[3],
-            "rlight":ringLight[3],
+          "queueLight4":{
+            "isNewBPM": isBPMTapped[3],
+            "ringLight":ringLight[3],
             "bpm": queue[3].tempo,
             "colors":getRGBColors(queue[3])
           },
