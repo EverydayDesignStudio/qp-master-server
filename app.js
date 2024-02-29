@@ -599,6 +599,7 @@ function processDatabase(qpData,user)
   return qpData;
 }
 
+// ## TODO: add 10 songs to the queue from the same cluster instead of loading all songs of the same BPM
 function queueUpdateUser(queue, additionToQueue, offset, user, cln)
 {
   var i=0;
