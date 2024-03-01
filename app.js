@@ -112,18 +112,18 @@ app.post('/setClientActive',(req, res)=>{
       if(clientState.filter(item => item === true).length==1)
       {
         console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
-        queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
+        queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "SeekSong");
       }
       else
       {
         console.log("Sending the JSON to the client with prompt to seek from other active clients")
-        queueUpdateBroadcast(queue,queue[0],currSeek, "Seeking");
+        queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "Seeking");
       }
     }
     else
     {
       console.log("First client to be active in the queue, responsible for creating the queue")
-      queueUpdateBroadcast(queue,queue[0],currSeek, "Active");
+      queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "Active");
     }
   }
 
@@ -172,7 +172,7 @@ app.post('/setClientInactive',(req, res)=>{
  
   if(queue.length>=4)
   {
-    queueUpdateBroadcast(queue,queue[0],currSeek, "InActive");
+    queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "InActive");
   }
 
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
@@ -200,9 +200,9 @@ app.post('/getTrackToPlay', (req, res) => {
   queue=updatedQueue;
   isBPMTapped[0]=true;
   ringLight.fill(colorFromUser(req.body.clientID),0,ringLight.length);
-  currID=queue[0].track_id;
-  currSeek=0
-  queueUpdateBroadcast(queue,queue[0],currSeek, "Song");
+  currSongID=queue[0].track_id;
+  currSongTimestamp=0
+  queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "Song");
 
   console.log("Playing First Song ", queue[0]["track_name"])
 
@@ -216,29 +216,29 @@ Output: a queue created with the BPM (or the next lowest one where the client ha
 Description or Flow: A client sends the bpm ,id and cluster number to an already filled queue and updates the queue.
 The flow for the server is as follows:
 [1] - Check if the client already has a song in the queue
-[2] - if not then, update the currOffset variable to update the queue from the right index
+[2] - if not then, update the currQueueOffset variable to update the queue from the right index
 [3] - read the database, get song details from input BPM and process them based on the previous song cluster to update the queue
-[4] - for the json broadcast, the isBPMTapped[currOffset] is set to true to determine the addition of a new BPM in the lights
+[4] - for the json broadcast, the isBPMTapped[currQueueOffset] is set to true to determine the addition of a new BPM in the lights
 [5] - ringLight is also updated according to the latest client which updated the queue
 [6] - client ID recorded so as to not let the same client another BPM until its song has exited the queue
 */
 app.post('/getTrackToQueue',(req, res)=>{
   if(userCheck(req.body.clientID))
   {
-    currOffset++;
+    currQueueOffset++;
     var trackInfos = readDatabase();
     console.log(req.body.cln);
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID, req.body.cln);
     var songAddition = processDatabase(bpmData, req.body.clientID);
-    var updatedQueue = queueUpdateUser(queue,songAddition,currOffset,req.body.clientID,req.body.cln);
+    var updatedQueue = queueUpdateUser(queue,songAddition,currQueueOffset,req.body.clientID,req.body.cln);
 
     queue=updatedQueue;
-    isBPMTapped[currOffset]=true;
-    ringLight.fill(colorFromUser(req.body.clientID),currOffset,ringLight.length);
-    clientTrackAdded[req.body.clientID-1]=updatedQueue[currOffset]["track_id"];
+    isBPMTapped[currQueueOffset]=true;
+    ringLight.fill(colorFromUser(req.body.clientID),currQueueOffset,ringLight.length);
+    clientTrackAdded[req.body.clientID-1]=updatedQueue[currQueueOffset]["track_id"];
     userControl(req.body.clientID);
 
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek, "Queue")
+    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSongTimestamp, "Queue")
 
     console.log("Adding to Queue")
     res.send({"queue": updatedQueue});
@@ -295,22 +295,22 @@ function startTimer(duration,clientIDForContinue) {
   continueCheck=false
  
   //Algo for playing next song in the queue
-  currOffset--;
-  console.log("#### move to the next song in the queue.. CurrOffset: ", currOffset)
-  if (currOffset<0)
+  currQueueOffset--;
+  console.log("#### move to the next song in the queue.. currQueueOffset: ", currQueueOffset)
+  if (currQueueOffset<0)
   {
-    currOffset=0;
+    currQueueOffset=0;
   } 
 
   console.log("#### StartTimer done. Updating the queue..")
   var updatedQueue=queueUpdateAutomatic(queue,clientIDForContinue,currBPM)
   queue=updatedQueue;
 
-  currID=queue[0].track_id;
-  currSeek=0
+  currSongID=queue[0].track_id;
+  currSongTimestamp=0
  
   console.log("#### StartTimer done. Broadcasting the next song to all clients..")
-  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSeek,"Song")
+  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSongTimestamp,"Song")
   //
 }
 
@@ -318,17 +318,17 @@ function startTimer(duration,clientIDForContinue) {
 Input: timestamp and song id information of the playing song by the client
 Output: updates the seek/timestamp and songID variable of the server
 Description or Flow: The flow for the server is as follows:
-[1] - update the currSeek and currID by the inputs given by the client
+[1] - update the currSongTimestamp and currSongID by the inputs given by the client
 [2] - if the clients are not continuing or transitioning to the next song then let the newly joined client play the song
 and sync with other clients
 */ 
 app.post('/updateSeek',(req, res)=>{
-  currSeek=req.body.seek;
-  currID=req.body.song;
+  currSongTimestamp=req.body.seek;
+  currSongID=req.body.song;
   if(req.body.prompt!="Continue")
   {
     console.log("Auto play should happen")
-    queueUpdateBroadcast(queue,queue[0],currSeek, "SeekSong");
+    queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "SeekSong");
   }
   res.send("Seek Updated");
  })
@@ -339,8 +339,8 @@ Output: get the updated song and timestamp info for the newly joined client to s
 Description or Flow: N/A
 */
 app.get('/getSeek',(req, res)=>{
-  console.log("Seeking the song: "+currID+" to timestamp: "+currSeek)
-  res.send({seek:currSeek, id:currID});
+  console.log("Seeking the song: "+currSongID+" to timestamp: "+currSongTimestamp)
+  res.send({seek:currSongTimestamp, id:currSongID});
 })
  
 const server = http.createServer(app);
@@ -445,9 +445,9 @@ server.listen(port, () => {
 var queue = [];             // array containing the queue for the queue player system
 var colorArr = [];          // array containing the color information for each of the 4 slots in the device
 var currBPM=-1;             // stores the current BPM playing in the queue player system
-var currOffset=0;           // stores the index upto which the queue player has been updated by the user and from where the new song will be added to the queue
-var currSeek=-1;            // stores the timestamp information of the currently playing song in the clients
-var currID='';              // stores the song/track ID of the currently playing song in the clients
+var currQueueOffset=0;      // stores the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
+var currSongTimestamp=-1;   // stores the timestamp information of the currently playing song in the clients
+var currSongID='';              // stores the song/track ID of the currently playing song in the clients
 
 var client1Active=false;    // client state checking variables
 var client2Active=false;
@@ -809,8 +809,7 @@ function queueUpdateBroadcast(queue,song,seek,msg)
         "songID":song.track_id,
         "timestamp":seek,
         "bpm":song.tempo,
-        "cluster_number": song.cluster_number,
-        "offset":currOffset
+        "cluster_number": song.cluster_number
       },
       "activeUsers":[client1Active,client2Active,client3Active,client4Active],
       "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
