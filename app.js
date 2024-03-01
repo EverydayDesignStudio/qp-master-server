@@ -200,7 +200,7 @@ app.post('/getTrackToPlay', (req, res) => {
   queue=updatedQueue;
   isBPMTapped[0]=true;
   ringLight.fill(colorFromUser(req.body.clientID),0,ringLight.length);
-  currSongID=queue[0].track_id;
+  currtrackID=queue[0].track_id;
   currSongTimestamp=0
   queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "Song");
 
@@ -306,7 +306,7 @@ function startTimer(duration,clientIDForContinue) {
   var updatedQueue=queueUpdateAutomatic(queue,clientIDForContinue,currBPM)
   queue=updatedQueue;
 
-  currSongID=queue[0].track_id;
+  currtrackID=queue[0].track_id;
   currSongTimestamp=0
  
   console.log("#### StartTimer done. Broadcasting the next song to all clients..")
@@ -316,15 +316,15 @@ function startTimer(duration,clientIDForContinue) {
 
 /*
 Input: timestamp and song id information of the playing song by the client
-Output: updates the seek/timestamp and songID variable of the server
+Output: updates the seek/timestamp and trackID variable of the server
 Description or Flow: The flow for the server is as follows:
-[1] - update the currSongTimestamp and currSongID by the inputs given by the client
+[1] - update the currSongTimestamp and currtrackID by the inputs given by the client
 [2] - if the clients are not continuing or transitioning to the next song then let the newly joined client play the song
 and sync with other clients
 */ 
 app.post('/updateSeek',(req, res)=>{
   currSongTimestamp=req.body.seek;
-  currSongID=req.body.song;
+  currtrackID=req.body.song;
   if(req.body.prompt!="Continue")
   {
     console.log("Auto play should happen")
@@ -339,8 +339,8 @@ Output: get the updated song and timestamp info for the newly joined client to s
 Description or Flow: N/A
 */
 app.get('/getSeek',(req, res)=>{
-  console.log("Seeking the song: "+currSongID+" to timestamp: "+currSongTimestamp)
-  res.send({seek:currSongTimestamp, id:currSongID});
+  console.log("Seeking the song: "+currtrackID+" to timestamp: "+currSongTimestamp)
+  res.send({seek:currSongTimestamp, id:currtrackID});
 })
  
 const server = http.createServer(app);
@@ -447,7 +447,7 @@ var colorArr = [];          // array containing the color information for each o
 var currBPM=-1;             // stores the current BPM playing in the queue player system
 var currQueueOffset=0;      // stores the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
 var currSongTimestamp=-1;   // stores the timestamp information of the currently playing song in the clients
-var currSongID='';              // stores the song/track ID of the currently playing song in the clients
+var currtrackID='';              // stores the song/track ID of the currently playing song in the clients
 
 var client1Active=false;    // client state checking variables
 var client2Active=false;
@@ -806,7 +806,7 @@ function queueUpdateBroadcast(queue,song,seek,msg)
     { 
       "msg":msg,
       "songdata":{
-        "songID":song.track_id,
+        "trackID":song.track_id,
         "timestamp":seek,
         "bpm":song.tempo,
         "cluster_number": song.cluster_number
