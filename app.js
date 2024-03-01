@@ -802,7 +802,7 @@ function queueUpdateBroadcast(queue,song,seek,msg)
 {    
   prevClientState=[client1Active,client2Active,client3Active,client4Active]
 
-  colorJSON=JSON.stringify(
+  CurrQPInfo=JSON.stringify(
     { 
       "msg":msg,
       "songdata":{
@@ -843,9 +843,9 @@ function queueUpdateBroadcast(queue,song,seek,msg)
     )
 
 
-  io.emit('message', colorJSON)
+  io.emit('message', CurrQPInfo)
 
-  var jsonContent = JSON.stringify({"queue":queue, "color":colorJSON, "userTracks":clientTrackAdded});
+  var jsonContent = JSON.stringify({"queue":queue, "color":CurrQPInfo, "userTracks":clientTrackAdded});
 
  // Write files on Heroku is ephemeral, so the backup JSON will be gone when the server restarts
  //   https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem
@@ -863,7 +863,7 @@ function queueUpdateBroadcast(queue,song,seek,msg)
       console.log(queue[2]);
       console.log(queue[3]);
       console.log("  ## Printing the color info.");
-      console.log(colorJSON);
+      console.log(CurrQPInfo);
       console.log("  ## Printing the user tracks.");
       console.log(clientTrackAdded);
       console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
