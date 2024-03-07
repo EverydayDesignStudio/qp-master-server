@@ -30,12 +30,15 @@ app.get('/', (req, res) => {
 // #2. QP Variables //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var queue = [];             // array containing the queue for the queue player system
-var colorArr = [];          // array containing the color information for each of the 4 slots in the device
-var currBPM=-1;             // stores the current BPM playing in the queue player system
-var currQueueOffset=0;      // stores the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
-var currSongTimestamp=-1;   // stores the timestamp information of the currently playing song in the clients
-var currtrackID='';              // stores the song/track ID of the currently playing song in the clients
+var queue = [];             // the queue for the queue player system
+var colorArr = [];          // the color information for each of the 4 slots in the device
+var currBPM=-1;             // the current BPM playing in the queue player system
+var currQueueOffset=0;      // the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
+var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
+var currtrackID='';         // the song/track ID of the currently playing song in the clients
+var broadcastTimestamp = -1;// the timestamp info when the currently played song is first broadcasted
+var queue2 = [];          // a fixed size queue for incoming songs
+queue2.length = 4;
 
 var client1Active=false;    // client state checking variables
 var client2Active=false;
@@ -63,6 +66,8 @@ var continueCheck=false;                // boolean to check if the clients have 
 var userHasBPM=false;                   // boolean to check if a specific user owns songs in the given BPM
 var continueTimeout=["","","",""];
 var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
+
+var currQPInfo = ''     // current QueuePlayer information that is broadcasted to the clients
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #3. Create Connections //
@@ -682,6 +687,7 @@ function queueFillwithNearestBPM(queue, user, cln)
   console.log("## queue size : ", queue.length)
   while(queue.length<4)
   {
+    // ## TODO: move some of these variables to global and make less frequent DB calls
     var nextBPM=queue[queue.length-1].tempo-1;
     console.log("    ## next bpm to fill the queue: ", nextBPM)
     var trackInfos = readDatabase();
@@ -815,19 +821,32 @@ function getRGBColors(qElement)
    return colorArr;
 }
 
+// TODO: check params
 function queueUpdateBroadcast(queue,song,seek,msg)
 {
-  CurrQPInfo=JSON.stringify(
+  /*
+  ## All [Server -> Client] message contains:
+  	1) ClientState (for indicator lights)  -- [clientState]
+  	2) Song (Currently playing)  -- [currTrackID]
+  	3) Start time / broadcast time (each client can compare the current time to figure out the duration) -- [currBroadcastTimestamp]
+  	4) Color Info (Ring light, Queue lights)
+  */
+
+  currQPInfo=JSON.stringify(
     {
       "msg":msg,
+
+      "activeUsers":clientState,
+
       "songdata":{
         "trackID":song.track_id,
         "timestamp":seek,
         "bpm":song.tempo,
         "cluster_number": song.cluster_number
       },
-      "activeUsers":clientState,
-      "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
+
+      "canUserAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
+
       "lights":{
         "queueLight1":{
           "isNewBPM": isBPMTapped[0],
@@ -853,13 +872,13 @@ function queueUpdateBroadcast(queue,song,seek,msg)
             "bpm": queue[3].tempo,
             "colors":getRGBColors(queue[3])
           },
-        }
-      }
-    )
+        } // lights
+      } // currQPInfo
+    )// JSON.stringify
 
-  io.emit('message', CurrQPInfo)
+  io.emit('message', currQPInfo)
 
-  var jsonContent = JSON.stringify({"queue":queue, "color":CurrQPInfo, "userTracks":clientTrackAdded});
+  var jsonContent = JSON.stringify({"queue":queue, "color":currQPInfo, "userTracks":clientTrackAdded});
 
  // Write files on Heroku is ephemeral, so the backup JSON will be gone when the server restarts
  //   https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem
@@ -877,7 +896,7 @@ function queueUpdateBroadcast(queue,song,seek,msg)
       console.log(queue[2]);
       console.log(queue[3]);
       console.log("  ## Printing the color info.");
-      console.log(CurrQPInfo);
+      console.log(currQPInfo);
       console.log("  ## Printing the user tracks.");
       console.log(clientTrackAdded);
       console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
