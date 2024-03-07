@@ -56,14 +56,13 @@ var clientTrackAdded=["","","",""];  // array to keep a track of the song update
 var isBPMTapped = [false,false,false,false]; // boolean array for 4 slots of queueLights to indicate which entry(BPM) is newly added by a client
 // var ringLight =["","","","",""];
 var ringLight =["","","",""];          // array to map ringLight colors for each song in the queue
-var clientState=[false,false,false,false] // array to store all the current client states
-var prevClientState=[false,false,false,false]; // array to store all the previous client states before a new client joins in
+// var clientState=[false,false,false,false]
+var clientState=[client1Active,client2Active,client3Active,client4Active]   // array to store all the current client states
 var backupCheck=false;                  // boolean to check if backup has been created
 var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
 var userHasBPM=false;                   // boolean to check if a specific user owns songs in the given BPM
 var continueTimeout=["","","",""];
 var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #3. Create Connections //
@@ -133,30 +132,29 @@ io.on('connection', (socket) => {
     }
   }
   socket.on('disconnect', () => {
+    console.log('Client disconnected');
     console.log(socket.id);
     if(socket.id==client1Socket)
     {
-      console.log("QP1 disconnected")
+      console.log("  QP1 disconnected")
       client1Active=false
     }
     else if(socket.id==client2Socket)
     {
-      console.log("QP2 disconnected")
+      console.log("  QP2 disconnected")
       client2Active=false
     }
     else if(socket.id==client3Socket)
     {
-      console.log("QP3 disconnected")
+      console.log("  QP3 disconnected")
       client3Active=false
     }
     else if(socket.id==client4Socket)
     {
-      console.log("QP4 disconnected")
+      console.log("  QP4 disconnected")
       client4Active=false
     }
-    prevClientState=[client1Active,client2Active,client3Active,client4Active]
     console.log(clientState);
-    console.log('Client disconnected');
   });
 });
 
@@ -177,33 +175,35 @@ Description or Flow: A client sends its respective client id to the server and t
 the server is set to true. The clientState array is also updated with the new values of all the clients.
 */
 app.post('/setClientActive',(req, res)=>{
+  // shallow copy
+  prevClientState = clientState.concat()
+
+  console.log('Client Active');
   if(req.body.clientID==1)
   {
-    console.log("QP1 is set active");
+    console.log("  QP1 is set active");
     client1Active=true;
   }
   else if(req.body.clientID==2)
   {
-    console.log("QP2 is set active");
+    console.log("  QP2 is set active");
     client2Active=true;
   }
   else if(req.body.clientID==3)
   {
-    console.log("QP3 is set active");
+    console.log("  QP3 is set active");
     client3Active=true;
   }
   else if(req.body.clientID==4)
   {
-    console.log("QP4 is set active");
+    console.log("  QP4 is set active");
     client4Active=true;
   }
 
   console.log(req.body)
 
-  clientState=[client1Active,client2Active,client3Active,client4Active]
-  console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
-
-  console.log("Queue length: ", queue.length)
+  console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
+  console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
   // TODO: what to do when the queue is empty?
 
@@ -225,6 +225,10 @@ app.post('/setClientActive',(req, res)=>{
   //   }
   // }
 
+
+// ### // TODO: rewrite/refactor below!!
+  console.log("Queue length: ", queue.length)
+
   if (queue.length < 4)
   {
     // fill the queue with the active client and a random cluster
@@ -232,9 +236,6 @@ app.post('/setClientActive',(req, res)=>{
     queue = queueFillwithNearestBPM(queue, req.body.clientID, Math.floor(Math.random() * 4))
     console.log("Queue length is now : ", queue.length)
   }
-
-  console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
-  console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
   /*
   IF Block Explanation
@@ -273,8 +274,8 @@ app.post('/setClientActive',(req, res)=>{
     }
   }
 
-
-  res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
+  // just checking
+  res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
 })
 
 /*
@@ -285,42 +286,42 @@ the server is set to false. The clientState array is also updated with the new v
 all the clients with the updated clientState array
 */
 app.post('/setClientInactive',(req, res)=>{
+
+  console.log('Client Inactive');
   if(req.body.clientID==1)
   {
-    console.log("QP1 is set inactive");
+    console.log("  QP1 is set inactive");
     client1Active=false;
     continueState[0]=false;
   }
   else if(req.body.clientID==2)
   {
-    console.log("QP2 is set inactive");
+    console.log("  QP2 is set inactive");
     client2Active=false;
     continueState[1]=false;
-
   }
   else if(req.body.clientID==3)
   {
-    console.log("QP3 is set inactive");
+    console.log("  QP3 is set inactive");
     client3Active=false;
     continueState[2]=false;
-
   }
   else if(req.body.clientID==4)
   {
-    console.log("QP4 is set inactive");
+    console.log("  QP4 is set inactive");
     client4Active=false;
     continueState[3]=false;
-
   }
 
-  clientState=[client1Active,client2Active,client3Active,client4Active]
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
+// TODO: revisit/refactor this
   if(queue.length>=4)
   {
     queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "InActive");
   }
 
+  // Just checking
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
 
@@ -816,8 +817,6 @@ function getRGBColors(qElement)
 
 function queueUpdateBroadcast(queue,song,seek,msg)
 {
-  prevClientState=[client1Active,client2Active,client3Active,client4Active]
-
   CurrQPInfo=JSON.stringify(
     {
       "msg":msg,
@@ -827,7 +826,7 @@ function queueUpdateBroadcast(queue,song,seek,msg)
         "bpm":song.tempo,
         "cluster_number": song.cluster_number
       },
-      "activeUsers":[client1Active,client2Active,client3Active,client4Active],
+      "activeUsers":clientState,
       "userCanAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
       "lights":{
         "queueLight1":{
@@ -857,7 +856,6 @@ function queueUpdateBroadcast(queue,song,seek,msg)
         }
       }
     )
-
 
   io.emit('message', CurrQPInfo)
 
