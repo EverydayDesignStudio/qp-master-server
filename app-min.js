@@ -37,8 +37,6 @@ var currQueueOffset=0;      // the index up to which the queue player has been u
 var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
 var currtrackID='';         // the song/track ID of the currently playing song in the clients
 var broadcastTimestamp = -1;// the timestamp info when the currently played song is first broadcasted
-var queue2 = [];          // a fixed size queue for incoming songs
-queue2.length = 4;
 
 var client1Active=false;    // client state checking variables
 var client2Active=false;
@@ -112,6 +110,10 @@ io.on('connection', (socket) => {
 
   });
 
+/*
+///// DO WE EVEN NEED A BACKUP?
+
+  // TODO: backup check should happen when populating the queue before broadcasting
   if(!backupCheck)
   {
     io.emit('message',JSON.stringify(
@@ -136,6 +138,8 @@ io.on('connection', (socket) => {
       console.log(e);
     }
   }
+  */
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
     console.log(socket.id);
@@ -159,7 +163,8 @@ io.on('connection', (socket) => {
       console.log("  QP4 disconnected")
       client4Active=false
     }
-    console.log(clientState);
+    console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
+
   });
 });
 
@@ -180,8 +185,8 @@ Description or Flow: A client sends its respective client id to the server and t
 the server is set to true. The clientState array is also updated with the new values of all the clients.
 */
 app.post('/setClientActive',(req, res)=>{
-  // shallow copy
-  prevClientState = clientState.concat()
+
+  prevClientState = clientState.concat()    // shallow copy
 
   console.log('Client Active');
   if(req.body.clientID==1)
@@ -205,10 +210,14 @@ app.post('/setClientActive',(req, res)=>{
     client4Active=true;
   }
 
-  console.log(req.body)
 
+  console.log(req.body)
   console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
   console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
+
+/*
+
+**** NO NEED TO HANDLE THIS HERE --> MOVE TO BROADCAST
 
   // TODO: what to do when the queue is empty?
 
@@ -231,7 +240,7 @@ app.post('/setClientActive',(req, res)=>{
   // }
 
 
-// ### // TODO: rewrite/refactor below!!
+// TODO: rewrite/refactor below!!
   console.log("Queue length: ", queue.length)
 
   if (queue.length < 4)
@@ -242,23 +251,20 @@ app.post('/setClientActive',(req, res)=>{
     console.log("Queue length is now : ", queue.length)
   }
 
-  /*
-  IF Block Explanation
-  The server checks if the clients are in transition or continuing between songs, if true it does not send a json to all the
-  active clients and waits for the next song to play
-  */
+
+  // IF Block Explanation
+  //    The server checks if the clients are in transition or continuing between songs, if true it does not send a json to all the
+  //    active clients and waits for the next song to play
   if(continueCheck)
   {
     console.log("waiting for clients to sync up")
   }
   else
   {
-    /*
-    IF Block Explanation
-    The server checks if the clientState before and after the new client activation to handle the corner case of only one
-    client active to play song from the start, else it would send a json seeking for the most updated timestamp from other
-    active clients
-    */
+    // IF Block Explanation
+    //    The server checks if the clientState before and after the new client activation to handle the corner case of only one
+    //    client active to play song from the start, else it would send a json seeking for the most updated timestamp from other
+    //    active clients
     if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
     {
       if(clientState.filter(item => item === true).length==1)
@@ -281,6 +287,9 @@ app.post('/setClientActive',(req, res)=>{
 
   // just checking
   res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
+  */
+
+
 })
 
 /*
@@ -320,11 +329,13 @@ app.post('/setClientInactive',(req, res)=>{
 
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
-// TODO: revisit/refactor this
+/*
+// MAY NOT NEED THIS
   if(queue.length>=4)
   {
     queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "InActive");
   }
+*/
 
   // Just checking
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
@@ -832,6 +843,24 @@ function queueUpdateBroadcast(queue,song,seek,msg)
   	4) Color Info (Ring light, Queue lights)
   */
 
+//   queue
+//   currTrackID
+//   prevTrackID
+//  broadcastTimestamp
+
+
+  // if queue is empty, populate the queue
+  if (queue.length == 0) {
+
+  // if queue is less than 4, fill the rest
+  } else if (queue.length < 4) {
+
+  }
+
+  // at this point, the queue should be full (length = 4)
+
+  song = queue[0]
+
   currQPInfo=JSON.stringify(
     {
       "msg":msg,
@@ -878,6 +907,8 @@ function queueUpdateBroadcast(queue,song,seek,msg)
 
   io.emit('message', currQPInfo)
 
+
+  // TODO: Make a backup file
   var jsonContent = JSON.stringify({"queue":queue, "color":currQPInfo, "userTracks":clientTrackAdded});
 
  // Write files on Heroku is ephemeral, so the backup JSON will be gone when the server restarts
