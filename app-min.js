@@ -850,11 +850,11 @@ function numActiveClients(state) {
 function broadcastQueue(queue,song,seek,msg)
 {
   /*
-  ## All [Server -> Client] message contains:
-  	1) ClientState (for indicator lights)  -- [clientState]
-  	2) Song (Currently playing)  -- [currTrackID]
-  	3) Start time / broadcast time (each client can compare the current time to figure out the duration) -- [currBroadcastTimestamp]
-  	4) Color Info (Ring light, Queue lights)
+  ## [Server -> Client] message contains:
+  	-- ClientState (for indicator lights)  -- [clientState] >>> this is now separated from the broadcast
+  	1) Song (Currently playing)  -- [currTrackID]
+  	2) Start time / broadcast time (each client can compare the current time to figure out the duration) -- [currBroadcastTimestamp]
+  	3) Color Info (Ring light, Queue lights)
   */
 
 //   queue
@@ -917,8 +917,24 @@ function broadcastQueue(queue,song,seek,msg)
       } // currQPInfo
     )// JSON.stringify
 
-  io.emit('message', currQPInfo)
+  console.log("#### Broadcasting the queue to the clients");
+  console.log("  ## Current Client States is (true=Active, false=Inactive): ", JSON.stringify(clientState));
+  console.log("  ## Printing the first four songs in the queue.");
+  console.log(queue[0]);
+  console.log(queue[1]);
+  console.log(queue[2]);
+  console.log(queue[3]);
+  console.log("  ## Printing the QP info.");
+  console.log(currQPInfo);
+  console.log("  ## Printing user-added tracks.");
+  console.log(clientTrackAdded);
+  console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
 
+  io.emit('broadcast', currQPInfo)
+
+/*
+
+  // MAY NOT NEED A BACKUP FILE
 
   // TODO: Make a backup file
   var jsonContent = JSON.stringify({"queue":queue, "color":currQPInfo, "userTracks":clientTrackAdded});
@@ -944,4 +960,7 @@ function broadcastQueue(queue,song,seek,msg)
       console.log(clientTrackAdded);
       console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
   });
+
+  */
+
 }
