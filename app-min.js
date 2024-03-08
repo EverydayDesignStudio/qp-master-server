@@ -35,7 +35,8 @@ var colorArr = [];          // the color information for each of the 4 slots in 
 var currBPM=-1;             // the current BPM playing in the queue player system
 var currQueueOffset=0;      // the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
 var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
-var currtrackID='';         // the song/track ID of the currently playing song in the clients
+var currTrackID='';         // the song/track ID of the currently playing song
+var prevTrackID='';         // the song/track ID of the previously played song
 var broadcastTimestamp = -1;// the timestamp info when the currently played song is first broadcasted
 
 var client1Active=false;    // client state checking variables
@@ -163,6 +164,9 @@ io.on('connection', (socket) => {
       console.log("  QP4 disconnected")
       client4Active=false
     }
+
+    io.emit('stateChange', clientState);
+
     console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
   });
@@ -210,10 +214,14 @@ app.post('/setClientActive',(req, res)=>{
     client4Active=true;
   }
 
+  io.emit('stateChange', clientState);
 
   console.log(req.body)
   console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
   console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
+
+  // just checking
+  res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
 
 /*
 
@@ -285,8 +293,6 @@ app.post('/setClientActive',(req, res)=>{
     }
   }
 
-  // just checking
-  res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
   */
 
 
@@ -327,7 +333,8 @@ app.post('/setClientInactive',(req, res)=>{
     continueState[3]=false;
   }
 
-  console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState))
+  console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
+  io.emit('stateChange', clientState);
 
 /*
 // MAY NOT NEED THIS
@@ -832,6 +839,11 @@ function getRGBColors(qElement)
    return colorArr;
 }
 
+function numActiveClients(state) {
+    const activeCount = state.filter(value => value === true).length;
+    return activeCount;
+}
+
 // TODO: check params
 function queueUpdateBroadcast(queue,song,seek,msg)
 {
@@ -864,8 +876,6 @@ function queueUpdateBroadcast(queue,song,seek,msg)
   currQPInfo=JSON.stringify(
     {
       "msg":msg,
-
-      "activeUsers":clientState,
 
       "songdata":{
         "trackID":song.track_id,
