@@ -223,6 +223,8 @@ app.post('/setClientActive',(req, res)=>{
   // just checking
   res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
 
+  broadcastQueue()
+
 /*
 
 **** NO NEED TO HANDLE THIS HERE --> MOVE TO BROADCAST
@@ -278,18 +280,18 @@ app.post('/setClientActive',(req, res)=>{
       if(clientState.filter(item => item === true).length==1)
       {
         console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
-        queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "SeekSong");
+        broadcastQueue(queue,queue[0],currSongTimestamp, "SeekSong");
       }
       else
       {
         console.log("Sending the JSON to the client with prompt to seek from other active clients")
-        queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "Seeking");
+        broadcastQueue(queue,queue[0],currSongTimestamp, "Seeking");
       }
     }
     else
     {
       console.log("First client to be active in the queue, responsible for creating the queue")
-      queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "Active");
+      broadcastQueue(queue,queue[0],currSongTimestamp, "Active");
     }
   }
 
@@ -340,7 +342,7 @@ app.post('/setClientInactive',(req, res)=>{
 // MAY NOT NEED THIS
   if(queue.length>=4)
   {
-    queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "InActive");
+    broadcastQueue(queue,queue[0],currSongTimestamp, "InActive");
   }
 */
 
@@ -372,7 +374,7 @@ app.post('/getTrackToPlay', (req, res) => {
   ringLight.fill(colorFromUser(req.body.clientID),0,ringLight.length);
   currtrackID=queue[0].track_id;
   currSongTimestamp=0
-  queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "Song");
+  broadcastQueue(queue,queue[0],currSongTimestamp, "Song");
 
   console.log("Playing First Song ", queue[0]["track_name"])
 
@@ -408,7 +410,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     clientTrackAdded[req.body.clientID-1]=updatedQueue[currQueueOffset]["track_id"];
     userControl(req.body.clientID);
 
-    queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSongTimestamp, "Queue")
+    broadcastQueue(updatedQueue,updatedQueue[0],currSongTimestamp, "Queue")
 
     console.log("Adding to Queue")
     res.send({"queue": updatedQueue});
@@ -480,7 +482,7 @@ function startTimer(duration,clientIDForContinue) {
   currSongTimestamp=0
 
   console.log("#### StartTimer done. Broadcasting the next song to all clients..")
-  queueUpdateBroadcast(updatedQueue,updatedQueue[0],currSongTimestamp,"Song")
+  broadcastQueue(updatedQueue,updatedQueue[0],currSongTimestamp,"Song")
   //
 }
 
@@ -498,7 +500,7 @@ app.post('/updateSeek',(req, res)=>{
   if(req.body.prompt!="Continue")
   {
     console.log("Auto play should happen")
-    queueUpdateBroadcast(queue,queue[0],currSongTimestamp, "SeekSong");
+    broadcastQueue(queue,queue[0],currSongTimestamp, "SeekSong");
   }
   res.send("Seek Updated");
  })
@@ -845,7 +847,7 @@ function numActiveClients(state) {
 }
 
 // TODO: check params
-function queueUpdateBroadcast(queue,song,seek,msg)
+function broadcastQueue(queue,song,seek,msg)
 {
   /*
   ## All [Server -> Client] message contains:
