@@ -362,6 +362,12 @@ the queue creation process of queue player system. The flow for the server is as
 current value of seek or the timestamp for the server is set to 0
 */
 app.post('/getTrackToPlay', (req, res) => {
+
+  if (currTrackID != song.track_id) {
+    prevTrackID = currTrackID
+    currTrackID = song.track_id
+  }
+
   console.log("No song in queue, BPM: ",req.body.bpm,"added by QP",req.body.clientID);
   var trackInfos = readDatabase();
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID,0);
@@ -425,9 +431,16 @@ Input: clientID via req.body
 Output: trigger to play the next songs to all the clients
 Description or Flow:
 */
-app.get('/continuePlaying',(req,res)=>{
+app.get('/trackFinished',(req,res)=>{
 
-  console.log("## ContinuePlaying Request Received from client ", req.body.clientID)
+// {"clientID":clientID, "msg":n/a, "cln":cluster}
+
+    if (currTrackID != song.track_id) {
+      prevTrackID = currTrackID
+      currTrackID = song.track_id
+    }
+
+  console.log("## trackFinished Request Received from client ", req.body.clientID)
   console.log(req.body)
   console.log("    ## ContinueCheck: ", continueCheck)
   clientIDForContinue=req.body.clientID
@@ -437,13 +450,13 @@ app.get('/continuePlaying',(req,res)=>{
     console.log("    ## This is the first Continue request. Locking the flag.")
     continueCheck=true // so that other clients ending their songs don't start their timer again
     res.send("Continue Playing Timeout Called")
-    console.log("    ## Now starting the timer. No other ContinuePlaying request should be accepted.")
+    console.log("    ## Now starting the timer. No other trackFinished request should be accepted.")
     startTimer(5000,clientIDForContinue,function() {
       console.log("Timer done, transition every client to next song in queue!");
     });
   }
   else{
-    console.log("    ## Continue request received by client ", clientIDForContinue ,", but ContinuePlaying is already initiated.")
+    console.log("    ## Continue request received by client ", clientIDForContinue ,", but trackFinished is already initiated.")
     res.send("Continue Playing Function Called")
   }
 
@@ -453,7 +466,7 @@ function startTimer(duration,clientIDForContinue) {
   var start = new Date().getTime();
   var elapsed = 0;
 
-  console.log("#### StartTimer for ContinuePlaying..")
+  console.log("#### StartTimer for trackFinished..")
   // Loop until the elapsed time is equal to or greater than the duration
   while (elapsed < duration) {
       elapsed = new Date().getTime() - start;
@@ -867,11 +880,6 @@ function broadcastQueue(queue,song,seek,msg)
   song = queue[0]
   currBPM = song.tempo
   broadcastTimestamp = new Date().getTime();
-
-  if (currTrackID != song.track_id) {
-    prevTrackID = currTrackID
-    currTrackID = song.track_id
-  }
 
   currQPInfo=JSON.stringify(
     {
