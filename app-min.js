@@ -54,17 +54,16 @@ var client2Socket=false;
 var client3Socket=false;
 var client4Socket=false;
 
-var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
+/* ??? */ var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
 var isBPMTapped = [false,false,false,false]; // boolean array for 4 slots of queueLights to indicate which entry(BPM) is newly added by a client
-// var ringLight =["","","","",""];
 var ringLight =["","","",""];          // array to map ringLight colors for each song in the queue
-// var clientState=[false,false,false,false]
 var clientState=[client1Active,client2Active,client3Active,client4Active]   // array to store all the current client states
 var backupCheck=false;                  // boolean to check if backup has been created
-var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
 var userHasBPM=false;                   // boolean to check if a specific user owns songs in the given BPM
-var continueTimeout=["","","",""];
-var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
+
+/* remove? */ var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
+/* remove? */ var continueTimeout=["","","",""];
+/* remove? */ var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
 
 var currQPInfo = ''     // current QueuePlayer information that is broadcasted to the clients
 
@@ -857,32 +856,32 @@ function broadcastQueue(queue,song,seek,msg)
   	3) Color Info (Ring light, Queue lights)
   */
 
-//   queue
-//   currTrackID
-//   prevTrackID
-//  broadcastTimestamp
-
-
   // if queue is empty, populate the queue
   if (queue.length == 0) {
-
+      // TODO: populateQueue()
   // if queue is less than 4, fill the rest
   } else if (queue.length < 4) {
-
+      // TODO: fillQueue()
   }
-
   // at this point, the queue should be full (length = 4)
-
   song = queue[0]
+  currBPM = song.tempo
+  broadcastTimestamp = new Date().getTime();
+
+  if (currTrackID != song.track_id) {
+    prevTrackID = currTrackID
+    currTrackID = song.track_id
+  }
 
   currQPInfo=JSON.stringify(
     {
       "msg":msg,
 
       "songdata":{
-        "trackID":song.track_id,
-        "timestamp":seek,
-        "bpm":song.tempo,
+        "trackID": song.track_id,
+        "timestamp": seek,
+        "broadcastTimestamp": broadcastTimestamp
+        "bpm": currBPM,
         "cluster_number": song.cluster_number
       },
 
