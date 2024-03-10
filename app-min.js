@@ -497,6 +497,8 @@ function startTimer(duration,clientIDForContinue) {
   //
 }
 
+
+
 /*
 Input: timestamp and song id information of the playing song by the client
 Output: updates the seek/timestamp and trackID variable of the server
@@ -532,25 +534,22 @@ app.get('/getSeek',(req, res)=>{
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Reading the JSON file data
-function readDatabase()
-{
+function readDatabase() {
   // var qpDataset=require("./Final Database/qp_multiuser_update_norepeats.json");
  var qpDataset=require("./Final Database/qp_data_multiuser_min.json");
   return qpDataset;
 }
 
 // Reading the backup JSON file data
-function readBackup()
-{
+function readBackup() {
   var backu=fs.readFileSync("./backup.json", "utf8")
   backu=JSON.parse(backu);
   return backu
 }
 
-function getDatafromBPM(qpData, bpm, user, cln)
-{
+function getDatafromBPM(qpData, bpm, user, cln) {
   // Handling the case when the specified bpm is not present and then the next lowest bpm is selected
-  
+
   // check if this user owns any songs in the given BPM
   userHasBPM=false;
   var qpBPMData=new Array();
@@ -587,8 +586,7 @@ function getDatafromBPM(qpData, bpm, user, cln)
 }
 
 //Processing the JSON file data
-function processDatabase(qpData,user)
-{
+function processDatabase(qpData,user) {
   //Include Song Selection Algorithm
   if(queue.length == 0)
   {
@@ -658,8 +656,7 @@ function processDatabase(qpData,user)
 }
 
 // ## TODO: add 10 songs to the queue from the same cluster instead of loading all songs of the same BPM
-function queueUpdateUser(queue, additionToQueue, offset, user, cln)
-{
+function queueUpdateUser(queue, additionToQueue, offset, user, cln) {
   var i=0;
   var delBPM;
   while(i<queue.length && i<4)
@@ -687,8 +684,7 @@ function queueUpdateUser(queue, additionToQueue, offset, user, cln)
   return queue;
 }
 
-function queueUpdateAutomatic(queue, user, bpm,cln)
-{
+function queueUpdateAutomatic(queue, user, bpm,cln) {
   console.log("## Inside of queueUpdateAutomatic")
   console.log("## isBPMTapped shift")
   isBPMTapped.shift();
@@ -715,8 +711,7 @@ function queueUpdateAutomatic(queue, user, bpm,cln)
   return queue;
 }
 
-function queueFillwithNearestBPM(queue, user, cln)
-{
+function queueFillwithNearestBPM(queue, user, cln) {
   console.log("## queue size : ", queue.length)
   while(queue.length<4)
   {
@@ -733,8 +728,7 @@ function queueFillwithNearestBPM(queue, user, cln)
   return queue
 }
 
-function userControl(id)
-{
+function userControl(id) {
   if(id==1)
   {
     if(client1Added)
@@ -781,8 +775,7 @@ function userControl(id)
   }
 }
 
-function userCheck(id)
-{
+function userCheck(id) {
   if(id==1 && client1Added)
   {
     return false;
@@ -802,8 +795,7 @@ function userCheck(id)
   return true;
 }
 
-function colorFromUser(user)
-{
+function colorFromUser(user) {
   if(user==1)
   {
     return [150,75,0,0];
@@ -822,8 +814,7 @@ function colorFromUser(user)
   }
 }
 
-function getRGBColors(qElement)
-{
+function getRGBColors(qElement) {
    colorArr={};
    let i=0;
    let n=1;
@@ -860,8 +851,7 @@ function numActiveClients(state) {
 }
 
 // TODO: check params
-function broadcastQueue(queue,song,seek,msg)
-{
+function broadcastQueue() {
   /*
   ## [Server -> Client] message contains:
   	-- ClientState (for indicator lights)  -- [clientState] >>> this is now separated from the broadcast
