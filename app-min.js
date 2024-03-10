@@ -59,7 +59,6 @@ var isBPMTapped = [false,false,false,false]; // boolean array for 4 slots of que
 var ringLight =["","","",""];          // array to map ringLight colors for each song in the queue
 var clientState=[client1Active,client2Active,client3Active,client4Active]   // array to store all the current client states
 var backupCheck=false;                  // boolean to check if backup has been created
-var userHasBPM=false;                   // boolean to check if a specific user owns songs in the given BPM
 
 /* remove? */ var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
 /* remove? */ var continueTimeout=["","","",""];
@@ -550,7 +549,9 @@ function readBackup()
 
 function getDatafromBPM(qpData, bpm, user, cln)
 {
-  //Handling the case when the specified bpm is not present and then the next lowest bpm is selected
+  // Handling the case when the specified bpm is not present and then the next lowest bpm is selected
+  
+  // check if this user owns any songs in the given BPM
   userHasBPM=false;
   var qpBPMData=new Array();
   while(qpBPMData.length == 0)
