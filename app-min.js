@@ -865,6 +865,22 @@ function numActiveClients(state) {
     return activeCount;
 }
 
+
+function fillQueue(bpm = -1, cluster = -1, clientID = -1) {
+
+  // if queue is empty, populate the queue
+  if (queue.length == 0 and numActiveClients() == 1) {
+    ...
+
+  // if not, just fill the rest
+  } else {
+    ...
+
+  }
+
+}
+
+
 // TODO: check params
 function broadcastQueue() {
   /*
@@ -875,13 +891,11 @@ function broadcastQueue() {
   	3) Color Info (Ring light, Queue lights)
   */
 
-  // if queue is empty, populate the queue
-  if (queue.length == 0) {
-      // TODO: populateQueue()
   // if queue is less than 4, fill the rest
-  } else if (queue.length < 4) {
-      // TODO: fillQueue()
+  if (queue.length < 4) {
+      fillQueue()
   }
+
   // at this point, the queue should be full (length = 4)
   song = queue[0]
   currBPM = song.tempo
