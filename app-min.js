@@ -30,16 +30,38 @@ app.get('/', (req, res) => {
 // #2. QP Variables //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var queue = [];             // the queue for the queue player system
 var colorArr = [];          // the color information for each of the 4 slots in the device
 // ### Loaded DBs
 var listeningHistoryDB = {}
 var qpTrackDB = {}
 var occurrencesDB = {}
 
-var currBPM=-1;             // the current BPM playing in the queue player system
+// Create a Set to store played track_ids
+let playedTrackIds = new Set();
+
+/*
+  // Example Usage
+  if (playedTrackIds.has(track_id)) {
+        ...
+    } else {
+        playedTrackIds.add(track_id);
+        ...
+    }
+
+  // This requires a reset when:
+  //   1) all songs are played in the clusters (move to the next cluster)
+  //     1-2) when all clusters are played, move down to the next available bpm
+  //   2) new bpm is tapped
+  playedTrackIds.clear();
+*/
+
+var queue = [];             // the queue for the queue player system, max size 4
 var currQueueOffset=0;      // the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
 var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
+var currBPM=-1;             // the current BPM playing in the queue player system
+var currCluster=-1;
+var currClusterCounter = 0
+var currClusterCounterMAX = 0
 var currTrackID='';         // the song/track ID of the currently playing song
 var prevTrackID='';         // the song/track ID of the previously played song
 var broadcastTimestamp = -1;// the timestamp info when the currently played song is first broadcasted
@@ -70,6 +92,7 @@ var backupCheck=false;                  // boolean to check if backup has been c
 /* remove? */ var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
 
 var currQPInfo = ''     // current QueuePlayer information that is broadcasted to the clients
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #3. Create Connections //
@@ -863,6 +886,18 @@ function getRGBColors(qElement) {
 function numActiveClients(state) {
     const activeCount = state.filter(value => value === true).length;
     return activeCount;
+
+function hasListened(track_id, user_id) {
+    // Check if the track_id exists in the listeningHistory object
+    if (listeningHistoryDB.hasOwnProperty(track_id)) {
+        // Check if the user_id exists in the array of user_ids for the track_id
+        return listeningHistoryDB[track_id].includes(user_id);
+    } else {
+        // If track_id does not exist, user has not listened
+        return false;
+    }
+}
+
 }
 
 
