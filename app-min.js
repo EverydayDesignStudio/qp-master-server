@@ -32,6 +32,11 @@ app.get('/', (req, res) => {
 
 var queue = [];             // the queue for the queue player system
 var colorArr = [];          // the color information for each of the 4 slots in the device
+// ### Loaded DBs
+var listeningHistoryDB = {}
+var qpTrackDB = {}
+var occurrencesDB = {}
+
 var currBPM=-1;             // the current BPM playing in the queue player system
 var currQueueOffset=0;      // the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
 var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
@@ -72,6 +77,10 @@ var currQPInfo = ''     // current QueuePlayer information that is broadcasted t
 
 const server = http.createServer(app);
 const io = new socketio.Server(server);
+
+// TODO: uncomment this
+// Load all databases needed for the server
+// loadDatabases()
 
 /*
 Input: N/A
@@ -532,6 +541,12 @@ app.get('/getSeek',(req, res)=>{
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #5. QP Server Functions //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function loadDatabases() {
+  qpTrackDB = require("./Final Database/qp_data_multiuser_min.json");
+  listeningHistoryDB = require("./Final Database/qp_data_listening_history_per_track.json");
+  occurrencesDB = require("./Final Database/qp_data_song_count_trackID.json");
+}
 
 // Reading the JSON file data
 function readDatabase() {
