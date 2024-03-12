@@ -491,6 +491,26 @@ app.get('/trackFinished',(req,res)=>{
   console.log("## trackFinished Request Received from client ", req.body.clientID)
   console.log(req.body)
 
+  // When the current song is finished (received by the first client)
+  if (currTrackID == req.body.trackID) {
+
+    shiftQueue_NextSong();
+
+    // possible pause
+    console.log('Waiting for 5 seconds...');
+    setTimeout(function() {
+        console.log('Now broadcasting the next song..');
+    }, 5000);
+
+  // Repeated request for the same song from other clients
+  } else if (prevTrackID == req.body.trackID) {
+    // ignore the request
+
+  // edge case - this client may be in a significant delay >> just send out an updated queue with the current song
+  }
+
+  broadcastQueue()
+
   /*
 
   console.log("    ## ContinueCheck: ", continueCheck)
