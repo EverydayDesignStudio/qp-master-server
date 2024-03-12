@@ -30,38 +30,37 @@ app.get('/', (req, res) => {
 // #2. QP Variables //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var colorArr = [];          // the color information for each of the 4 slots in the device
 // ### Loaded DBs
 var listeningHistoryDB = {}
 var qpTrackDB = {}
 var occurrencesDB = {}
 
-// Create a Set to store played track_ids
-let playedTrackIds = new Set();
-
-/*
-  // Example Usage
-  if (playedTrackIds.has(track_id)) {
-        ...
-    } else {
-        playedTrackIds.add(track_id);
-        ...
-    }
-
-  // This requires a reset when:
-  //   1) all songs are played in the clusters (move to the next cluster)
-  //     1-2) when all clusters are played, move down to the next available bpm
-  //   2) new bpm is tapped
-  playedTrackIds.clear();
-*/
-
 var queue = [];             // the queue for the queue player system, max size 4
 var currQueueOffset=0;      // the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
-var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
-var currBPM=-1;             // the current BPM playing in the queue player system
+
+var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
+var isBPMTapped = [false,false,false,false]; // boolean array for 4 slots of queueLights to indicate which entry(BPM) is newly added by a client
+
+// ** ring light color indicates who 'initiated' the current BPM **
+// array to map ringLight colors for each song in the queue
+var ringLight =["","","",""];
+
+// the current BPM playing in the queue player system
+var currBPM=-1;
+
 var currCluster=-1;
 var currClusterCounter = 0
 var currClusterCounterMAX = 0
+var hasClusterExhausted = [false, false, false, false]
+
+// Create a Set to store played track_ids
+let playedTrackIds = new Set();
+
+// pre-defined from the dataset
+const BPM_MIN = 32
+const BPM_MAX = 239
+
+/* remove? */ var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
 var currTrackID='';         // the song/track ID of the currently playing song
 var prevTrackID='';         // the song/track ID of the previously played song
 var broadcastTimestamp = -1;// the timestamp info when the currently played song is first broadcasted
@@ -81,12 +80,9 @@ var client2Socket=false;
 var client3Socket=false;
 var client4Socket=false;
 
-/* ??? */ var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
-var isBPMTapped = [false,false,false,false]; // boolean array for 4 slots of queueLights to indicate which entry(BPM) is newly added by a client
-var ringLight =["","","",""];          // array to map ringLight colors for each song in the queue
 var clientState=[client1Active,client2Active,client3Active,client4Active]   // array to store all the current client states
-var backupCheck=false;                  // boolean to check if backup has been created
 
+/* remove? */ var backupCheck=false;                  // boolean to check if backup has been created
 /* remove? */ var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
 /* remove? */ var continueTimeout=["","","",""];
 /* remove? */ var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
