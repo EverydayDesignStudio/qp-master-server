@@ -905,6 +905,20 @@ function numActiveClients() {
   return activeCount;
 }
 
+
+function getRandomIntInclusive(min, max) {
+  // the maximum and the minimum is inclusive
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+// function to shuffle an array
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    }
+}
+
 function hasListened(track_id, user_id) {
     // Check if the track_id exists in the listeningHistory object
     if (listeningHistoryDB.hasOwnProperty(track_id)) {
@@ -914,6 +928,21 @@ function hasListened(track_id, user_id) {
         // If track_id does not exist, user has not listened
         return false;
     }
+}
+
+
+function findMatchingTrack(trackID) {
+  // iterate the song database to find the matching track
+  let trackItem = {};
+  for (let i = 0; i < qpTrackDB.length; i++) {
+      if (qpTrackDB[i].track_id === trackID) {
+          // add the matching track to the back of the queue
+          trackItem = qpTrackDB[i]
+          break;
+      }
+  }
+
+  return trackItem
 }
 
 }
