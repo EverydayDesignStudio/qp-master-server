@@ -148,7 +148,7 @@ io.on('connection', (socket) => {
       client4Active=false
     }
 
-    io.emit('stateChange', clientState);
+    io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
     console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
 
@@ -200,7 +200,7 @@ app.post('/setClientActive',(req, res)=>{
   console.log(req.body)
   console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
   console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
-  io.emit('stateChange', clientState);
+  io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
   // not used -- just checking
   res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
@@ -257,7 +257,7 @@ app.post('/setClientInactive',(req, res)=>{
   }
 
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
-  io.emit('stateChange', clientState);
+  io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
   // Just checking
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
