@@ -60,7 +60,6 @@ let playedTrackIds = new Set();
 const BPM_MIN = 32
 const BPM_MAX = 239
 
-/* remove? */ var currSongTimestamp=-1;   // the timestamp information of the currently playing song in the clients
 var currTrackID='';         // the song/track ID of the currently playing song
 var prevTrackID='';         // the song/track ID of the previously played song
 var broadcastTimestamp = -1;// the timestamp info when the currently played song is first broadcasted
@@ -82,13 +81,7 @@ var client4Socket=false;
 
 var clientState=[client1Active,client2Active,client3Active,client4Active]   // array to store all the current client states
 
-/* remove? */ var backupCheck=false;                  // boolean to check if backup has been created
-/* remove? */ var continueCheck=false;                // boolean to check if the clients have continued or transitioned smoothly onto the next song
-/* remove? */ var continueTimeout=["","","",""];
-/* remove? */ var continueState=[false,false,false,false] // array to store which all clients have ended the song and requested for continuing
-
 var currQPInfo = ''     // current QueuePlayer information that is broadcasted to the clients
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #3. Create Connections //
@@ -97,16 +90,10 @@ var currQPInfo = ''     // current QueuePlayer information that is broadcasted t
 const server = http.createServer(app);
 const io = new socketio.Server(server);
 
-// TODO: uncomment this
 // Load all databases needed for the server
 loadDatabases()
 
-/*
-Input: N/A
-Output: socket connection object which contains socket.id
-Description or Flow:
-[1] -
-*/
+// create and manage socket connection objects that contain socket.id for each client
 io.on('connection', (socket) => {
 
   console.log(socket.id);
@@ -136,36 +123,6 @@ io.on('connection', (socket) => {
     }
 
   });
-
-/*
-///// DO WE EVEN NEED A BACKUP?
-
-  // TODO: backup check should happen when populating the queue before broadcasting
-  if(!backupCheck)
-  {
-    io.emit('message',JSON.stringify(
-      {"msg": "Initial"}
-    ));
-    // // send "Initial" message only when there is NO back-up JSON
-    // if (!fs.existsSync("backup.json")) {
-    //   io.emit('message',JSON.stringify(
-    //     {"msg": "Initial"}
-    //   ));
-    // }
-  }
-  else
-  {
-    // TODO: what to do when this fails?
-    try {
-      var backup=readBackup()
-      clientTrackAdded=backup["userTracks"]
-      queue=backup["queue"];
-    } catch(e) {
-      console.log("Error while reading a backup JSON");
-      console.log(e);
-    }
-  }
-  */
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
@@ -258,79 +215,6 @@ app.post('/setClientActive',(req, res)=>{
 
   broadcastQueue()
 
-/*
-
-**** NO NEED TO HANDLE THIS HERE --> MOVE TO BROADCAST
-
-  // TODO: what to do when the queue is empty?
-
-  // if (queue.length == 0)
-  // {
-  //   console.log("Empty queue. Loading a backup file..")
-  //   if (fs.existsSync("backup.json")) {
-  //     console.log("Found a backup file!")
-  //     var backup=readBackup()
-  //     console.log(backup)
-  //     clientTrackAdded=backup["userTracks"]
-  //     queue=backup["queue"];
-
-  //     console.log("Queue length is now : ", queue.length)
-  //   }
-  //   else
-  //   {
-  //      console.log("Backup file not found..")
-  //   }
-  // }
-
-
-// TODO: rewrite/refactor below!!
-  console.log("Queue length: ", queue.length)
-
-  if (queue.length < 4)
-  {
-    // fill the queue with the active client and a random cluster
-    console.log("Filling the queue with the nearest BPM..")
-    queue = queueFillwithNearestBPM(queue, req.body.clientID, Math.floor(Math.random() * 4))
-    console.log("Queue length is now : ", queue.length)
-  }
-
-
-  // IF Block Explanation
-  //    The server checks if the clients are in transition or continuing between songs, if true it does not send a json to all the
-  //    active clients and waits for the next song to play
-  if(continueCheck)
-  {
-    console.log("waiting for clients to sync up")
-  }
-  else
-  {
-    // IF Block Explanation
-    //    The server checks if the clientState before and after the new client activation to handle the corner case of only one
-    //    client active to play song from the start, else it would send a json seeking for the most updated timestamp from other
-    //    active clients
-    if(JSON.stringify(clientState) != JSON.stringify(prevClientState))
-    {
-      if(clientState.filter(item => item === true).length==1)
-      {
-        console.log("Returning client corner case: only this client was playing previously, thus songs plays from start")
-        broadcastQueue(queue,queue[0],currSongTimestamp, "SeekSong");
-      }
-      else
-      {
-        console.log("Sending the JSON to the client with prompt to seek from other active clients")
-        broadcastQueue(queue,queue[0],currSongTimestamp, "Seeking");
-      }
-    }
-    else
-    {
-      console.log("First client to be active in the queue, responsible for creating the queue")
-      broadcastQueue(queue,queue[0],currSongTimestamp, "Active");
-    }
-  }
-
-  */
-
-
 })
 
 /*
@@ -375,62 +259,11 @@ app.post('/setClientInactive',(req, res)=>{
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
   io.emit('stateChange', clientState);
 
-/*
-// MAY NOT NEED THIS
-  if(queue.length>=4)
-  {
-    broadcastQueue(queue,queue[0],currSongTimestamp, "InActive");
-  }
-*/
-
   // Just checking
   res.send({"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active})
 })
 
-/*
-Input: bpm, clientID via req.body
-Output: a queue created with the BPM (or the next lowest one where the client has a common song)
-Description or Flow: A client sends the bpm and id during the very first time when the queue is empty and to start
-the queue creation process of queue player system. The flow for the server is as follows:
-[1] - read the database
-[2] - get song details from the client input BPM
-[3] - sort the database based on ML clusters but since its the first time the order is retained
-[4] - update the queue
-[5] - for the json , the first ring from the top i.e. isBPMTapped[0] would be set to true, ringLight is based on clientID
-current value of seek or the timestamp for the server is set to 0
-*/
-app.post('/getTrackToPlay', (req, res) => {
-  console.log("No song in queue, BPM: ",req.body.bpm,"added by QP",req.body.clientID);
-  var trackInfos = readDatabase();
-  var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID,0);
-  var songAddition = processDatabase(bpmData, req.body.clientID);
-  var updatedQueue = queueUpdateUser(queue,songAddition,queue.length,req.body.clientID,0);
-
-  queue=updatedQueue;
-  isBPMTapped[0]=true;
-  ringLight.fill(colorFromUser(req.body.clientID),0,ringLight.length);
-  currtrackID=queue[0].track_id;
-  currSongTimestamp=0
-  broadcastQueue(queue,queue[0],currSongTimestamp, "Song");
-
-  console.log("Playing First Song ", queue[0]["track_name"])
-
-  res.send({"queue": queue, "song":queue[0]});
-})
-
-
-/*
-Input: bpm, clientID and cluster number (cln) via req.body
-Output: a queue created with the BPM (or the next lowest one where the client has a common song)
-Description or Flow: A client sends the bpm ,id and cluster number to an already filled queue and updates the queue.
-The flow for the server is as follows:
-[1] - Check if the client already has a song in the queue
-[2] - if not then, update the currQueueOffset variable to update the queue from the right index
-[3] - read the database, get song details from input BPM and process them based on the previous song cluster to update the queue
-[4] - for the json broadcast, the isBPMTapped[currQueueOffset] is set to true to determine the addition of a new BPM in the lights
-[5] - ringLight is also updated according to the latest client which updated the queue
-[6] - client ID recorded so as to not let the same client another BPM until its song has exited the queue
-*/
+// when an active client taps, all songs after the cursor are discarded and re-populated with the given bpm/cluster
 app.post('/getTrackToQueue',(req, res)=>{
   console.log("## Client " , req.body.clientID, " TAPS a bpm of: ", req.body.bpm)
 
@@ -461,23 +294,9 @@ app.post('/getTrackToQueue',(req, res)=>{
     // then broadcast the queue
     broadcastQueue()
 
-/*
-    var trackInfos = readDatabase();
-    console.log(req.body.cln);
-    var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID, req.body.cln);
-    var songAddition = processDatabase(bpmData, req.body.clientID);
-    var updatedQueue = queueUpdateUser(queue,songAddition,currQueueOffset,req.body.clientID,req.body.cln);
-
-    queue=updatedQueue;
-    // isBPMTapped[currQueueOffset]=true;
-    // ringLight.fill(colorFromUser(req.body.clientID),currQueueOffset,ringLight.length);
-    // clientTrackAdded[req.body.clientID-1]=updatedQueue[currQueueOffset]["track_id"];
-    // userControl(req.body.clientID);
-
-    broadcastQueue(updatedQueue,updatedQueue[0],currSongTimestamp, "Queue")
-*/
-
     res.send({"queue": updatedQueue});
+
+  // when the client is 'locked',
   } else {
     console.log("##   Skipping.. Client ", req.body.clientID, " is not yet available to add a new bpm.")
     res.send({"queue":"Already added song"})
@@ -485,16 +304,8 @@ app.post('/getTrackToQueue',(req, res)=>{
 
 })
 
-/*
-Input: clientID via req.body
-Output: trigger to play the next songs to all the clients
-Description or Flow:
-*/
+
 app.get('/trackFinished',(req,res)=>{
-
-// {"clientID":clientID, "trackID":trackID, "cln":cluster}
-
-// TODO: what if we received this from an inactive client?
 
   console.log("## trackFinished Request Received from client ", req.body.clientID)
   console.log(req.body)
@@ -519,305 +330,11 @@ app.get('/trackFinished',(req,res)=>{
 
   broadcastQueue()
 
-  /*
-
-  console.log("    ## ContinueCheck: ", continueCheck)
-  clientIDForContinue=req.body.clientID
- // TODO: instead of having a flag to control the concurrency, we should compare songs to decide whether to process or reject the request
-  if(!continueCheck)
-  {
-    console.log("    ## This is the first Continue request. Locking the flag.")
-    continueCheck=true // so that other clients ending their songs don't start their timer again
-    res.send("Continue Playing Timeout Called")
-    console.log("    ## Now starting the timer. No other trackFinished request should be accepted.")
-    startTimer(5000,clientIDForContinue,function() {
-      console.log("Timer done, transition every client to next song in queue!");
-    });
-  }
-  else{
-    console.log("    ## Continue request received by client ", clientIDForContinue ,", but trackFinished is already initiated.")
-    res.send("Continue Playing Function Called")
-  }
-
-  */
-
-}) // app.get(trackFinished)
-
-
-function startTimer(duration,clientIDForContinue) {
-  var start = new Date().getTime();
-  var elapsed = 0;
-
-  console.log("#### StartTimer for trackFinished..")
-  // Loop until the elapsed time is equal to or greater than the duration
-  while (elapsed < duration) {
-      elapsed = new Date().getTime() - start;
-  }
-
-  // Once the timer completes
-
-  console.log("#### StartTimer done. Unlocking the flag..")
-  // ### TODO: we may need to unlock the flag at the very end after the broadcast AND move the broadcast logic outside of StartTimer
-  continueCheck=false
-
-  //Algo for playing next song in the queue
-  currQueueOffset--;
-  console.log("#### move to the next song in the queue.. currQueueOffset: ", currQueueOffset)
-  if (currQueueOffset<0)
-  {
-    currQueueOffset=0;
-  }
-
-  console.log("#### StartTimer done. Updating the queue..")
-  var updatedQueue=queueUpdateAutomatic(queue,clientIDForContinue,currBPM)
-  queue=updatedQueue;
-
-  currtrackID=queue[0].track_id;
-  currSongTimestamp=0
-
-  console.log("#### StartTimer done. Broadcasting the next song to all clients..")
-  broadcastQueue(updatedQueue,updatedQueue[0],currSongTimestamp,"Song")
-  //
-}
-
-
-
-/*
-Input: timestamp and song id information of the playing song by the client
-Output: updates the seek/timestamp and trackID variable of the server
-Description or Flow: The flow for the server is as follows:
-[1] - update the currSongTimestamp and currtrackID by the inputs given by the client
-[2] - if the clients are not continuing or transitioning to the next song then let the newly joined client play the song
-and sync with other clients
-*/
-app.post('/updateSeek',(req, res)=>{
-  currSongTimestamp=req.body.seek;
-  currtrackID=req.body.song;
-  if(req.body.prompt!="Continue")
-  {
-    console.log("Auto play should happen")
-    broadcastQueue(queue,queue[0],currSongTimestamp, "SeekSong");
-  }
-  res.send("Seek Updated");
- })
-
-/*
-Input: N/A
-Output: get the updated song and timestamp info for the newly joined client to sync up with the rest of the clients
-Description or Flow: N/A
-*/
-app.get('/getSeek',(req, res)=>{
-  console.log("Seeking the song: "+currtrackID+" to timestamp: "+currSongTimestamp)
-  res.send({seek:currSongTimestamp, id:currtrackID});
 })
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// #5. QP Server Functions //
+// #5. QP Server Auxiliary Functions //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function loadDatabases() {
-  qpTrackDB = require("./Final Database/qp_data_multiuser_min.json");
-  listeningHistoryDB = require("./Final Database/qp_data_listening_history_per_track.json");
-  occurrencesDB = require("./Final Database/qp_data_song_count_trackID.json");
-}
-
-
-// Reading the JSON file data
-function readDatabase() {
-  // var qpDataset=require("./Final Database/qp_multiuser_update_norepeats.json");
- var qpDataset=require("./Final Database/qp_data_multiuser_min.json");
-  return qpDataset;
-}
-
-// Reading the backup JSON file data
-function readBackup() {
-  var backu=fs.readFileSync("./backup.json", "utf8")
-  backu=JSON.parse(backu);
-  return backu
-}
-
-function getDatafromBPM(qpData, bpm, user, cln) {
-  // Handling the case when the specified bpm is not present and then the next lowest bpm is selected
-
-  // check if this user owns any songs in the given BPM
-  userHasBPM=false;
-  var qpBPMData=new Array();
-  while(qpBPMData.length == 0)
-  {
-    if(bpm<=0)
-    {
-      bpm=239
-    }
-
-    for(let i=0;i<qpData.length;i++)
-    {
-      if(qpData[i].tempo==bpm)
-      {
-        if(qpData[i].user_id.includes(user) && qpData[i].cluster_number==cln)
-        {
-          console.log("found a song in this BPM with this user and this cluster number")
-          userHasBPM=true
-        }
-        qpBPMData.push(qpData[i]);
-      }
-    }
-
-    if(!userHasBPM)
-    {
-      qpBPMData=new Array();
-    }
-    bpm--;
-  }
-
-  currBPM=bpm+1;
-
-  return qpBPMData;
-}
-
-//Processing the JSON file data
-function processDatabase(qpData,user) {
-  //Include Song Selection Algorithm
-  if(queue.length == 0)
-  {
-    qpData.sort((a,b)=> a['cluster_number']-b['cluster_number'])
-    let l=0;
-    while(l<qpData.length &&  !qpData[l].user_id.includes(user))
-    {
-      l++;
-    }
-    var temp=qpData.splice(0,l);
-    qpData=qpData.concat(temp);
-  }
-  else
-  {
-    qpData.sort((a,b)=> a['cluster_number']-b['cluster_number'])
-    cluster0Arr=qpData.filter(ele=>ele['cluster_number']==0);
-    cluster1Arr=qpData.filter(ele=>ele['cluster_number']==1);
-    cluster2Arr=qpData.filter(ele=>ele['cluster_number']==2);
-    cluster3Arr=qpData.filter(ele=>ele['cluster_number']==3);
-
-    if(queue[0]['cluster_number']==0)
-    {
-      let l=0;
-      while(l<cluster0Arr.length && !cluster0Arr[l].user_id.includes(user))
-      {
-        l++;
-      }
-      var temp=cluster0Arr.splice(0,l);
-      cluster0Arr=cluster0Arr.concat(temp);
-      qpData=cluster0Arr.concat(cluster1Arr,cluster2Arr,cluster3Arr)
-    }
-    else if(queue[0]['cluster_number']==1)
-    {
-      let l=0;
-      while(l<cluster1Arr.length && !cluster1Arr[l].user_id.includes(user))
-      {
-        l++;
-      }
-      var temp=cluster1Arr.splice(0,l);
-      cluster1Arr=cluster1Arr.concat(temp);
-      qpData=cluster1Arr.concat(cluster0Arr,cluster2Arr,cluster3Arr)
-    }
-    else if(queue[0]['cluster_number']==2)
-    {
-      let l=0;
-      while(l<cluster2Arr.length && !cluster2Arr[l].user_id.includes(user))
-      {
-        l++;
-      }
-      var temp=cluster2Arr.splice(0,l);
-      cluster2Arr=cluster2Arr.concat(temp);
-      qpData=cluster2Arr.concat(cluster0Arr,cluster1Arr,cluster3Arr)
-    }
-    else if(queue[0]['cluster_number']==3)
-    {
-      let l=0;
-      while(l<cluster3Arr.length && !cluster3Arr[l].user_id.includes(user))
-      {
-        l++;
-      }
-      var temp=cluster3Arr.splice(0,l);
-      cluster3Arr=cluster3Arr.concat(temp);
-      qpData=cluster3Arr.concat(cluster0Arr,cluster1Arr,cluster2Arr)
-    }
-  }
-  return qpData;
-}
-
-
-function queueUpdateUser(queue, additionToQueue, offset, user, cln) {
-  var i=0;
-  var delBPM;
-  while(i<queue.length && i<4)
-  {
-    if(additionToQueue.length>0 && additionToQueue[0].track_id==queue[i].track_id)
-    {
-      delBPM=additionToQueue[0].tempo;
-      additionToQueue.splice(0,1);
-    }
-
-    if(additionToQueue.length==0)
-    {
-      var trackInfos = readDatabase();
-      var bpmData=getDatafromBPM(trackInfos,delBPM-1,user,cln);
-      additionToQueue = processDatabase(bpmData, user);
-      i--;
-    }
-    i++
-  }
-
-  queue.splice(offset,queue.length-offset);
-  queue=queue.concat(additionToQueue);
-
-  queue = queueFillwithNearestBPM(queue, user, cln)
-  return queue;
-}
-
-function queueUpdateAutomatic(queue, user, bpm,cln) {
-  console.log("## Inside of queueUpdateAutomatic")
-  console.log("## isBPMTapped shift")
-  isBPMTapped.shift();
-  isBPMTapped=isBPMTapped.concat([false]);
-
-  console.log("## ring light shift")
-  ringLight.shift();
-  ringLight=ringLight.concat([ringLight[ringLight.length-1]])
-
-  console.log("## get rid of the first song in the queue")
-  var deletedFromQueue=queue.shift();
-  console.log(deletedFromQueue)
-  console.log("## track_id for the current song that's finished: ", deletedFromQueue["track_id"])
-  var indx=clientTrackAdded.indexOf(deletedFromQueue["track_id"])
-  console.log("## clientID of the finished song: ", indx+1)
-  if(indx!=-1)
-  {
-    clientTrackAdded[indx]="";
-    console.log("user free to use is: ", indx+1)
-    userControl(indx+1);
-  }
-
-  queue = queueFillwithNearestBPM(queue, user, cln)
-  return queue;
-}
-
-function queueFillwithNearestBPM(queue, user, cln) {
-  console.log("## queue size : ", queue.length)
-  while(queue.length<4)
-  {
-    // ## TODO: move some of these variables to global and make less frequent DB calls
-    var nextBPM=queue[queue.length-1].tempo-1;
-    console.log("    ## next bpm to fill the queue: ", nextBPM)
-    var trackInfos = readDatabase();
-    var bpmData=getDatafromBPM(trackInfos,nextBPM, user, cln);
-    var addMoreToQueue = processDatabase(bpmData, user);
-    console.log("    ## adding extra songs to the queue: ", addMoreToQueue.length)
-    queue=queue.concat(addMoreToQueue);
-  }
-  console.log("## queue size is now: ", queue.length)
-  return queue
-}
-
 
 function userControl(id) {
   if(id==1)
@@ -950,13 +467,11 @@ function clearVariables() {
   broadcastTimestamp = -1;
 }
 
-
 function numActiveClients() {
   state = clientState
   const activeCount = state.filter(value => value === true).length;
   return activeCount;
 }
-
 
 function getRandomIntInclusive(min, max) {
   // the maximum and the minimum is inclusive
@@ -982,7 +497,6 @@ function hasListened(track_id, user_id) {
     }
 }
 
-
 function findMatchingTrack(trackID) {
   // iterate the song database to find the matching track
   let trackItem = {};
@@ -993,10 +507,18 @@ function findMatchingTrack(trackID) {
           break;
       }
   }
-
   return trackItem
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// #6. QP Server Functions //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function loadDatabases() {
+  qpTrackDB = require("./Final Database/qp_data_multiuser_min.json");
+  listeningHistoryDB = require("./Final Database/qp_data_listening_history_per_track.json");
+  occurrencesDB = require("./Final Database/qp_data_song_count_trackID.json");
+}
 
 function pickNextTrack(bpm, cluster, clientID = -1) {
   var trackCount = occurrencesDB[bpm][cluster].count;
@@ -1113,7 +635,6 @@ function pickNextCluster(bpm, clusterNow = -1) {
   return -1
 }
 
-
 function chooseNextSong(bpm, cluster, clientID = -1) {
   let trackID = ""
 
@@ -1140,7 +661,6 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 
   return trackID
 }
-
 
 // Fill the queue with next available songs in the dataset
 //   !! NOT responsible for cursor/offset management
@@ -1188,7 +708,6 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
   } // while loop
 
 }
-
 
 // when the currently playing song is finished, modify the queue with a next new song
 function shiftQueue_NextSong(bpm = -1, cluster = -1) {
@@ -1240,21 +759,9 @@ function shiftQueue_NextSong(bpm = -1, cluster = -1) {
 
   // fill the queue with bpm/cluster of the song at the cursor
   fillQueue(queue[currQueueOffset].tempo, queue[currQueueOffset].cluster_number)
-
-  // queue = queue.concat(chooseNextSong(bpm, cluster));
-  // queue = queueFillwithNearestBPM(queue, clientID, cluster)
-
 }
 
-
 function broadcastQueue() {
-  /*
-  ## [Server -> Client] message contains:
-  	-- ClientState (for indicator lights)  -- [clientState] >>> this is now separated from the broadcast
-  	1) Song (Currently playing)  -- [currTrackID]
-  	2) Start time / broadcast time (each client can compare the current time to figure out the duration) -- [currBroadcastTimestamp]
-  	3) Color Info (Ring light, Queue lights)
-  */
 
   // at this point, the queue should be full (length = 4)
   broadcastTimestamp = new Date().getTime();
@@ -1316,36 +823,4 @@ function broadcastQueue() {
   console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
 
   io.emit('broadcast', currQPInfo)
-
-/*
-
-  // MAY NOT NEED A BACKUP FILE
-
-  // TODO: Make a backup file
-  var jsonContent = JSON.stringify({"queue":queue, "color":currQPInfo, "userTracks":clientTrackAdded});
-
- // Write files on Heroku is ephemeral, so the backup JSON will be gone when the server restarts
- //   https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem
- //   https://stackoverflow.com/questions/56157723/files-dont-by-fs-writefile-on-heroku
- fs.writeFile("backup.json", jsonContent, 'utf8', function (err) {
-      if (err) {
-          console.log("An error occured while writing JSON Object to File.");
-          return console.log(err);
-      }
-      backupCheck = true;
-      console.log("JSON file has been saved.");
-      console.log("  ## Printing the first four songs in the queue.");
-      console.log(queue[0]);
-      console.log(queue[1]);
-      console.log(queue[2]);
-      console.log(queue[3]);
-      console.log("  ## Printing the color info.");
-      console.log(currQPInfo);
-      console.log("  ## Printing the user tracks.");
-      console.log(clientTrackAdded);
-      console.log("////////////////////////////////////////////////////////////////////////////////////////////////////")
-  });
-
-  */
-
 }
