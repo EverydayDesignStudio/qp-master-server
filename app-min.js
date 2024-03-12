@@ -963,7 +963,6 @@ function fillQueue(bpm = -1, cluster = -1, clientID = -1) {
 }
 
 
-// TODO: check params
 function broadcastQueue() {
   /*
   ## [Server -> Client] message contains:
@@ -973,14 +972,7 @@ function broadcastQueue() {
   	3) Color Info (Ring light, Queue lights)
   */
 
-  // if queue is less than 4, fill the rest
-  if (queue.length < 4) {
-      fillQueue()
-  }
-
   // at this point, the queue should be full (length = 4)
-  song = queue[0]
-  currBPM = song.tempo
   broadcastTimestamp = new Date().getTime();
 
   currQPInfo=JSON.stringify(
@@ -988,11 +980,11 @@ function broadcastQueue() {
       "msg":msg,
 
       "songdata":{
-        "trackID": song.track_id,
+        "trackID": queue[0].track_id,
         "timestamp": seek,
         "broadcastTimestamp": broadcastTimestamp
         "bpm": currBPM,
-        "cluster_number": song.cluster_number
+        "cluster_number": queue[0].cluster_number
       },
 
       "canUserAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
