@@ -248,6 +248,14 @@ app.post('/setClientActive',(req, res)=>{
   // not used -- just checking
   res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
 
+  // if only one client joins, populate the queue,
+  // starting with the first song, owned by the active client
+  if (numActiveClients() == 1) {
+    tmpBPM = getRandomIntInclusive(BPM_MIN, BPM_MAX);
+    tmpCluster = getRandomIntInclusive(0, 3);
+    fillQueue(tmpBPM, tmpCluster, req.body.clientID)
+  }
+
   broadcastQueue()
 
 /*
