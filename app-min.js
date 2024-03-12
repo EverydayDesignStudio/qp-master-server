@@ -426,7 +426,32 @@ The flow for the server is as follows:
 app.post('/getTrackToQueue',(req, res)=>{
   console.log("## Client " , req.body.clientID, " TAPS a bpm of: ", req.body.bpm)
 
+  // first, check if the client can add new BPM
+  if(userCheck(req.body.clientID)) {
+    // only if the currQueueOffset is 0 --> regenerate the queue
+    if (currQueueOffset == 0 && currTrackID != song.track_id) {
+      prevTrackID = currTrackID
+    }
+
     currQueueOffset++;
+
+    // when tapped, remove the rest of queue from the current cursor(offset),
+    queue.splice(currQueueOffset);
+
+    // fill the rest (could be the entire queue) with the tapped BPM,
+    fillQueue(req.body.bpm, req.body.cln, req.body.clientID, true)
+
+    console.log("##   Queue modified and now broadcasting..")
+
+    currTrackID = queue[0].track_id;
+    currBPM = queue[0].tempo
+    currCluster = queue[0].cluster_number;
+    currClusterCounter = 0;
+    playedTrackIds.clear();
+    playedTrackIds.add(currtrackID);
+
+    // then broadcast the queue
+    broadcastQueue()
 
 /*
     var trackInfos = readDatabase();
@@ -436,10 +461,10 @@ app.post('/getTrackToQueue',(req, res)=>{
     var updatedQueue = queueUpdateUser(queue,songAddition,currQueueOffset,req.body.clientID,req.body.cln);
 
     queue=updatedQueue;
-    isBPMTapped[currQueueOffset]=true;
-    ringLight.fill(colorFromUser(req.body.clientID),currQueueOffset,ringLight.length);
-    clientTrackAdded[req.body.clientID-1]=updatedQueue[currQueueOffset]["track_id"];
-    userControl(req.body.clientID);
+    // isBPMTapped[currQueueOffset]=true;
+    // ringLight.fill(colorFromUser(req.body.clientID),currQueueOffset,ringLight.length);
+    // clientTrackAdded[req.body.clientID-1]=updatedQueue[currQueueOffset]["track_id"];
+    // userControl(req.body.clientID);
 
     broadcastQueue(updatedQueue,updatedQueue[0],currSongTimestamp, "Queue")
 */
