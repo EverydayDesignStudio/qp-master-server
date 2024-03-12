@@ -1133,6 +1133,53 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
   return trackID
 }
 
+
+// Fill the queue with next available songs in the dataset
+//   !! NOT responsible for cursor/offset management
+function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
+
+  // fill the queue until it reaches the max length of 4
+  while (queue.length < 4) {
+
+    // case 1) if queue is empty, populate the queue
+    if (queue.length == 0 and numActiveClients() == 1) {
+      isBPMTapped = isBPMTapped.concat([false]);
+      ringLight.fill(colorFromUser(clientID), currQueueOffset, ringLight.length);
+
+      let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
+      let trackItem = findMatchingTrack(trackIDToBeAdded)
+      queue.push(trackItem)
+
+    // case 2) if tapped, lock the client until the added track is finished and fill the ring light
+    } else if (tapped) {
+      isBPMTapped[currQueueOffset]=true;
+      ringLight.fill(colorFromUser(clientID), currQueueOffset, ringLight.length);
+
+      let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
+      let trackItem = findMatchingTrack(trackIDToBeAdded)
+      queue.push(trackItem)
+
+      // lock the client from frequently adding other bpms
+      clientTrackAdded[clientID-1] = trackIDToBeAdded;
+      userControl(clientID);
+
+      // reverse the flag so that next song and onward can not be caught in this case
+      tapped = !tapped;
+
+    // case 3) populate the queue with the regular song selection algo
+    } else {
+      isBPMTapped = isBPMTapped.concat([false]);
+      ringLight = ringLight.concat([ringLight[ringLight.length-1]]);
+
+      let trackIDToBeAdded = chooseNextSong(bpm, cluster)
+      let trackItem = findMatchingTrack(trackIDToBeAdded)
+      queue.push(trackItem)
+
+    }
+
+  } // while loop
+
+}
 }
 
 
