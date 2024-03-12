@@ -240,13 +240,12 @@ app.post('/setClientActive',(req, res)=>{
     client4Active=true;
   }
 
-  io.emit('stateChange', clientState);
-
   console.log(req.body)
   console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
   console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
+  io.emit('stateChange', clientState);
 
-  // just checking
+  // not used -- just checking
   res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
 
   broadcastQueue()
@@ -393,12 +392,6 @@ the queue creation process of queue player system. The flow for the server is as
 current value of seek or the timestamp for the server is set to 0
 */
 app.post('/getTrackToPlay', (req, res) => {
-
-  if (currTrackID != song.track_id) {
-    prevTrackID = currTrackID
-    currTrackID = song.track_id
-  }
-
   console.log("No song in queue, BPM: ",req.body.bpm,"added by QP",req.body.clientID);
   var trackInfos = readDatabase();
   var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID,0);
@@ -431,9 +424,11 @@ The flow for the server is as follows:
 [6] - client ID recorded so as to not let the same client another BPM until its song has exited the queue
 */
 app.post('/getTrackToQueue',(req, res)=>{
-  if(userCheck(req.body.clientID))
-  {
+  console.log("## Client " , req.body.clientID, " TAPS a bpm of: ", req.body.bpm)
+
     currQueueOffset++;
+
+/*
     var trackInfos = readDatabase();
     console.log(req.body.cln);
     var bpmData=getDatafromBPM(trackInfos, req.body.bpm, req.body.clientID, req.body.cln);
@@ -447,14 +442,14 @@ app.post('/getTrackToQueue',(req, res)=>{
     userControl(req.body.clientID);
 
     broadcastQueue(updatedQueue,updatedQueue[0],currSongTimestamp, "Queue")
+*/
 
-    console.log("Adding to Queue")
     res.send({"queue": updatedQueue});
-  }
-  else
-  {
+  } else {
+    console.log("##   Skipping.. Client ", req.body.clientID, " is not yet available to add a new bpm.")
     res.send({"queue":"Already added song"})
   }
+
 })
 
 /*
@@ -464,15 +459,15 @@ Description or Flow:
 */
 app.get('/trackFinished',(req,res)=>{
 
-// {"clientID":clientID, "msg":n/a, "cln":cluster}
+// {"clientID":clientID, "trackID":trackID, "cln":cluster}
 
-    if (currTrackID != song.track_id) {
-      prevTrackID = currTrackID
-      currTrackID = song.track_id
-    }
+// TODO: what if we received this from an inactive client?
 
   console.log("## trackFinished Request Received from client ", req.body.clientID)
   console.log(req.body)
+
+  /*
+
   console.log("    ## ContinueCheck: ", continueCheck)
   clientIDForContinue=req.body.clientID
  // TODO: instead of having a flag to control the concurrency, we should compare songs to decide whether to process or reject the request
@@ -491,7 +486,10 @@ app.get('/trackFinished',(req,res)=>{
     res.send("Continue Playing Function Called")
   }
 
-})
+  */
+
+}) // app.get(trackFinished)
+
 
 function startTimer(duration,clientIDForContinue) {
   var start = new Date().getTime();
@@ -694,7 +692,7 @@ function processDatabase(qpData,user) {
   return qpData;
 }
 
-// ## TODO: add 10 songs to the queue from the same cluster instead of loading all songs of the same BPM
+
 function queueUpdateUser(queue, additionToQueue, offset, user, cln) {
   var i=0;
   var delBPM;
@@ -766,6 +764,7 @@ function queueFillwithNearestBPM(queue, user, cln) {
   console.log("## queue size is now: ", queue.length)
   return queue
 }
+
 
 function userControl(id) {
   if(id==1)
