@@ -989,6 +989,45 @@ function findMatchingTrack(trackID) {
   return trackItem
 }
 
+
+function pickNextTrack(bpm, cluster, clientID = -1) {
+  var trackCount = occurrencesDB[bpm][cluster].count;
+
+  if (trackCount == 0) {
+    return "";
+  }
+
+  let randomTrackIndices = [];
+
+  // creating a list of indices
+  for (let i = 0; i <= trackCount-1; i++) {
+      randomTrackIndices.push(i);
+  }
+  // shuffling the list of indices
+  shuffleArray(randomTrackIndices);
+
+  for (let i = 0; i <= trackCount-1; i++) {
+    let randomTrackIndex = randomTrackIndices[i];
+    let randomTrackID = occurrencesDB[bpm][cluster].track_ids[randomTrackIndex];
+
+    // if the chosen track is already played, skip
+    if (playedTrackIds.has(randomTrackID)) {
+      continue;
+
+    // if the chosen track is already in the queue, skip
+    } else if (queue.some(track => track.track_id === randomTrackID)) {
+      continue;
+
+    // if the client ID is provided, but the chosen track is now owned by the client, skip
+    } else if (clientID > 0 && !listeningHistoryDB[randomTrackID].includes(clientID)) {
+      continue;
+
+    } else {
+      return randomTrackID
+    }
+  } // for loop
+
+  return ""
 }
 
 
