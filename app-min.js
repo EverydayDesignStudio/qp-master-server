@@ -780,7 +780,7 @@ function broadcastQueue() {
 
       "canUserAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
 
-      "lights":{
+      "lightInfo":{
         "queueLight1":{
           "isNewBPM": isBPMTapped[0],
           "ringLight":ringLight[0],
@@ -805,7 +805,7 @@ function broadcastQueue() {
             "bpm": queue[3].tempo,
             "colors":getRGBColors(queue[3])
           },
-        } // lights
+        } // lightInfo
       } // currQPInfo
     )// JSON.stringify
 
