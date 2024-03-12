@@ -361,6 +361,10 @@ app.post('/setClientInactive',(req, res)=>{
     continueState[3]=false;
   }
 
+  if (numActiveClients() == 0) {
+    clearVariables()
+  }
+
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
   io.emit('stateChange', clientState);
 
@@ -880,9 +884,26 @@ function getRGBColors(qElement) {
    return colorArr;
 }
 
-function numActiveClients(state) {
-    const activeCount = state.filter(value => value === true).length;
-    return activeCount;
+function clearVariables() {
+  queue = [];
+  clientTrackAdded=["","","",""];
+  isBPMTapped = [false,false,false,false];
+  ringLight =["","","",""];
+
+  currBPM=-1;
+  currCluster=-1;
+  currQueueOffset=0;
+  currTrackID='';
+  prevTrackID='';
+  broadcastTimestamp = -1;
+}
+
+
+function numActiveClients() {
+  state = clientState
+  const activeCount = state.filter(value => value === true).length;
+  return activeCount;
+}
 
 function hasListened(track_id, user_id) {
     // Check if the track_id exists in the listeningHistory object
