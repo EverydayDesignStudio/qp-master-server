@@ -1180,6 +1180,61 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
   } // while loop
 
 }
+
+
+// when the currently playing song is finished, modify the queue with a next new song
+function shiftQueue_NextSong(bpm = -1, cluster = -1) {
+  prevTrackID = currTrackID
+
+  // if no param is provided, use the current values as a reference
+  if (bpm < 0) {
+    bpm = currBPM;
+  }
+  if (cluster < 0) {
+    cluster = currCluster;
+  }
+
+  // move the offset cursor
+  currQueueOffset--;
+  console.log("#### move to the next song in the queue.. currQueueOffset: ", currQueueOffset)
+  if (currQueueOffset<0)
+  {
+    currQueueOffset=0;
+  }
+
+  var deletedFromQueue = queue.shift();
+
+  // shift the list that contains TAP info
+  var tapped = isBPMTapped.shift();
+
+  // if the played song is a tapped song, unlock the client
+  if (tapped) {
+    var indx = clientTrackAdded.indexOf(deletedFromQueue["track_id"]);
+    clientTrackAdded[indx]="";
+    // this client is now available for tap
+    userControl(indx+1);
+  }
+
+  // shift the ring light list
+  ringLight.shift();
+
+  currtrackID = queue[0].track_id;
+  currBPM = queue[0].tempo
+
+  if (currCluster != queue[0].cluster_number) {
+    currCluster = queue[0].cluster_number;
+    playedTrackIds.clear();
+  } else {
+    currClusterCounter++;
+  }
+  playedTrackIds.add(currtrackID);
+
+  // fill the queue with bpm/cluster of the song at the cursor
+  fillQueue(queue[currQueueOffset].tempo, queue[currQueueOffset].cluster_number)
+
+  // queue = queue.concat(chooseNextSong(bpm, cluster));
+  // queue = queueFillwithNearestBPM(queue, clientID, cluster)
+
 }
 
 
