@@ -1104,6 +1104,35 @@ function pickNextCluster(bpm, clusterNow = -1) {
 
   return -1
 }
+
+
+function chooseNextSong(bpm, cluster, clientID = -1) {
+  let trackID = ""
+
+  while (trackID == "") {
+    let searchCluster = cluster
+    trackID = pickNextTrack(bpm, searchCluster, clientID);
+
+    if (trackID == "") {
+      searchCluster = pickNextCluster(bpm, searchCluster);
+      if (searchCluster < 0) {
+        bpm--;
+        // TODO: revisit the logic
+      } else {
+        trackID = pickNextTrack(bpm, searchCluster, clientID);
+      }
+    }
+
+    // if the search hits the very bottom, go back to the highest bpm
+    if (bpm < BPM_MIN) {
+      bpm = BPM_MAX;
+    }
+
+  } // while loop
+
+  return trackID
+}
+
 }
 
 
