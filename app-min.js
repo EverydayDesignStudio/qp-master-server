@@ -99,7 +99,7 @@ const io = new socketio.Server(server);
 
 // TODO: uncomment this
 // Load all databases needed for the server
-// loadDatabases()
+loadDatabases()
 
 /*
 Input: N/A
@@ -566,6 +566,7 @@ function loadDatabases() {
   listeningHistoryDB = require("./Final Database/qp_data_listening_history_per_track.json");
   occurrencesDB = require("./Final Database/qp_data_song_count_trackID.json");
 }
+
 
 // Reading the JSON file data
 function readDatabase() {
