@@ -1211,6 +1211,7 @@ function shiftQueue_NextSong(bpm = -1, cluster = -1) {
   }
 
   var deletedFromQueue = queue.shift();
+  prevTrackID = deletedFromQueue.track_id
 
   // shift the list that contains TAP info
   var tapped = isBPMTapped.shift();
