@@ -1031,18 +1031,79 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 }
 
 
-function fillQueue(bpm = -1, cluster = -1, clientID = -1) {
+function pickNextCluster(bpm, clusterNow = -1) {
+  let randomClusterIndices = [];
 
-  // if queue is empty, populate the queue
-  if (queue.length == 0 and numActiveClients() == 1) {
-    ...
+  // when we have the cluster param, push it first, then randomly add the rest
+  if (clusterNow > 0) {
+    randomClusterIndices = [clusterNow]
 
-  // if not, just fill the rest
+    // fill the array with numbers 0 to 3 (excluding the initialNumber)
+    for (let i = 0; i < 4; i++) {
+        if (i !== clusterNow) {
+            randomClusterIndices.push(i);
+        }
+    }
+
+    // shuffle the array to randomize the order
+    for (let i = randomClusterIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [randomClusterIndices[i], randomClusterIndices[j]] = [randomClusterIndices[j], randomClusterIndices[i]];
+    }
+
   } else {
-    ...
+    // creating a list of indices
+    for (let i = 0; i < 4; i++) {
+        randomClusterIndices.push(i);
+    }
 
+    // shuffling the list of indices
+    shuffleArray(randomClusterIndices);
   }
 
+  // choosing a next cluster in the given bpm
+  for (let i = 0; i < 4; i++) {
+    let randomCluster = randomClusterIndices[i];
+    let randomClusterSize = occurrencesDB[bpm][randomCluster].count
+    let playedSongsCount = 0
+    let songsInTheQueueCount = 0
+
+    if (randomClusterSize == 0) {
+      continue;
+    }
+
+    // if the given bpm is the current bpm
+    if (bpm == currBPM) {
+      let depletedClusterCount = hasClusterExhausted.filter(value => value === true).length;
+      if (depletedClusterCount == 4) {
+        return -1;
+      }
+
+      if (hasClusterExhausted[randomCluster]) {
+        continue;
+      }
+
+    } // if currBPM
+
+    for (let trackID of playedTrackIds) {
+      let track = occurrencesDB[bpm][clusterNumber];
+      if (track.track_ids.includes(trackID)) {
+          playedSongsCount++;
+      }
+    }
+
+    queue.forEach((track) => {
+      songsInTheQueueCount += occurrencesDB[bpm][randomCluster].track_ids.filter(trackID => trackID === track.track_id).length;
+    });
+
+    if (randomClusterSize > playedSongsCount + songsInTheQueueCount) {
+      return randomCluster;
+    }
+
+  } // for loop
+
+  return -1
+}
 }
 
 
