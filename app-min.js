@@ -313,19 +313,21 @@ app.get('/trackFinished',(req,res)=>{
   // When the current song is finished (received by the first client)
   if (currTrackID == req.body.trackID) {
 
-    shiftQueue_NextSong();
+    shiftQueue_NextSong(currBPM, currCluster);
 
     // possible pause
     console.log('Waiting for 5 seconds...');
     setTimeout(function() {
-        console.log('Now broadcasting the next song..');
+        console.log('Now broadcasting the next track..');
     }, 5000);
 
   // Repeated request for the same song from other clients
   } else if (prevTrackID == req.body.trackID) {
     // ignore the request
-
+      console.log('  But,, this track is a previous one.');
   // edge case - this client may be in a significant delay >> just send out an updated queue with the current song
+  } else {
+    console.log('  ... cannot remember this track. This client may be in a significant delay..');
   }
 
   broadcastQueue()
@@ -520,6 +522,8 @@ function loadDatabases() {
   occurrencesDB = require("./Final Database/qp_data_song_count_trackID.json");
 }
 
+
+// TODO: test this logic
 function pickNextTrack(bpm, cluster, clientID = -1) {
   var trackCount = occurrencesDB[bpm][cluster].count;
 
@@ -561,6 +565,7 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 }
 
 
+// TODO: test this logic
 function pickNextCluster(bpm, clusterNow = -1) {
   let randomClusterIndices = [];
 
@@ -638,6 +643,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
 function chooseNextSong(bpm, cluster, clientID = -1) {
   let trackID = ""
 
+  // TODO: test this logic
   while (trackID == "") {
     let searchCluster = cluster
     trackID = pickNextTrack(bpm, searchCluster, clientID);
@@ -646,7 +652,6 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
       searchCluster = pickNextCluster(bpm, searchCluster);
       if (searchCluster < 0) {
         bpm--;
-        // TODO: revisit the logic
       } else {
         trackID = pickNextTrack(bpm, searchCluster, clientID);
       }
@@ -666,6 +671,7 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 //   !! NOT responsible for cursor/offset management
 function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
+  // TODO: test this logic
   // fill the queue until it reaches the max length of 4
   while (queue.length < 4) {
 
@@ -710,16 +716,8 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 }
 
 // when the currently playing song is finished, modify the queue with a next new song
-function shiftQueue_NextSong(bpm = -1, cluster = -1) {
+function shiftQueue_NextSong(bpm, cluster) {
   prevTrackID = currTrackID
-
-  // if no param is provided, use the current values as a reference
-  if (bpm < 0) {
-    bpm = currBPM;
-  }
-  if (cluster < 0) {
-    cluster = currCluster;
-  }
 
   // move the offset cursor
   currQueueOffset--;
@@ -752,9 +750,10 @@ function shiftQueue_NextSong(bpm = -1, cluster = -1) {
   if (currCluster != queue[0].cluster_number) {
     currCluster = queue[0].cluster_number;
     playedTrackIds.clear();
-  } else {
-    currClusterCounter++;
+    currClusterCounter = 0;
   }
+  
+  currClusterCounter++;
   playedTrackIds.add(currtrackID);
 
   // fill the queue with bpm/cluster of the song at the cursor
@@ -770,7 +769,7 @@ function broadcastQueue() {
     {
       "msg":msg,
 
-      "songdata":{
+      "currentTrack":{
         "trackID": queue[0].track_id,
         "timestamp": seek,
         "broadcastTimestamp": broadcastTimestamp
