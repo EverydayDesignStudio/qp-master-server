@@ -233,25 +233,21 @@ app.post('/setClientInactive',(req, res)=>{
   {
     console.log("  QP1 is set inactive");
     client1Active=false;
-    continueState[0]=false;
   }
   else if(req.body.clientID==2)
   {
     console.log("  QP2 is set inactive");
     client2Active=false;
-    continueState[1]=false;
   }
   else if(req.body.clientID==3)
   {
     console.log("  QP3 is set inactive");
     client3Active=false;
-    continueState[2]=false;
   }
   else if(req.body.clientID==4)
   {
     console.log("  QP4 is set inactive");
     client4Active=false;
-    continueState[3]=false;
   }
 
   if (numActiveClients() == 0) {
