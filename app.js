@@ -786,7 +786,6 @@ function broadcastQueue() {
     {
       "currentTrack":{
         "trackID": queue[0].track_id,
-        "timestamp": seek,
         "broadcastTimestamp": broadcastTimestamp,
         "bpm": currBPM,
         "cluster_number": queue[0].cluster_number
