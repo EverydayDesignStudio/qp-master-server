@@ -210,8 +210,10 @@ app.post('/setClientActive',(req, res)=>{
   // if only one client joins, populate the queue,
   // starting with the first song, owned by the active client
   if (numActiveClients() == 1) {
+    console.log("Client ", req.body.clientID, " has started the session.")
     tmpBPM = getRandomIntInclusive(BPM_MIN, BPM_MAX);
     tmpCluster = getRandomIntInclusive(0, 3);
+    console.log("Randomly choosing BPM and cluster. BPM: ", tmpBPM, ", Cluster: ", tmpCluster)
     fillQueue(tmpBPM, tmpCluster, req.body.clientID)
   }
 
@@ -251,6 +253,7 @@ app.post('/setClientInactive',(req, res)=>{
   }
 
   if (numActiveClients() == 0) {
+    console.log("All clients are inactive. Ending the listening session. Clear all variables.");
     clearVariables()
   }
 
