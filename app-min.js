@@ -289,7 +289,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     currCluster = queue[0].cluster_number;
     currClusterCounter = 0;
     playedTrackIds.clear();
-    playedTrackIds.add(currtrackID);
+    playedTrackIds.add(currTrackID);
 
     // then broadcast the queue
     broadcastQueue()
@@ -315,7 +315,7 @@ app.get('/trackFinished',(req,res)=>{
 
     shiftQueue_NextSong(currBPM, currCluster);
 
-    // possible pause
+    // short pause -- allow other clients to finish before broadcasting the next track
     console.log('Waiting for 5 seconds...');
     setTimeout(function() {
         console.log('Now broadcasting the next track..');
@@ -525,22 +525,25 @@ function loadDatabases() {
 
 // TODO: test this logic
 function pickNextTrack(bpm, cluster, clientID = -1) {
-  var trackCount = occurrencesDB[bpm][cluster].count;
+  // check how many songs are in the given bpm-cluster
+  let trackCount = occurrencesDB[bpm][cluster].count;
 
+  // if no song is available, return an empty string,
+  //   indicating that there is no available song
   if (trackCount == 0) {
     return "";
   }
 
+  // creating a list of random indices
   let randomTrackIndices = [];
-
-  // creating a list of indices
-  for (let i = 0; i <= trackCount-1; i++) {
+  for (let i = 0; i < trackCount; i++) {
       randomTrackIndices.push(i);
   }
   // shuffling the list of indices
   shuffleArray(randomTrackIndices);
 
-  for (let i = 0; i <= trackCount-1; i++) {
+  // try picking songs at a random index
+  for (let i = 0; i < trackCount; i++) {
     let randomTrackIndex = randomTrackIndices[i];
     let randomTrackID = occurrencesDB[bpm][cluster].track_ids[randomTrackIndex];
 
@@ -552,7 +555,8 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
     } else if (queue.some(track => track.track_id === randomTrackID)) {
       continue;
 
-    // if the client ID is provided, but the chosen track is now owned by the client, skip
+    // (only when the client ID is provided as a param)
+    // if the chosen track is not owned by the client, skip
     } else if (clientID > 0 && !listeningHistoryDB[randomTrackID].includes(clientID)) {
       continue;
 
@@ -566,10 +570,24 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 
 
 // TODO: test this logic
+// Finds the next available cluster in the given BPM.
+// Returns -1 if there is no available cluster.
+// Unavailable clusters are:
+//  - A cluster has no songs
+//  - All songs in the cluster are already played
 function pickNextCluster(bpm, clusterNow = -1) {
   let randomClusterIndices = [];
 
-  // when we have the cluster param, push it first, then randomly add the rest
+  // if all clusters in this bpm are done, simply there is no available cluster
+  if (bpm == currBPM) {
+    let depletedClusterCount = hasClusterExhausted.filter(value => value === true).length;
+    if (depletedClusterCount == 4) {
+      return -1;
+    }
+  }
+
+  // Create a random list of clusters to check
+  //   when we have the cluster param, push it first, then randomly add the rest
   if (clusterNow > 0) {
     randomClusterIndices = [clusterNow]
 
@@ -580,7 +598,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
         }
     }
 
-    // shuffle the array to randomize the order
+    //   shuffle the array to randomize the order
     for (let i = randomClusterIndices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [randomClusterIndices[i], randomClusterIndices[j]] = [randomClusterIndices[j], randomClusterIndices[i]];
@@ -596,41 +614,39 @@ function pickNextCluster(bpm, clusterNow = -1) {
     shuffleArray(randomClusterIndices);
   }
 
-  // choosing a next cluster in the given bpm
+  // check clusters in the randomly created order in the given bpm
   for (let i = 0; i < 4; i++) {
     let randomCluster = randomClusterIndices[i];
     let randomClusterSize = occurrencesDB[bpm][randomCluster].count
     let playedSongsCount = 0
     let songsInTheQueueCount = 0
 
+    // this is when the cluster is empty (no songs)
     if (randomClusterSize == 0) {
       continue;
     }
 
-    // if the given bpm is the current bpm
-    if (bpm == currBPM) {
-      let depletedClusterCount = hasClusterExhausted.filter(value => value === true).length;
-      if (depletedClusterCount == 4) {
-        return -1;
-      }
-
-      if (hasClusterExhausted[randomCluster]) {
+    // if the given bpm is the current bpm, check for depleted clusters
+    if (bpm == currBPM && hasClusterExhausted[randomCluster]) {
         continue;
       }
 
-    } // if currBPM
-
+    // count how many tracks in this cluster are played
     for (let trackID of playedTrackIds) {
-      let track = occurrencesDB[bpm][clusterNumber];
-      if (track.track_ids.includes(trackID)) {
+      let trackIDs = occurrencesDB[bpm][randomCluster]["track_ids"];
+      if (trackIDs.includes(trackID)) {
           playedSongsCount++;
       }
     }
 
+    // also count how many tracks in this cluster are in the queue
+    //   -- songs in the queue are soon to be played, so considered them as 'played'
     queue.forEach((track) => {
-      songsInTheQueueCount += occurrencesDB[bpm][randomCluster].track_ids.filter(trackID => trackID === track.track_id).length;
+      songsInTheQueueCount += occurrencesDB[bpm][randomCluster]["track_ids"].filter(trackID => trackID === track.track_id).length;
     });
 
+    // if the number of songs in the cluster are more than the played and queued songs, choose this cluster
+    // otherwise, continue searching
     if (randomClusterSize > playedSongsCount + songsInTheQueueCount) {
       return randomCluster;
     }
@@ -676,7 +692,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
   while (queue.length < 4) {
 
     // case 1) if queue is empty, populate the queue
-    if (queue.length == 0 and numActiveClients() == 1) {
+    if (queue.length == 0 && numActiveClients() == 1) {
       isBPMTapped = isBPMTapped.concat([false]);
       ringLight.fill(colorFromUser(clientID), currQueueOffset, ringLight.length);
 
@@ -686,9 +702,10 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
     // case 2) if tapped, lock the client until the added track is finished and fill the ring light
     } else if (tapped) {
-      isBPMTapped[currQueueOffset]=true;
+      isBPMTapped[currQueueOffset] = true;
       ringLight.fill(colorFromUser(clientID), currQueueOffset, ringLight.length);
 
+      // TODO: may need to add an error handling logic
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
       queue.push(trackItem)
@@ -698,13 +715,14 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       userControl(clientID);
 
       // reverse the flag so that next song and onward can not be caught in this case
-      tapped = !tapped;
+      tapped = false;
 
     // case 3) populate the queue with the regular song selection algo
     } else {
       isBPMTapped = isBPMTapped.concat([false]);
       ringLight = ringLight.concat([ringLight[ringLight.length-1]]);
 
+      // TODO: may need to add an error handling logic
       let trackIDToBeAdded = chooseNextSong(bpm, cluster)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
       queue.push(trackItem)
@@ -722,9 +740,9 @@ function shiftQueue_NextSong(bpm, cluster) {
   // move the offset cursor
   currQueueOffset--;
   console.log("#### move to the next song in the queue.. currQueueOffset: ", currQueueOffset)
-  if (currQueueOffset<0)
+  if (currQueueOffset < 0)
   {
-    currQueueOffset=0;
+    currQueueOffset = 0;
   }
 
   var deletedFromQueue = queue.shift();
@@ -736,15 +754,15 @@ function shiftQueue_NextSong(bpm, cluster) {
   // if the played song is a tapped song, unlock the client
   if (tapped) {
     var indx = clientTrackAdded.indexOf(deletedFromQueue["track_id"]);
-    clientTrackAdded[indx]="";
+    clientTrackAdded[indx] = "";
     // this client is now available for tap
-    userControl(indx+1);
+    userControl(indx + 1);
   }
 
   // shift the ring light list
   ringLight.shift();
 
-  currtrackID = queue[0].track_id;
+  currTrackID = queue[0].track_id;
   currBPM = queue[0].tempo
 
   if (currCluster != queue[0].cluster_number) {
@@ -752,9 +770,9 @@ function shiftQueue_NextSong(bpm, cluster) {
     playedTrackIds.clear();
     currClusterCounter = 0;
   }
-  
+
   currClusterCounter++;
-  playedTrackIds.add(currtrackID);
+  playedTrackIds.add(currTrackID);
 
   // fill the queue with bpm/cluster of the song at the cursor
   fillQueue(queue[currQueueOffset].tempo, queue[currQueueOffset].cluster_number)
