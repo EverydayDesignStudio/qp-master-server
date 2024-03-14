@@ -79,7 +79,7 @@ var client2Socket=false;
 var client3Socket=false;
 var client4Socket=false;
 
-var clientState=[client1Active,client2Active,client3Active,client4Active]   // array to store all the current client states
+var clientState = [false, false, false, false]   // array to store all the current client states
 
 var currQPInfo = ''     // current QueuePlayer information that is broadcasted to the clients
 
@@ -148,6 +148,7 @@ io.on('connection', (socket) => {
       client4Active=false
     }
 
+    clientState = [client1Active, client2Active, client3Active, client4Active]
     io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
     console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
@@ -199,6 +200,7 @@ app.post('/setClientActive',(req, res)=>{
 
   console.log(req.body)
   console.log("Previous States of the Clients (true=Active, false=Inactive): ", JSON.stringify(prevClientState))
+  clientState = [client1Active, client2Active, client3Active, client4Active]
   console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
   io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
@@ -256,6 +258,7 @@ app.post('/setClientInactive',(req, res)=>{
     clearVariables()
   }
 
+  clientState = [client1Active, client2Active, client3Active, client4Active]
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
   io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
@@ -785,8 +788,6 @@ function broadcastQueue() {
 
   currQPInfo=JSON.stringify(
     {
-      "msg":msg,
-
       "currentTrack":{
         "trackID": queue[0].track_id,
         "timestamp": seek,
