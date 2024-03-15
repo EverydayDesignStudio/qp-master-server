@@ -155,7 +155,7 @@ io.on('connection', (socket) => {
       console.log("All clients are inactive. Ending the listening session. Clear all variables.");
       clearVariables()
     }
-    
+
     io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
     console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
@@ -327,9 +327,8 @@ app.get('/trackFinished',(req,res)=>{
 
     // short pause -- allow other clients to finish before broadcasting the next track
     console.log('Waiting for 5 seconds...');
-    setTimeout(function() {
-        console.log('Now broadcasting the next track..');
-    }, 5000);
+    // blocking sleep
+    sleep(5000);
 
   // Repeated request for the same song from other clients
   } else if (prevTrackID == req.body.trackID) {
@@ -463,6 +462,11 @@ function getRGBColors(qElement) {
      i++;
    }
    return colorArr;
+}
+
+function sleep(milliseconds) {
+  const start = Date.now();
+  while (Date.now() - start < milliseconds) {}
 }
 
 function clearVariables() {
