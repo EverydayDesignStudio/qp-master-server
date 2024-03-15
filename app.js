@@ -695,6 +695,8 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
     // case 1) if queue is empty, populate the queue
     if (queue.length == 0 && numActiveClients() == 1) {
+      currBPM = bpm
+      currCluster = cluster
       isBPMTapped = isBPMTapped.concat([false]);
       ringLight.fill(colorFromUser(clientID), currQueueOffset, ringLight.length);
 
