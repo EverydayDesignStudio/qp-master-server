@@ -149,6 +149,12 @@ io.on('connection', (socket) => {
     }
 
     clientState = [client1Active, client2Active, client3Active, client4Active]
+
+    if (numActiveClients() == 0) {
+      console.log("All clients are inactive. Ending the listening session. Clear all variables.");
+      clearVariables()
+    }
+    
     io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
     console.log("Currents States of the Clients (true=Active, false=Inactive): ", JSON.stringify(clientState))
