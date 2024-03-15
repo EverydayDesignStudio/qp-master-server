@@ -252,13 +252,14 @@ app.post('/setClientInactive',(req, res)=>{
     client4Active=false;
   }
 
+  clientState = [client1Active, client2Active, client3Active, client4Active]
+  console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
+
   if (numActiveClients() == 0) {
     console.log("All clients are inactive. Ending the listening session. Clear all variables.");
     clearVariables()
   }
 
-  clientState = [client1Active, client2Active, client3Active, client4Active]
-  console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
   io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
   // Just checking
