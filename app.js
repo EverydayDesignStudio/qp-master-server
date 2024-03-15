@@ -83,6 +83,8 @@ var clientState = [false, false, false, false]   // array to store all the curre
 
 var currQPInfo = ''     // current QueuePlayer information that is broadcasted to the clients
 
+var cleanupTimer = null
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #3. Create Connections //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,11 +152,8 @@ io.on('connection', (socket) => {
 
     clientState = [client1Active, client2Active, client3Active, client4Active]
 
-    // TODO: have a timeout before clear everything -- allow some time for a client to reconnect
-    if (numActiveClients() == 0) {
-      console.log("All clients are inactive. Ending the listening session. Clear all variables.");
-      clearVariables()
-    }
+    // have a timeout before clear everything -- allow some time for a client to reconnect
+    checkClientsForCleanup()
 
     io.emit('stateChange', JSON.stringify( { "activeUsers": clientState} ));
 
@@ -214,14 +213,18 @@ app.post('/setClientActive',(req, res)=>{
   // not used -- just checking
   res.send( {"Client 1":client1Active, "Client 2":client2Active, "Client 3":client3Active, "Client 4":client4Active} )
 
-  // if only one client joins, populate the queue,
-  // starting with the first song, owned by the active client
-  if (numActiveClients() == 1) {
+
+  // if only one client joins, populate the queue, starting with the first song, owned by the active client
+  //  ** but, only when the cleanup timer is null -- otherwise, it means the client is reconnected
+  if (numActiveClients() == 1 && cleanupTimer == null) {
     console.log("Client ", req.body.clientID, " has started the session.")
     tmpBPM = getRandomIntInclusive(BPM_MIN, BPM_MAX);
     tmpCluster = getRandomIntInclusive(0, 3);
     console.log("Randomly choosing BPM and cluster. BPM: ", tmpBPM, ", Cluster: ", tmpCluster)
     fillQueue(tmpBPM, tmpCluster, req.body.clientID)
+  } else {
+    // when a client is reconnected, remove the cleanupTimer
+    checkClientsForCleanup()
   }
 
   broadcastQueue()
@@ -262,6 +265,7 @@ app.post('/setClientInactive',(req, res)=>{
   clientState = [client1Active, client2Active, client3Active, client4Active]
   console.log("Client States is now (true=Active, false=Inactive): ", JSON.stringify(clientState));
 
+  // no cleanupTimer here as users would turn off the client intentionally
   if (numActiveClients() == 0) {
     console.log("All clients are inactive. Ending the listening session. Clear all variables.");
     clearVariables()
@@ -481,6 +485,30 @@ function clearVariables() {
   currTrackID='';
   prevTrackID='';
   broadcastTimestamp = -1;
+}
+
+function checkClientsForCleanup() {
+  // Check if all clients are disconnected
+  const allDisconnected = clientActive.every(active => !active);
+
+  if (allDisconnected) {
+    // Start a timer if it's not already running
+    if (cleanupTimer === null) {
+      console.log("All clients disconnected. Starting cleanup timer.");
+      cleanupTimer = setTimeout(() => {
+        // This function will run after 30 seconds
+        clearVariables();
+        cleanupTimer = null; // Reset the timer reference
+      }, 30000); // 30 seconds
+    }
+  } else {
+    // If any client is still connected but the timer is running, stop the timer
+    if (cleanupTimer !== null) {
+      console.log("A client reconnected. Stopping the cleanup timer.");
+      clearTimeout(cleanupTimer);
+      cleanupTimer = null;
+    }
+  }
 }
 
 function numActiveClients() {
