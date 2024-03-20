@@ -1009,7 +1009,7 @@ function shiftQueue_NextSong(bpm, cluster) {
 function broadcastQueue() {
 
   // at this point, the queue should be full (length = 4)
-  broadcastTimestamp = new Date().getTime();
+  broadcastTimestamp = Math.floor(Date.now() / 1000);
 
   currQPInfo=JSON.stringify(
     {
