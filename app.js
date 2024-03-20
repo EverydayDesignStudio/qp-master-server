@@ -878,7 +878,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
       if (VERBOSE) {
-        console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (" trackIDToBeAdded, ")")
+        console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
       queue.push(trackItem)
 
