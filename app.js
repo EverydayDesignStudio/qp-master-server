@@ -502,6 +502,8 @@ function sleep(milliseconds) {
 }
 
 function clearVariables() {
+  console.log("Ending the session. Cleaning up the variables.")
+  
   queue = [];
   clientTrackAdded=["","","",""];
   isBPMTapped = [false,false,false,false];
@@ -524,10 +526,10 @@ function checkClientsForCleanup() {
     if (cleanupTimer === null) {
       console.log("All clients disconnected. Starting cleanup timer.");
       cleanupTimer = setTimeout(() => {
-        // This function will run after 30 seconds
+        // This function will run after 10 seconds
         clearVariables();
         cleanupTimer = null; // Reset the timer reference
-      }, 30000); // 30 seconds
+      }, 10000); // 10 seconds
     }
   } else {
     // If any client is still connected but the timer is running, stop the timer
