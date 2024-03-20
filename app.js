@@ -896,7 +896,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       queue.push(trackItem)
 
       if (VERBOSE) {
-        console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (" trackIDToBeAdded, ")")
+        console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
 
       // lock the client from frequently adding other bpms
@@ -923,7 +923,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       let trackItem = findMatchingTrack(trackIDToBeAdded)
 
       if (VERBOSE) {
-        console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (" trackIDToBeAdded, ")")
+        console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
 
       queue.push(trackItem)
@@ -954,7 +954,7 @@ function shiftQueue_NextSong(bpm, cluster) {
   var deletedFromQueue = queue.shift();
   prevTrackID = deletedFromQueue.track_id
   if (VERBOSE) {
-    console.log("  [shiftQueue_NextSong]@@ Removed track: ", deletedFromQueue.track_name, " (" prevTrackID, ")")
+    console.log("  [shiftQueue_NextSong]@@ Removed track: ", deletedFromQueue.track_name, " (", prevTrackID, ")")
   }
 
   // shift the list that contains TAP info
