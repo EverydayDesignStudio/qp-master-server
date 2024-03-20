@@ -286,12 +286,12 @@ app.post('/setClientInactive',(req, res)=>{
 
 // when an active client taps, all songs after the cursor are discarded and re-populated with the given bpm/cluster
 app.post('/getTrackToQueue',(req, res)=>{
-  console.log("## Client " , req.body.clientID, " TAPPED a bpm of: ", req.body.bpm)
+  console.log("## Client " , req.body.clientID, " TAPPED a bpm of: ", req.body.bpm, " at cluster ", req.body.cln)
 
   // first, check if the client can add new BPM
   if(userCheck(req.body.clientID)) {
     // only if the currQueueOffset is 0 --> regenerate the queue
-    if (currQueueOffset == 0 && currTrackID != song.track_id) {
+    if (currQueueOffset == 0) {
       if (VERBOSE) {
         console.log("  [getTrackToQueue]@@ Replaying the entire queue.")
       }
