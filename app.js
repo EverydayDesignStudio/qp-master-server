@@ -740,7 +740,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
     // if the given bpm is the current bpm, check for depleted clusters
     if (bpm == currBPM && hasClusterExhausted[randomCluster]) {
       if (VERBOSE) {
-        console.log("  [pickNextCluster]@@@@ 2. All songs in this cluster (@ bpm", bpm ") are already played. Skip")
+        console.log("  [pickNextCluster]@@@@ 2. All songs in this cluster (@ bpm", bpm, ") are already played. Skip")
       }
       continue;
     }
