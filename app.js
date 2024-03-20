@@ -503,7 +503,7 @@ function sleep(milliseconds) {
 
 function clearVariables() {
   console.log("Ending the session. Cleaning up the variables.")
-  
+
   queue = [];
   clientTrackAdded=["","","",""];
   isBPMTapped = [false,false,false,false];
@@ -597,11 +597,21 @@ function loadDatabases() {
 
 // TODO: test this logic
 function pickNextTrack(bpm, cluster, clientID = -1) {
+  if (VERBOSE) {
+    console.log("  [pickNextTrack]@@ Picking the next track.")
+  }
+
+  if (!occurrencesDB.hasOwnProperty(bpm)) {
+    if (VERBOSE) {
+      console.log("  [pickNextTrack]@@ BPM ", bpm ," does not exist. Exiting..")
+    }
+    return "";
+  }
+
   // check how many songs are in the given bpm-cluster
   let trackCount = occurrencesDB[bpm][cluster].count;
 
   if (VERBOSE) {
-    console.log("  [pickNextTrack]@@ Picking the next track.")
     console.log("  [pickNextTrack]@@ Total track count: ", trackCount, " [@", bpm, "-", cluster, "]")
   }
 
@@ -675,10 +685,16 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 //  - A cluster has no songs
 //  - All songs in the cluster are already played
 function pickNextCluster(bpm, clusterNow = -1) {
-  let randomClusterIndices = [];
 
   if (VERBOSE) {
     console.log("  [pickNextCluster]@@ Picking the next cluster at bpm ", bpm)
+  }
+
+  if (!occurrencesDB.hasOwnProperty(bpm)) {
+    if (VERBOSE) {
+      console.log("  [pickNextCluster]@@ BPM ", bpm ," does not exist. Exiting..")
+    }
+    return -1;
   }
 
   // if all clusters in this bpm are done, simply there is no available cluster
@@ -692,6 +708,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
     }
   }
 
+  let randomClusterIndices = [];
   // Create a random list of clusters to check
   //   when we have the cluster param, push it first, then randomly add the rest
   if (clusterNow > 0) {
