@@ -517,7 +517,7 @@ function clearVariables() {
 
 function checkClientsForCleanup() {
   // Check if all clients are disconnected
-  const allDisconnected = clientActive.every(active => !active);
+  const allDisconnected = clientState.every(active => !active);
 
   if (allDisconnected) {
     // Start a timer if it's not already running
