@@ -330,7 +330,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     }
     broadcastQueue()
 
-    res.send({"queue": updatedQueue});
+    res.send({"queue": queue});
 
   // when the client is 'locked',
   } else {
