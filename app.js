@@ -1039,6 +1039,8 @@ function broadcastQueue() {
       },
 
       "canUserAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
+      
+      "queuedTrackIDs":[queue[0].track_id, queue[1].track_id, queue[2].track_id, queue[3].track_id],
 
       "lightInfo":{
         "queueLight1":{
