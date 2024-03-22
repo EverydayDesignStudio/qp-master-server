@@ -298,6 +298,7 @@ app.post('/getTrackToQueue',(req, res)=>{
       prevTrackID = currTrackID
     }
 
+    // Skip the current one and work on the one after
     currQueueOffset++;
     if (VERBOSE) {
       console.log("  [getTrackToQueue]@@ Queue offset is now: ", currQueueOffset, ". Slicing and dropping the rest..")
