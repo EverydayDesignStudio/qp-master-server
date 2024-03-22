@@ -358,10 +358,10 @@ app.get('/trackFinished',(req,res)=>{
     }
     shiftQueue_NextSong(currBPM, currCluster);
 
-    // short pause -- allow other clients to finish before broadcasting the next track
-    console.log('Waiting for 5 seconds...');
-    // blocking sleep
-    sleep(5000);
+    // // short pause -- allow other clients to finish before broadcasting the next track
+    // console.log('Waiting for 5 seconds...');
+    // // blocking sleep
+    // sleep(5000);
 
   // Repeated request for the same song from other clients
   } else if (prevTrackID == req.body.trackID) {
