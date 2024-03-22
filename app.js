@@ -349,7 +349,7 @@ app.post('/getTrackToQueue',(req, res)=>{
 })
 
 
-app.get('/trackFinished',(req,res)=>{
+app.post('/trackFinished',(req,res)=>{
 
   console.log("## trackFinished Request Received from client ", req.body.clientID)
 
