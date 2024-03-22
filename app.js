@@ -958,64 +958,73 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 function shiftQueue_NextSong(bpm, cluster) {
   prevTrackID = currTrackID
 
-  // move the offset cursor
-  currQueueOffset--;
-  if (VERBOSE) {
-    console.log("  [shiftQueue_NextSong]@@ move to the next song in the queue.. currQueueOffset: ", currQueueOffset)
-  }
-  if (currQueueOffset < 0)
-  {
+  // queue should not be empty
+  if (queue.length > 1) {
+    // move the offset cursor
+    currQueueOffset--;
     if (VERBOSE) {
-      console.log("  [shiftQueue_NextSong]@@ Oops.. Adjusting the offset back to 0..")
+      console.log("  [shiftQueue_NextSong]@@ move to the next song in the queue.. currQueueOffset: ", currQueueOffset)
     }
-    currQueueOffset = 0;
-  }
+    if (currQueueOffset < 0)
+    {
+      if (VERBOSE) {
+        console.log("  [shiftQueue_NextSong]@@ Oops.. Adjusting the offset back to 0..")
+      }
+      currQueueOffset = 0;
+    }
 
-  var deletedFromQueue = queue.shift();
-  prevTrackID = deletedFromQueue.track_id
-  if (VERBOSE) {
-    console.log("  [shiftQueue_NextSong]@@ Removed track: ", deletedFromQueue.track_name, " (", prevTrackID, ")")
-  }
-
-  // shift the list that contains TAP info
-  var tapped = isBPMTapped.shift();
-
-  // if the played song is a tapped song, unlock the client
-  if (tapped) {
+    var deletedFromQueue = queue.shift();
+    prevTrackID = deletedFromQueue.track_id
     if (VERBOSE) {
-      console.log("  [shiftQueue_NextSong]@@ This track is tapped by Client ", indx+1, ". Unlocking the Client!")
+      console.log("  [shiftQueue_NextSong]@@ Removed track: ", deletedFromQueue.track_name, " (", prevTrackID, ")")
     }
-    var indx = clientTrackAdded.indexOf(deletedFromQueue["track_id"]);
-    clientTrackAdded[indx] = "";
-    // this client is now available for tap
-    userControl(indx + 1);
-  }
 
-  if (VERBOSE) {
-    console.log("  [shiftQueue_NextSong]@@ Shifting the ring..")
-  }
-  // shift the ring light list
-  ringLight.shift();
+    // shift the list that contains TAP info
+    var tapped = isBPMTapped.shift();
 
+    // if the played song is a tapped song, unlock the client
+    if (tapped) {
+      if (VERBOSE) {
+        console.log("  [shiftQueue_NextSong]@@ This track is tapped by Client ", indx+1, ". Unlocking the Client!")
+      }
+      var indx = clientTrackAdded.indexOf(deletedFromQueue["track_id"]);
+      clientTrackAdded[indx] = "";
+      // this client is now available for tap
+      userControl(indx + 1);
+    }
 
-  currTrackID = queue[0].track_id;
-  currBPM = queue[0].tempo
-  if (VERBOSE) {
-    console.log("  [shiftQueue_NextSong]@@ Now, ''", queue[0].track_name, "' (", currTrackID ,") is at the front of the queue at bpm ", currBPM)
-  }
-
-  if (currCluster != queue[0].cluster_number) {
     if (VERBOSE) {
-      console.log("  [shiftQueue_NextSong]@@@@ Cluster changed from ", currCluster, " -> ", queue[0].cluster_number)
-      console.log("  [shiftQueue_NextSong]@@@@ Resetting the playedTracks bucket. (So far, ", currClusterCounter, " tracks played cluster ", currCluster ,")")
+      console.log("  [shiftQueue_NextSong]@@ Shifting the ring..")
     }
-    currCluster = queue[0].cluster_number;
-    playedTrackIds.clear();
-    currClusterCounter = 0;
-  }
+    // shift the ring light list
+    ringLight.shift();
 
-  currClusterCounter++;
-  playedTrackIds.add(currTrackID);
+
+    currTrackID = queue[0].track_id;
+    currBPM = queue[0].tempo
+    if (VERBOSE) {
+      console.log("  [shiftQueue_NextSong]@@ Now, ''", queue[0].track_name, "' (", currTrackID ,") is at the front of the queue at bpm ", currBPM)
+    }
+
+    if (currCluster != queue[0].cluster_number) {
+      if (VERBOSE) {
+        console.log("  [shiftQueue_NextSong]@@@@ Cluster changed from ", currCluster, " -> ", queue[0].cluster_number)
+        console.log("  [shiftQueue_NextSong]@@@@ Resetting the playedTracks bucket. (So far, ", currClusterCounter, " tracks played cluster ", currCluster ,")")
+      }
+      currCluster = queue[0].cluster_number;
+      playedTrackIds.clear();
+      currClusterCounter = 0;
+    }
+
+    currClusterCounter++;
+    playedTrackIds.add(currTrackID);
+  }
+  // when the queue size is 0, nothing to shift
+  else {
+    if (VERBOSE) {
+      console.log("  [shiftQueue_NextSong]@@ The queue seems to be empty..")
+    }
+  }
 
   if (VERBOSE) {
     console.log("  [shiftQueue_NextSong]@@ Filling the rest of the queue.")
