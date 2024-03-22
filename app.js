@@ -1028,6 +1028,7 @@ function shiftQueue_NextSong(bpm, cluster) {
 function printFilteredTrack(track) {
     const filteredTrack = {
         track_name: track.track_name,
+        user_id: track.user_id,
         track_id: track.track_id,
         tempo: track.tempo,
         cluster_number: track.cluster_number,
