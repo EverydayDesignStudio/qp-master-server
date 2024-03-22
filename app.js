@@ -224,8 +224,15 @@ app.post('/setClientActive',(req, res)=>{
     console.log("Client ", req.body.clientID, " has started the session.")
     tmpBPM = getRandomIntInclusive(BPM_MIN, BPM_MAX);
     tmpCluster = getRandomIntInclusive(0, 3);
+
     console.log("Randomly choosing BPM and cluster. BPM: ", tmpBPM, ", Cluster: ", tmpCluster)
     fillQueue(tmpBPM, tmpCluster, req.body.clientID)
+
+    currTrackID = queue[0].track_id;
+    currBPM = queue[0].tempo;
+    currCluster = queue[0].cluster_number;
+    currClusterCounter = 0;
+
   } else {
     // when a client is reconnected, remove the cleanupTimer
     if (VERBOSE) {
@@ -349,7 +356,7 @@ app.get('/trackFinished',(req,res)=>{
   if (VERBOSE) {
     console.log(req.body)
   }
-  
+
   console.log("  ## currTrackID: ", currTrackID)
   console.log("  ## receivedTrackID: ", req.body.trackID)
   console.log("  ## Current Queue size: ", queue.length)
