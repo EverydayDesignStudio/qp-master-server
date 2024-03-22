@@ -349,6 +349,11 @@ app.get('/trackFinished',(req,res)=>{
   if (VERBOSE) {
     console.log(req.body)
   }
+  
+  console.log("  ## currTrackID: ", currTrackID)
+  console.log("  ## receivedTrackID: ", req.body.trackID)
+  console.log("  ## Current Queue size: ", queue.length)
+  console.log("  ## TrackIDs in the queue: [", queue[0].track_id, ", ", queue[1].track_id, ", ", queue[2].track_id, ", ", queue[3].track_id, "]")
 
   // When the current song is finished (received by the first client)
   if (currTrackID == req.body.trackID) {
