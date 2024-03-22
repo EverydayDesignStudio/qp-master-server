@@ -298,6 +298,7 @@ app.post('/getTrackToQueue',(req, res)=>{
       prevTrackID = currTrackID
     }
 
+    // Skip the current one and work on the one after
     currQueueOffset++;
     if (VERBOSE) {
       console.log("  [getTrackToQueue]@@ Queue offset is now: ", currQueueOffset, ". Slicing and dropping the rest..")
@@ -1023,6 +1024,20 @@ function shiftQueue_NextSong(bpm, cluster) {
   fillQueue(queue[currQueueOffset].tempo, queue[currQueueOffset].cluster_number)
 }
 
+
+function printFilteredTrack(track) {
+    const filteredTrack = {
+        track_name: track.track_name,
+        track_id: track.track_id,
+        tempo: track.tempo,
+        cluster_number: track.cluster_number,
+        cluster_type: track.cluster_type
+    };
+
+    console.log(JSON.stringify(filteredTrack, null, 2));
+}
+
+
 function broadcastQueue() {
 
   // at this point, the queue should be full (length = 4)
@@ -1038,6 +1053,8 @@ function broadcastQueue() {
       },
 
       "canUserAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
+
+      "queuedTrackIDs":[queue[0].track_id, queue[1].track_id, queue[2].track_id, queue[3].track_id],
 
       "lightInfo":{
         "queueLight1":{
@@ -1071,10 +1088,10 @@ function broadcastQueue() {
   console.log("#### Broadcasting the queue to the clients");
   console.log("  ## Current Client States is (true=Active, false=Inactive): ", JSON.stringify(clientState));
   console.log("  ## Printing the first four songs in the queue.");
-  console.log(queue[0]);
-  console.log(queue[1]);
-  console.log(queue[2]);
-  console.log(queue[3]);
+  printFilteredTrack(queue[0]);
+  printFilteredTrack(queue[1]);
+  printFilteredTrack(queue[2]);
+  printFilteredTrack(queue[3]);
   console.log("  ## Printing the QP info.");
   console.log(currQPInfo);
   console.log("  ## Printing user-added tracks.");
