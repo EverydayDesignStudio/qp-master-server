@@ -538,6 +538,8 @@ function clearVariables() {
   currTrackID='';
   prevTrackID='';
   broadcastTimestamp = -1;
+  startTrackTimestamp = -1;
+  
 }
 
 function checkClientsForCleanup() {
