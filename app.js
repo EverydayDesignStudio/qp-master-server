@@ -243,6 +243,7 @@ app.post('/setClientActive',(req, res)=>{
     checkClientsForCleanup()
   }
 
+  isUpdateStartTrackTimestamp = true
   broadcastQueue()
 
 })
@@ -539,7 +540,7 @@ function clearVariables() {
   prevTrackID='';
   broadcastTimestamp = -1;
   startTrackTimestamp = -1;
-  
+  isUpdateStartTrackTimestamp = false
 }
 
 function checkClientsForCleanup() {
