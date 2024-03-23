@@ -227,6 +227,10 @@ app.post('/setClientActive',(req, res)=>{
     tmpBPM = getRandomIntInclusive(BPM_MIN, BPM_MAX);
     tmpCluster = getRandomIntInclusive(0, 3);
 
+    if (queue.length == 0) {
+      isUpdateStartTrackTimestamp = true
+    }
+    
     console.log("Randomly choosing BPM and cluster. BPM: ", tmpBPM, ", Cluster: ", tmpCluster)
     fillQueue(tmpBPM, tmpCluster, req.body.clientID)
 
@@ -234,7 +238,6 @@ app.post('/setClientActive',(req, res)=>{
     currBPM = queue[0].tempo;
     currCluster = queue[0].cluster_number;
     currClusterCounter = 0;
-    isUpdateStartTrackTimestamp = true
 
   } else {
     // when a client is reconnected, remove the cleanupTimer
