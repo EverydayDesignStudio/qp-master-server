@@ -518,7 +518,13 @@ function clearVariables() {
   console.log("Ending the session. Cleaning up the variables.")
 
   queue = [];
+
   clientTrackAdded=["","","",""];
+  client1Added = false
+  client2Added = false
+  client3Added = false
+  client4Added = false
+
   isBPMTapped = [false,false,false,false];
   ringLight =["","","",""];
 
