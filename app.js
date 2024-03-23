@@ -62,7 +62,9 @@ const BPM_MAX = 239
 
 var currTrackID='';         // the song/track ID of the currently playing song
 var prevTrackID='';         // the song/track ID of the previously played song
-var broadcastTimestamp = -1;// the timestamp info when the currently played song is first broadcasted
+var broadcastTimestamp = -1;// the timestamp of the most recent broadcast message
+var startTrackTimestamp = -1// the timestamp info when the currently played song is first broadcasted
+var isUpdateStartTrackTimestamp = false
 
 var client1Active=false;    // client state checking variables
 var client2Active=false;
@@ -384,6 +386,7 @@ app.post('/trackFinished',(req,res)=>{
     console.log('  ... cannot remember this track. This client may be in a significant delay..');
   }
 
+  isUpdateStartTrackTimestamp = true
   broadcastQueue()
 
   res.end();
@@ -1072,11 +1075,17 @@ function broadcastQueue() {
   // at this point, the queue should be full (length = 4)
   broadcastTimestamp = Math.floor(Date.now() / 1000);
 
+  if (isUpdateStartTrackTimestamp) {
+    startTrackTimestamp = broadcastTimestamp
+    isUpdateStartTrackTimestamp = false
+  }
+
   currQPInfo=JSON.stringify(
     {
       "currentTrack":{
         "trackID": queue[0].track_id,
         "broadcastTimestamp": broadcastTimestamp,
+        "startTrackTimestamp": startTrackTimestamp,
         "bpm": currBPM,
         "cluster_number": queue[0].cluster_number
       },
