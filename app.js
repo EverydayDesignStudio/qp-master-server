@@ -234,6 +234,7 @@ app.post('/setClientActive',(req, res)=>{
     currBPM = queue[0].tempo;
     currCluster = queue[0].cluster_number;
     currClusterCounter = 0;
+    isUpdateStartTrackTimestamp = true
 
   } else {
     // when a client is reconnected, remove the cleanupTimer
@@ -243,7 +244,6 @@ app.post('/setClientActive',(req, res)=>{
     checkClientsForCleanup()
   }
 
-  isUpdateStartTrackTimestamp = true
   broadcastQueue()
 
 })
