@@ -88,6 +88,7 @@ var currQPInfo = ''     // current QueuePlayer information that is broadcasted t
 var cleanupTimer = null
 
 var VERBOSE = true
+var SONG_SELECTION_LOGS = false
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #3. Create Connections //
@@ -634,12 +635,12 @@ function loadDatabases() {
 
 
 function pickNextTrack(bpm, cluster, clientID = -1) {
-  if (VERBOSE && false) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextTrack]@@ Picking the next track.")
   }
 
   if (!occurrencesDB.hasOwnProperty(bpm)) {
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextTrack]@@ BPM ", bpm ," does not exist. Exiting..")
     }
     return "";
@@ -648,14 +649,14 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
   // check how many songs are in the given bpm-cluster
   let trackCount = occurrencesDB[bpm][cluster].count;
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextTrack]@@ Total track count: ", trackCount, " [@", bpm, "-", cluster, "]")
   }
 
   // if no song is available, return an empty string,
   //   indicating that there is no available song
   if (trackCount == 0) {
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextTrack]@@ No available tracks in this bpm-cluster.")
     }
     return "";
@@ -674,19 +675,19 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
     let randomTrackIndex = randomTrackIndices[i];
     let randomTrackID = occurrencesDB[bpm][cluster].track_ids[randomTrackIndex];
 
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextTrack]@@ Checking a random track ID: ", randomTrackID)
     }
     // if the chosen track is already played, skip
     if (playedTrackIds.has(randomTrackID)) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextTrack]@@@@ 1. This track is already played. Skip")
       }
       continue;
 
     // if the chosen track is already in the queue, skip
     } else if (queue.some(track => track.track_id === randomTrackID)) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextTrack]@@@@ 2. This track is already in the queue. Skip")
       }
       continue;
@@ -694,20 +695,20 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
     // (only when the client ID is provided as a param)
     // if the chosen track is not owned by the client, skip
     } else if (clientID > 0 && !listeningHistoryDB[randomTrackID].includes(clientID)) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextTrack]@@@@ 3. This track is not owned by Client ", clientID, ". Skip")
       }
       continue;
 
     } else {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextTrack]@@@@ Looks good! This track is ready to be played.")
       }
       return randomTrackID
     }
   } // for loop
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextTrack]@@ No available songs found for cluster ", cluster, ", bpm ", bpm)
   }
 
@@ -722,12 +723,12 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 //  - All songs in the cluster are already played
 function pickNextCluster(bpm, clusterNow = -1) {
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextCluster]@@ Picking the next cluster at bpm ", bpm)
   }
 
   if (!occurrencesDB.hasOwnProperty(bpm)) {
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextCluster]@@ BPM ", bpm ," does not exist. Exiting..")
     }
     return -1;
@@ -737,7 +738,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
   if (bpm == currBPM) {
     let depletedClusterCount = hasClusterExhausted.filter(value => value === true).length;
     if (depletedClusterCount == 4) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextCluster]@@@@ All clusters are exhausted for bpm ", bpm, ". No available cluster.")
       }
       return -1;
@@ -780,13 +781,13 @@ function pickNextCluster(bpm, clusterNow = -1) {
     let playedSongsCount = 0
     let songsInTheQueueCount = 0
 
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextCluster]@@ Checking a random cluster ", randomCluster, ", size: ", randomClusterSize)
     }
 
     // this is when the cluster is empty (no songs)
     if (randomClusterSize == 0) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextCluster]@@@@ 1. This cluster is empty. Skip")
       }
       continue;
@@ -794,13 +795,13 @@ function pickNextCluster(bpm, clusterNow = -1) {
 
     // if the given bpm is the current bpm, check for depleted clusters
     if (bpm == currBPM && hasClusterExhausted[randomCluster]) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextCluster]@@@@ 2. All songs in this cluster (@ bpm", bpm, ") are already played. Skip")
       }
       continue;
     }
 
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextCluster]@@@@@@ Counting how many songs are played/queued..")
     }
     // count how many tracks in this cluster are played
@@ -810,7 +811,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
           playedSongsCount++;
       }
     }
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextCluster]@@@@@@ ", playedSongsCount, " songs are played in this cluster.")
     }
 
@@ -819,14 +820,14 @@ function pickNextCluster(bpm, clusterNow = -1) {
     queue.forEach((track) => {
       songsInTheQueueCount += occurrencesDB[bpm][randomCluster]["track_ids"].filter(trackID => trackID === track.track_id).length;
     });
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextCluster]@@@@@@ ", songsInTheQueueCount, " songs are in the queue.")
     }
 
     // if the number of songs in the cluster are more than the played and queued songs, choose this cluster
     // otherwise, continue searching
     if (randomClusterSize > playedSongsCount + songsInTheQueueCount) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextCluster]@@ Found one! There are songs can be played in this cluster ", randomCluster)
       }
       return randomCluster;
@@ -834,7 +835,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
 
   } // for loop
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextCluster]@@ No available cluster found for bpm ", bpm)
   }
 
@@ -844,7 +845,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
 function chooseNextSong(bpm, cluster, clientID = -1) {
   let trackID = ""
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     if (clientID > 0) {
       console.log("  [chooseNextSong]@@ Gotta choose a song for bpm-cluster: ", bpm, "-", cluster, " for Client ", clientID)
     } else {
@@ -854,30 +855,30 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 
   while (trackID == "") {
     let searchCluster = cluster
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [chooseNextSong]@@@@ Searching for cluster ", cluster, " at bpm ", bpm)
     }
     trackID = pickNextTrack(bpm, searchCluster, clientID);
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [chooseNextSong]@@@@ Retrieved trackID: ", trackID)
     }
 
     if (trackID == "") {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [chooseNextSong]@@@@ Oops, no available tracks. Trying again..")
       }
       searchCluster = pickNextCluster(bpm, searchCluster);
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [chooseNextSong]@@@@ Next cluster to try: ", searchCluster)
       }
       if (searchCluster < 0) {
-        if (VERBOSE) {
+        if (VERBOSE && SONG_SELECTION_LOGS) {
           console.log("  [chooseNextSong]@@@@ Oh.. no cluster is found for bpm ", bpm, ". Trying one bpm lower..")
         }
         bpm--;
       } else {
         trackID = pickNextTrack(bpm, searchCluster, clientID);
-        if (VERBOSE) {
+        if (VERBOSE && SONG_SELECTION_LOGS) {
           if (trackID == "") {
             console.log("  [chooseNextSong]@@@@@@ NOOOO.. moving on..")
           } else {
