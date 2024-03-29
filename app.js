@@ -396,6 +396,15 @@ app.post('/trackFinished',(req,res)=>{
   res.end();
 })
 
+
+// A simple POST function to broadcast the current QP info without modifying anything.
+// Need for reconnected clients to get an updated QP info.
+app.post('/requestQPInfo',(req,res)=>{
+  console.log("## requestQPInfo Request Received from client ", req.body.clientID)
+  broadcastQueue()
+  res.end();
+})
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #5. QP Server Auxiliary Functions //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
