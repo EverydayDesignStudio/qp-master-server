@@ -566,7 +566,11 @@ function checkClientsForCleanup() {
   // Check if all clients are disconnected
   const allDisconnected = clientState.every(active => !active);
 
-  if (allDisconnected) {
+  if (queue.length == 0) {
+    console.log("Queue is empty. Nothing to clean up.")
+  }
+  
+  if (allDisconnected && queue.length > 0) {
     // Start a timer if it's not already running
     if (cleanupTimer === null) {
       console.log("All clients disconnected. Starting cleanup timer.");
