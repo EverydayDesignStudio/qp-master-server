@@ -1095,6 +1095,7 @@ function broadcastQueue() {
     {
       "currentTrack":{
         "trackID": queue[0].track_id,
+        "track_name": queue[0].track_name,
         "broadcastTimestamp": broadcastTimestamp,
         "startTrackTimestamp": startTrackTimestamp,
         "bpm": currBPM,
@@ -1104,6 +1105,7 @@ function broadcastQueue() {
       "canUserAddBPM":[!client1Added,!client2Added,!client3Added,!client4Added],
 
       "queuedTrackIDs":[queue[0].track_id, queue[1].track_id, queue[2].track_id, queue[3].track_id],
+      "queuedTrackNames":[queue[0].track_name, queue[1].track_name, queue[2].track_name, queue[3].track_name],
 
       "lightInfo":{
         "queueLight1":{
