@@ -230,7 +230,7 @@ app.post('/setClientActive',(req, res)=>{
     if (queue.length == 0) {
       isUpdateStartTrackTimestamp = true
     }
-    
+
     console.log("Randomly choosing BPM and cluster. BPM: ", tmpBPM, ", Cluster: ", tmpCluster)
     fillQueue(tmpBPM, tmpCluster, req.body.clientID)
 
@@ -624,9 +624,8 @@ function loadDatabases() {
 }
 
 
-// TODO: test this logic
 function pickNextTrack(bpm, cluster, clientID = -1) {
-  if (VERBOSE) {
+  if (VERBOSE && false) {
     console.log("  [pickNextTrack]@@ Picking the next track.")
   }
 
@@ -707,7 +706,6 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 }
 
 
-// TODO: test this logic
 // Finds the next available cluster in the given BPM.
 // Returns -1 if there is no available cluster.
 // Unavailable clusters are:
@@ -834,7 +832,6 @@ function pickNextCluster(bpm, clusterNow = -1) {
   return -1
 }
 
-// TODO: should the search for the same listening session stay in the same cluster??
 function chooseNextSong(bpm, cluster, clientID = -1) {
   let trackID = ""
 
@@ -846,7 +843,6 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
     }
   }
 
-  // TODO: test this logic
   while (trackID == "") {
     let searchCluster = cluster
     if (VERBOSE) {
@@ -900,7 +896,6 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 //   !! NOT responsible for cursor/offset management
 function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
-  // TODO: test this logic
   // fill the queue until it reaches the max length of 4
 
   if (VERBOSE) {
