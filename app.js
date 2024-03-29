@@ -304,6 +304,7 @@ app.post('/getTrackToQueue',(req, res)=>{
 
   let bpm_check = req.body.bpm
   if (bpm_check > BPM_MAX) {
+    console.log("## Extreme BPM detected. Setting it to BPM_MAX: 239")
     bpm_check = BPM_MAX
   }
   
