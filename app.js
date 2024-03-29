@@ -302,6 +302,11 @@ app.post('/setClientInactive',(req, res)=>{
 app.post('/getTrackToQueue',(req, res)=>{
   console.log("## Client " , req.body.clientID, " TAPPED a bpm of: ", req.body.bpm, " at cluster ", req.body.cln)
 
+  let bpm_check = req.body.bpm
+  if (bpm_check > BPM_MAX) {
+    bpm_check = BPM_MAX
+  }
+  
   // first, check if the client can add new BPM
   if(userCheck(req.body.clientID)) {
     // only if the currQueueOffset is 0 --> regenerate the queue
@@ -326,7 +331,7 @@ app.post('/getTrackToQueue',(req, res)=>{
       console.log("  [getTrackToQueue]@@ Gotta fill the rest.")
     }
     // fill the rest (could be the entire queue) with the tapped BPM,
-    fillQueue(req.body.bpm, req.body.cln, req.body.clientID, true)
+    fillQueue(bpm_check, req.body.cln, req.body.clientID, true)
 
     currTrackID = queue[0].track_id;
     currBPM = queue[0].tempo
