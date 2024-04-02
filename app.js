@@ -659,7 +659,7 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
   // check how many songs are in the given bpm-cluster
   let trackCount = occurrencesDB[bpm][cluster].count;
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextTrack]@@ Checking the total track count: ", trackCount, " [@", bpm, "-", cluster, "]")
   }
 
@@ -718,7 +718,7 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
     }
   } // for loop
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextTrack]@@ No available songs found for cluster ", cluster, ", bpm ", bpm)
   }
 
@@ -733,7 +733,7 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 //  - All songs in the cluster are already played
 function pickNextCluster(bpm, clusterNow = -1) {
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextCluster]@@ Picking the next cluster at bpm ", bpm)
   }
 
@@ -821,7 +821,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
           playedSongsCount++;
       }
     }
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextCluster]@@@@@@ ", playedSongsCount, " songs are played in this cluster.")
     }
 
@@ -837,7 +837,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
     // if the number of songs in the cluster are more than the played and queued songs, choose this cluster
     // otherwise, continue searching
     if (randomClusterSize > playedSongsCount + songsInTheQueueCount) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextCluster]@@ Found one! There are songs can be played in this cluster ", randomCluster)
       }
       return randomCluster;
@@ -855,7 +855,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
 function chooseNextSong(bpm, cluster, clientID = -1) {
   let trackID = ""
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     if (clientID > 0) {
       console.log("  [chooseNextSong]@@ Gotta choose a song for bpm-cluster: ", bpm, "-", cluster, " for Client ", clientID)
     } else {
@@ -865,16 +865,16 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 
   while (trackID == "") {
     let searchCluster = cluster
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [chooseNextSong]@@@@ Searching for cluster ", cluster, " at bpm ", bpm)
     }
     trackID = pickNextTrack(bpm, searchCluster, clientID);
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [chooseNextSong]@@@@ Retrieved trackID: ", trackID)
     }
 
     if (trackID == "") {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [chooseNextSong]@@@@ Oops, no available tracks. Trying again..")
       }
       searchCluster = pickNextCluster(bpm, searchCluster);
@@ -882,13 +882,13 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
         console.log("  [chooseNextSong]@@@@ Next cluster to try: ", searchCluster)
       }
       if (searchCluster < 0) {
-        if (VERBOSE) {
+        if (VERBOSE && SONG_SELECTION_LOGS) {
           console.log("  [chooseNextSong]@@@@ Oh.. no cluster is found for bpm ", bpm, ". Trying one bpm lower..")
         }
         bpm--;
       } else {
         trackID = pickNextTrack(bpm, searchCluster, clientID);
-        if (VERBOSE) {
+        if (VERBOSE && SONG_SELECTION_LOGS) {
           if (trackID == "") {
             console.log("  [chooseNextSong]@@@@@@ NOOOO.. moving on..")
           } else {
@@ -901,7 +901,7 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 
     // if the search hits the very bottom, go back to the highest bpm
     if (bpm < BPM_MIN) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [chooseNextSong]@@ Minimum bpm reached. Circulating back to max bpm of ", BPM_MAX)
       }
       bpm = BPM_MAX;
@@ -918,19 +918,19 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
   // fill the queue until it reaches the max length of 4
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [fillQueue]@@ Filling the queue!")
   }
 
   while (queue.length < 4) {
 
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [fillQueue]@@@@ Queue length now: ", queue.length)
     }
 
     // case 1) if queue is empty, populate the queue
     if (queue.length == 0 && numActiveClients() == 1) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@ Case 1: Populating the queue!")
       }
       currBPM = bpm
@@ -940,14 +940,14 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
       queue.push(trackItem)
 
     // case 2) if tapped, lock the client until the added track is finished and fill the ring light
     } else if (tapped) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@ Case 2: Tapped!")
       }
       isBPMTapped[currQueueOffset] = true;
@@ -958,7 +958,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       let trackItem = findMatchingTrack(trackIDToBeAdded)
       queue.push(trackItem)
 
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
 
@@ -969,13 +969,13 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       // reverse the flag so that next song and onward can not be caught in this case
       tapped = false;
 
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@@@ Locking client ", clientID, ", and 'Tapped' unflagged")
       }
 
     // case 3) populate the queue with the regular song selection algo
     } else {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@ Case 3: Normal song selection")
       }
       isBPMTapped = isBPMTapped.concat([false]);
@@ -985,7 +985,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       let trackIDToBeAdded = chooseNextSong(bpm, cluster)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
 
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
 
