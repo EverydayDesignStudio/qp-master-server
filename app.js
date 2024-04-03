@@ -307,7 +307,7 @@ app.post('/getTrackToQueue',(req, res)=>{
     console.log("## Extreme BPM detected. Setting it to BPM_MAX: 239")
     bpm_check = BPM_MAX
   }
-  
+
   // first, check if the client can add new BPM
   if(userCheck(req.body.clientID)) {
     // only if the currQueueOffset is 0 --> regenerate the queue
@@ -375,7 +375,7 @@ app.post('/trackFinished',(req,res)=>{
   console.log("  ## Current Queue size: ", queue.length)
   console.log("  ## Tracks in the queue: [", queue[0].track_name, ", ", queue[1].track_name, ", ", queue[2].track_name, ", ", queue[3].track_name, "]")
   console.log("  ## TrackIDs in the queue: [", queue[0].track_id, ", ", queue[1].track_id, ", ", queue[2].track_id, ", ", queue[3].track_id, "]")
-  
+
 
   // When the current song is finished (received by the first client)
   if (currTrackID == req.body.trackID) {
@@ -571,7 +571,7 @@ function checkClientsForCleanup() {
   if (queue.length == 0) {
     console.log("Queue is empty. Nothing to clean up.")
   }
-  
+
   if (allDisconnected && queue.length > 0) {
     // Start a timer if it's not already running
     if (cleanupTimer === null) {
@@ -949,7 +949,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
     // case 2) if tapped, lock the client until the added track is finished and fill the ring light
     } else if (tapped) {
-      if (VERBOSE && SONG_SELECTION_LOGS) {
+      if (VERBOSE) {
         console.log("  [fillQueue]@@@@ Case 2: Tapped!")
       }
       isBPMTapped[currQueueOffset] = true;
@@ -957,10 +957,12 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
       // TODO: may need to add an error handling logic
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
+      console.log("  [fillQueue] Case 2: found the trackID: ", trackIDToBeAdded)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
+      console.log("  [fillQueue] Case 2: found the matching Track: ", trackItem.track_name)
       queue.push(trackItem)
 
-      if (VERBOSE && SONG_SELECTION_LOGS) {
+      if (VERBOSE) {
         console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
 
