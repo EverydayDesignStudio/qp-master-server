@@ -857,7 +857,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
 function chooseNextSong(bpm, cluster, clientID = -1) {
   let trackID = ""
 
-  if (VERBOSE && SONG_SELECTION_LOGS) {
+  if (VERBOSE) {
     if (clientID > 0) {
       console.log("  [chooseNextSong]@@ Gotta choose a song for bpm-cluster: ", bpm, "-", cluster, " for Client ", clientID)
     } else {
@@ -867,11 +867,11 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 
   while (trackID == "") {
     let searchCluster = cluster
-    if (VERBOSE && SONG_SELECTION_LOGS) {
+    if (VERBOSE) {
       console.log("  [chooseNextSong]@@@@ Searching for cluster ", cluster, " at bpm ", bpm)
     }
     trackID = pickNextTrack(bpm, searchCluster, clientID);
-    if (VERBOSE && SONG_SELECTION_LOGS) {
+    if (VERBOSE) {
       console.log("  [chooseNextSong]@@@@ Retrieved trackID: ", trackID)
     }
 
@@ -884,13 +884,13 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
         console.log("  [chooseNextSong]@@@@ Next cluster to try: ", searchCluster)
       }
       if (searchCluster < 0) {
-        if (VERBOSE && SONG_SELECTION_LOGS) {
+        if (VERBOSE) {
           console.log("  [chooseNextSong]@@@@ Oh.. no cluster is found for bpm ", bpm, ". Trying one bpm lower..")
         }
         bpm--;
       } else {
         trackID = pickNextTrack(bpm, searchCluster, clientID);
-        if (VERBOSE && SONG_SELECTION_LOGS) {
+        if (VERBOSE) {
           if (trackID == "") {
             console.log("  [chooseNextSong]@@@@@@ NOOOO.. moving on..")
           } else {
@@ -955,6 +955,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       isBPMTapped[currQueueOffset] = true;
       ringLight.fill(colorFromUser(clientID), currQueueOffset, ringLight.length);
 
+      console.log("  [fillQueue] Case 2: Calling chooseNextSong")
       // TODO: may need to add an error handling logic
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
       console.log("  [fillQueue] Case 2: found the trackID: ", trackIDToBeAdded)
