@@ -373,7 +373,9 @@ app.post('/trackFinished',(req,res)=>{
   console.log("  ## currTrackID: ", currTrackID)
   console.log("  ## receivedTrackID: ", req.body.trackID)
   console.log("  ## Current Queue size: ", queue.length)
+  console.log("  ## Tracks in the queue: [", queue[0].track_name, ", ", queue[1].track_name, ", ", queue[2].track_name, ", ", queue[3].track_name, "]")
   console.log("  ## TrackIDs in the queue: [", queue[0].track_id, ", ", queue[1].track_id, ", ", queue[2].track_id, ", ", queue[3].track_id, "]")
+  
 
   // When the current song is finished (received by the first client)
   if (currTrackID == req.body.trackID) {
@@ -985,7 +987,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       let trackIDToBeAdded = chooseNextSong(bpm, cluster)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
 
-      if (VERBOSE && SONG_SELECTION_LOGS) {
+      if (VERBOSE) {
         console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
 
@@ -1005,12 +1007,12 @@ function shiftQueue_NextSong(bpm, cluster) {
   if (queue.length > 1) {
     // move the offset cursor
     currQueueOffset--;
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [shiftQueue_NextSong]@@ move to the next song in the queue.. currQueueOffset: ", currQueueOffset)
     }
     if (currQueueOffset < 0)
     {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [shiftQueue_NextSong]@@ Oops.. Adjusting the offset back to 0..")
       }
       currQueueOffset = 0;
@@ -1036,7 +1038,7 @@ function shiftQueue_NextSong(bpm, cluster) {
       userControl(indx + 1);
     }
 
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [shiftQueue_NextSong]@@ Shifting the ring..")
     }
     // shift the ring light list
