@@ -36,6 +36,7 @@ var qpTrackDB = {}
 var occurrencesDB = {}
 
 var queue = [];             // the queue for the queue player system, max size 4
+const QUEUE_SIZE_MAX = 4
 var currQueueOffset=0;      // the index up to which the queue player has been updated by the user and from where the new song will be added to the queue
 
 var clientTrackAdded=["","","",""];  // array to keep a track of the song updated by a specific client exiting the queue to make it free to add new songs
@@ -320,36 +321,46 @@ app.post('/getTrackToQueue',(req, res)=>{
 
     // Skip the current one and work on the one after
     currQueueOffset++;
-    if (VERBOSE) {
-      console.log("  [getTrackToQueue]@@ Queue offset is now: ", currQueueOffset, ". Slicing and dropping the rest..")
+
+    // if there is room for a new song, add to the queue
+    if (currQueueOffset < QUEUE_SIZE_MAX) {
+
+      if (VERBOSE) {
+        console.log("  [getTrackToQueue]@@ Queue offset is now: ", currQueueOffset, ". Slicing and dropping the rest..")
+      }
+
+      // when tapped, remove the rest of queue from the current cursor(offset),
+      queue.splice(currQueueOffset);
+
+
+      if (VERBOSE) {
+        console.log("  [getTrackToQueue]@@ Gotta fill the rest.")
+      }
+      // fill the rest (could be the entire queue) with the tapped BPM,
+      fillQueue(bpm_check, req.body.cln, req.body.clientID, true)
+
+      currTrackID = queue[0].track_id;
+      currBPM = queue[0].tempo
+      currCluster = queue[0].cluster_number;
+      currClusterCounter = 0;
+      playedTrackIds.clear();
+      playedTrackIds.add(currTrackID);
+
+      if (VERBOSE) {
+        console.log("  [getTrackToQueue]@@ Next up: ", queue[0].track_name, " ('", currTrackID ,"') @ ", currBPM, " bpm in cluster ", currCluster)
+      }
+
+      // then broadcast the queue
+      if (VERBOSE) {
+        console.log("  [getTrackToQueue]@@ Queue modified and now broadcasting..")
+      }
+      broadcastQueue()
+
+    // if there is no room, skip
+    } else {
+      currQueueOffset--;
+      console.log("  [getTrackToQueue]@@ Queue is currently full. Skipping the tap request..")
     }
-
-    // when tapped, remove the rest of queue from the current cursor(offset),
-    queue.splice(currQueueOffset);
-
-
-    if (VERBOSE) {
-      console.log("  [getTrackToQueue]@@ Gotta fill the rest.")
-    }
-    // fill the rest (could be the entire queue) with the tapped BPM,
-    fillQueue(bpm_check, req.body.cln, req.body.clientID, true)
-
-    currTrackID = queue[0].track_id;
-    currBPM = queue[0].tempo
-    currCluster = queue[0].cluster_number;
-    currClusterCounter = 0;
-    playedTrackIds.clear();
-    playedTrackIds.add(currTrackID);
-
-    if (VERBOSE) {
-      console.log("  [getTrackToQueue]@@ Next up: ", queue[0].track_name, " ('", currTrackID ,"') @ ", currBPM, " bpm in cluster ", currCluster)
-    }
-
-    // then broadcast the queue
-    if (VERBOSE) {
-      console.log("  [getTrackToQueue]@@ Queue modified and now broadcasting..")
-    }
-    broadcastQueue()
 
     res.send({"queue": queue});
 
@@ -871,7 +882,7 @@ function pickNextCluster(bpm, clusterNow = -1, clientID = -1) {
 function chooseNextSong(bpm, cluster, clientID = -1) {
   let trackID = ""
 
-  if (VERBOSE) {
+  if (VERBOSE && SONG_SELECTION_LOGS) {
     if (clientID > 0) {
       console.log("  [chooseNextSong]@@ Gotta choose a song for bpm-cluster: ", bpm, "-", cluster, " for Client ", clientID)
     } else {
@@ -881,11 +892,11 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
 
   while (trackID == "") {
     let searchCluster = cluster
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [chooseNextSong]@@@@ Searching for cluster ", cluster, " at bpm ", bpm)
     }
     trackID = pickNextTrack(bpm, searchCluster, clientID);
-    if (VERBOSE) {
+    if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [chooseNextSong]@@@@ Retrieved trackID: ", trackID)
     }
 
@@ -898,13 +909,13 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
         console.log("  [chooseNextSong]@@@@ Next cluster to try: ", searchCluster)
       }
       if (searchCluster < 0) {
-        if (VERBOSE) {
+        if (VERBOSE && SONG_SELECTION_LOGS) {
           console.log("  [chooseNextSong]@@@@ Oh.. no cluster is found for bpm ", bpm, ". Trying one bpm lower..")
         }
         bpm--;
       } else {
         trackID = pickNextTrack(bpm, searchCluster, clientID);
-        if (VERBOSE) {
+        if (VERBOSE && SONG_SELECTION_LOGS) {
           if (trackID == "") {
             console.log("  [chooseNextSong]@@@@@@ NOOOO.. moving on..")
           } else {
@@ -959,14 +970,14 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
       keepBPM = trackItem.tempo
-      if (VERBOSE && SONG_SELECTION_LOGS) {
+      if (VERBOSE) {
         console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
       queue.push(trackItem)
 
     // case 2) if tapped, lock the client until the added track is finished and fill the ring light
     } else if (tapped) {
-      if (VERBOSE) {
+      if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@ Case 2: Tapped!")
       }
       isBPMTapped[currQueueOffset] = true;
