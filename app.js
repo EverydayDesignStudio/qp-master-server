@@ -733,7 +733,7 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 // Unavailable clusters are:
 //  - A cluster has no songs
 //  - All songs in the cluster are already played
-function pickNextCluster(bpm, clusterNow = -1, , clientID = -1) {
+function pickNextCluster(bpm, clusterNow = -1, clientID = -1) {
 
   if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextCluster]@@ Picking the next cluster at bpm ", bpm)
