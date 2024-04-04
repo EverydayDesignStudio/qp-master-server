@@ -733,7 +733,7 @@ function pickNextTrack(bpm, cluster, clientID = -1) {
 // Unavailable clusters are:
 //  - A cluster has no songs
 //  - All songs in the cluster are already played
-function pickNextCluster(bpm, clusterNow = -1) {
+function pickNextCluster(bpm, clusterNow = -1, , clientID = -1) {
 
   if (VERBOSE && SONG_SELECTION_LOGS) {
     console.log("  [pickNextCluster]@@ Picking the next cluster at bpm ", bpm)
@@ -792,6 +792,7 @@ function pickNextCluster(bpm, clusterNow = -1) {
     let randomClusterSize = occurrencesDB[bpm][randomCluster].count
     let playedSongsCount = 0
     let songsInTheQueueCount = 0
+    let songsNotOwnedByClient = 0
 
     if (VERBOSE && SONG_SELECTION_LOGS) {
       console.log("  [pickNextCluster]@@ Checking a random cluster ", randomCluster, ", size: ", randomClusterSize)
@@ -817,8 +818,8 @@ function pickNextCluster(bpm, clusterNow = -1) {
       console.log("  [pickNextCluster]@@@@@@ Counting how many songs are played/queued..")
     }
     // count how many tracks in this cluster are played
+    let trackIDs = occurrencesDB[bpm][randomCluster]["track_ids"];
     for (let trackID of playedTrackIds) {
-      let trackIDs = occurrencesDB[bpm][randomCluster]["track_ids"];
       if (trackIDs.includes(trackID)) {
           playedSongsCount++;
       }
@@ -836,9 +837,22 @@ function pickNextCluster(bpm, clusterNow = -1) {
       console.log("  [pickNextCluster]@@@@@@ ", songsInTheQueueCount, " songs are in the queue.")
     }
 
+    // When a clientID is provided, exclude songs that are not owned by the client
+    //  (only when tapped or initializing the queue)
+    if (clientID > 0) {
+      for (let trackID of trackIDs) {
+        if (!listeningHistoryDB[trackID].includes(clientID)) {
+          songsNotOwnedByClient++;
+        }
+      }
+      if (VERBOSE && SONG_SELECTION_LOGS) {
+        console.log("  [pickNextCluster]@@@@@@ ", songsNotOwnedByClient, " songs are not owned by the given client (", clientID , ").")
+      }
+    }
+
     // if the number of songs in the cluster are more than the played and queued songs, choose this cluster
     // otherwise, continue searching
-    if (randomClusterSize > playedSongsCount + songsInTheQueueCount) {
+    if (randomClusterSize > playedSongsCount + songsInTheQueueCount + songsNotOwnedByClient) {
       if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [pickNextCluster]@@ Found one! There are songs can be played in this cluster ", randomCluster)
       }
@@ -879,7 +893,7 @@ function chooseNextSong(bpm, cluster, clientID = -1) {
       if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [chooseNextSong]@@@@ Oops, no available tracks. Trying again..")
       }
-      searchCluster = pickNextCluster(bpm, searchCluster);
+      searchCluster = pickNextCluster(bpm, searchCluster, clientID);
       if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [chooseNextSong]@@@@ Next cluster to try: ", searchCluster)
       }
