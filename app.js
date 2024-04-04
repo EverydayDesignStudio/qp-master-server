@@ -938,6 +938,8 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
     console.log("  [fillQueue]@@ Filling the queue!")
   }
 
+  let keepBPM = bpm
+
   while (queue.length < 4) {
 
     if (VERBOSE && SONG_SELECTION_LOGS) {
@@ -956,6 +958,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
 
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
+      keepBPM = trackItem.tempo
       if (VERBOSE && SONG_SELECTION_LOGS) {
         console.log("  [fillQueue]@@@@@@ Pushing a track to the queue: ", trackItem.track_name, " (", trackIDToBeAdded, ")")
       }
@@ -974,6 +977,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       let trackIDToBeAdded = chooseNextSong(bpm, cluster, clientID)
       console.log("  [fillQueue] Case 2: found the trackID: ", trackIDToBeAdded)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
+      keepBPM = trackItem.tempo
       console.log("  [fillQueue] Case 2: found the matching Track: ", trackItem.track_name)
       queue.push(trackItem)
 
@@ -1001,7 +1005,7 @@ function fillQueue(bpm, cluster, clientID = -1, tapped = false) {
       ringLight = ringLight.concat([ringLight[ringLight.length-1]]);
 
       // TODO: may need to add an error handling logic
-      let trackIDToBeAdded = chooseNextSong(bpm, cluster)
+      let trackIDToBeAdded = chooseNextSong(keepBPM, cluster)
       let trackItem = findMatchingTrack(trackIDToBeAdded)
 
       if (VERBOSE) {
